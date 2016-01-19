@@ -83,10 +83,9 @@ namespace Trithemius
 
         private void MainForm_Load(object sender, EventArgs e)
         {
-            versionLabel.Text = string.Format("Trithemius Version [{0}]\n" +
-                                              "{1}",
-                                              ProductVersion,
-                                              AssemblyCopyright);
+            versionLabel.Text = string.Format("{0} Version [{1}]\n" +
+                                              "{2}",
+                                              ProductName, ProductVersion, AssemblyCopyright);
         }
         
         private void encodeButton_Click(object sender, EventArgs e)

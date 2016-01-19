@@ -75,7 +75,7 @@
             this.passwordBox.Location = new System.Drawing.Point(58, 19);
             this.passwordBox.Name = "passwordBox";
             this.passwordBox.Size = new System.Drawing.Size(143, 20);
-            this.passwordBox.TabIndex = 0;
+            this.passwordBox.TabIndex = 1;
             // 
             // label2
             // 
@@ -83,7 +83,7 @@
             this.label2.Location = new System.Drawing.Point(7, 45);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(62, 13);
-            this.label2.TabIndex = 2;
+            this.label2.TabIndex = 4;
             this.label2.Text = "Pixel Value:";
             // 
             // pixelValueComboBox
@@ -97,7 +97,7 @@
             this.pixelValueComboBox.Location = new System.Drawing.Point(73, 42);
             this.pixelValueComboBox.Name = "pixelValueComboBox";
             this.pixelValueComboBox.Size = new System.Drawing.Size(66, 21);
-            this.pixelValueComboBox.TabIndex = 3;
+            this.pixelValueComboBox.TabIndex = 5;
             // 
             // label1
             // 
@@ -105,7 +105,7 @@
             this.label1.Location = new System.Drawing.Point(6, 22);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(46, 13);
-            this.label1.TabIndex = 1;
+            this.label1.TabIndex = 0;
             this.label1.Text = "Encrypt:";
             // 
             // label3
@@ -119,10 +119,10 @@
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(8, 50);
+            this.label4.Location = new System.Drawing.Point(17, 50);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(35, 13);
-            this.label4.TabIndex = 8;
+            this.label4.TabIndex = 2;
             this.label4.Text = "Seed:";
             // 
             // encodeButton
@@ -130,7 +130,7 @@
             this.encodeButton.Location = new System.Drawing.Point(67, 32);
             this.encodeButton.Name = "encodeButton";
             this.encodeButton.Size = new System.Drawing.Size(75, 23);
-            this.encodeButton.TabIndex = 9;
+            this.encodeButton.TabIndex = 1;
             this.encodeButton.Text = "&Encode";
             this.encodeButton.UseVisualStyleBackColor = true;
             this.encodeButton.Click += new System.EventHandler(this.encodeButton_Click);
@@ -141,7 +141,7 @@
             this.fileRadioButton.Location = new System.Drawing.Point(97, 19);
             this.fileRadioButton.Name = "fileRadioButton";
             this.fileRadioButton.Size = new System.Drawing.Size(81, 17);
-            this.fileRadioButton.TabIndex = 53;
+            this.fileRadioButton.TabIndex = 2;
             this.fileRadioButton.Text = "Encode File";
             this.fileRadioButton.UseVisualStyleBackColor = true;
             this.fileRadioButton.CheckedChanged += new System.EventHandler(this.radioButton2_CheckedChanged);
@@ -153,7 +153,7 @@
             this.textRadioButton.Location = new System.Drawing.Point(6, 19);
             this.textRadioButton.Name = "textRadioButton";
             this.textRadioButton.Size = new System.Drawing.Size(86, 17);
-            this.textRadioButton.TabIndex = 52;
+            this.textRadioButton.TabIndex = 1;
             this.textRadioButton.TabStop = true;
             this.textRadioButton.Text = "Encode Text";
             this.textRadioButton.UseVisualStyleBackColor = true;
@@ -163,7 +163,7 @@
             this.writeTextButton.Location = new System.Drawing.Point(184, 16);
             this.writeTextButton.Name = "writeTextButton";
             this.writeTextButton.Size = new System.Drawing.Size(94, 22);
-            this.writeTextButton.TabIndex = 54;
+            this.writeTextButton.TabIndex = 3;
             this.writeTextButton.Text = "Write Text";
             this.writeTextButton.UseVisualStyleBackColor = true;
             this.writeTextButton.Click += new System.EventHandler(this.writeTextButton_Click);
@@ -173,7 +173,7 @@
             this.browseButton.Location = new System.Drawing.Point(259, 12);
             this.browseButton.Name = "browseButton";
             this.browseButton.Size = new System.Drawing.Size(40, 23);
-            this.browseButton.TabIndex = 56;
+            this.browseButton.TabIndex = 2;
             this.browseButton.Text = "...";
             this.browseButton.UseVisualStyleBackColor = true;
             this.browseButton.Click += new System.EventHandler(this.browseButton_Click);
@@ -185,7 +185,7 @@
             this.pathTextbox.Name = "pathTextbox";
             this.pathTextbox.ReadOnly = true;
             this.pathTextbox.Size = new System.Drawing.Size(193, 20);
-            this.pathTextbox.TabIndex = 55;
+            this.pathTextbox.TabIndex = 1;
             // 
             // label5
             // 
@@ -193,7 +193,7 @@
             this.label5.Location = new System.Drawing.Point(11, 17);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(43, 13);
-            this.label5.TabIndex = 57;
+            this.label5.TabIndex = 0;
             this.label5.Text = "Picture:";
             // 
             // encodeWorker
@@ -230,7 +230,7 @@
             this.groupBox1.Location = new System.Drawing.Point(14, 40);
             this.groupBox1.Name = "groupBox1";
             this.groupBox1.Size = new System.Drawing.Size(285, 62);
-            this.groupBox1.TabIndex = 58;
+            this.groupBox1.TabIndex = 3;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Picture Statistics";
             // 
@@ -239,7 +239,7 @@
             this.refreshButton.Location = new System.Drawing.Point(203, 22);
             this.refreshButton.Name = "refreshButton";
             this.refreshButton.Size = new System.Drawing.Size(75, 24);
-            this.refreshButton.TabIndex = 73;
+            this.refreshButton.TabIndex = 2;
             this.refreshButton.Text = "Refresh";
             this.refreshButton.UseVisualStyleBackColor = true;
             this.refreshButton.Click += new System.EventHandler(this.refreshButton_Click);
@@ -250,7 +250,7 @@
             this.label7.Location = new System.Drawing.Point(10, 35);
             this.label7.Name = "label7";
             this.label7.Size = new System.Drawing.Size(87, 13);
-            this.label7.TabIndex = 59;
+            this.label7.TabIndex = 1;
             this.label7.Text = "Space Required:";
             // 
             // label6
@@ -268,7 +268,7 @@
             this.seedBox.MaxLength = 10;
             this.seedBox.Name = "seedBox";
             this.seedBox.Size = new System.Drawing.Size(143, 20);
-            this.seedBox.TabIndex = 59;
+            this.seedBox.TabIndex = 3;
             this.seedBox.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.seedBox_KeyPress);
             // 
             // seedSize
@@ -286,7 +286,7 @@
             0});
             this.seedSize.Name = "seedSize";
             this.seedSize.Size = new System.Drawing.Size(52, 20);
-            this.seedSize.TabIndex = 61;
+            this.seedSize.TabIndex = 6;
             this.seedSize.Value = new decimal(new int[] {
             10,
             0,
@@ -299,7 +299,7 @@
             this.label8.Location = new System.Drawing.Point(113, 81);
             this.label8.Name = "label8";
             this.label8.Size = new System.Drawing.Size(30, 13);
-            this.label8.TabIndex = 62;
+            this.label8.TabIndex = 5;
             this.label8.Text = "Size:";
             // 
             // groupBox2
@@ -315,7 +315,7 @@
             this.groupBox2.Location = new System.Drawing.Point(14, 108);
             this.groupBox2.Name = "groupBox2";
             this.groupBox2.Size = new System.Drawing.Size(285, 75);
-            this.groupBox2.TabIndex = 63;
+            this.groupBox2.TabIndex = 4;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Message";
             // 
@@ -326,7 +326,7 @@
             this.label10.Location = new System.Drawing.Point(230, 45);
             this.label10.Name = "label10";
             this.label10.Size = new System.Drawing.Size(19, 13);
-            this.label10.TabIndex = 68;
+            this.label10.TabIndex = 8;
             this.label10.Text = "Bit";
             // 
             // bitsNumericUpDown
@@ -345,7 +345,7 @@
             0});
             this.bitsNumericUpDown.Name = "bitsNumericUpDown";
             this.bitsNumericUpDown.Size = new System.Drawing.Size(34, 20);
-            this.bitsNumericUpDown.TabIndex = 68;
+            this.bitsNumericUpDown.TabIndex = 7;
             this.bitsNumericUpDown.Value = new decimal(new int[] {
             1,
             0,
@@ -360,7 +360,7 @@
             this.label9.Location = new System.Drawing.Point(165, 45);
             this.label9.Name = "label9";
             this.label9.Size = new System.Drawing.Size(26, 13);
-            this.label9.TabIndex = 67;
+            this.label9.TabIndex = 6;
             this.label9.Text = "Use";
             // 
             // groupBox3
@@ -375,7 +375,7 @@
             this.groupBox3.Location = new System.Drawing.Point(315, 12);
             this.groupBox3.Name = "groupBox3";
             this.groupBox3.Size = new System.Drawing.Size(210, 112);
-            this.groupBox3.TabIndex = 64;
+            this.groupBox3.TabIndex = 5;
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "Security";
             // 
@@ -384,7 +384,7 @@
             this.randomButton.Location = new System.Drawing.Point(32, 76);
             this.randomButton.Name = "randomButton";
             this.randomButton.Size = new System.Drawing.Size(75, 23);
-            this.randomButton.TabIndex = 65;
+            this.randomButton.TabIndex = 4;
             this.randomButton.Text = "Random";
             this.randomButton.UseVisualStyleBackColor = true;
             this.randomButton.Click += new System.EventHandler(this.randomButton_Click);
@@ -395,7 +395,7 @@
             this.checkBox1.Location = new System.Drawing.Point(44, 15);
             this.checkBox1.Name = "checkBox1";
             this.checkBox1.Size = new System.Drawing.Size(118, 17);
-            this.checkBox1.TabIndex = 65;
+            this.checkBox1.TabIndex = 0;
             this.checkBox1.Text = "Create Change Log";
             this.checkBox1.UseVisualStyleBackColor = true;
             // 
@@ -406,7 +406,7 @@
             this.groupBox4.Location = new System.Drawing.Point(316, 126);
             this.groupBox4.Name = "groupBox4";
             this.groupBox4.Size = new System.Drawing.Size(209, 61);
-            this.groupBox4.TabIndex = 66;
+            this.groupBox4.TabIndex = 6;
             this.groupBox4.TabStop = false;
             this.groupBox4.Text = "Encode";
             // 
