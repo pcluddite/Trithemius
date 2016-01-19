@@ -5,6 +5,7 @@ using System.Drawing;
 using System.IO;
 using System.Text;
 using System.Windows.Forms;
+using System.Drawing.Imaging;
 
 namespace Trithemius
 {
@@ -34,6 +35,20 @@ namespace Trithemius
             MessageBox.Show(ex.Message, Text, MessageBoxButtons.OK, MessageBoxIcon.Warning);
         }
 
+        /// <summary>
+        /// Loads a bitmap into memory so the original file can be saved over
+        /// </summary>
+        /// <param name="path">the bitmap path</param>
+        /// <returns></returns>
+        public Bitmap OpenBitmap(string path)
+        {
+            MemoryStream stream = new MemoryStream();
+            using (Image image = Image.FromFile(path)) {
+                image.Save(stream, ImageFormat.Png);
+            }
+            return (Bitmap)Image.FromStream(stream);
+        }
+
         private void encodeButton_Click(object sender, EventArgs e)
         {
             if (imageSaveDialog.ShowDialog() != DialogResult.OK) {
@@ -43,7 +58,7 @@ namespace Trithemius
             LockWindow();
 
             try {
-                Trithemius t = new Trithemius((Bitmap)Bitmap.FromFile(pathTextbox.Text));
+                Trithemius t = new Trithemius(OpenBitmap(pathTextbox.Text));
                 t.Color = (PixelColor)(pixelValueComboBox.SelectedIndex + 1);
                 t.LeastSignificantBits = (int)bitsNumericUpDown.Value;
 
@@ -62,8 +77,7 @@ namespace Trithemius
                 if (!seedBox.Text.Equals("")) {
                     t.Seed = new TrithemiusSeed(seedBox.Text);
                 }
-
-
+                
                 encodeWorker.RunWorkerAsync(new object[] { t, msg });
             }
             catch(FileNotFoundException ex) {
