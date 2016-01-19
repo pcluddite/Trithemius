@@ -33,7 +33,7 @@
             this.encodeButton = new System.Windows.Forms.Button();
             this.decodeButton = new System.Windows.Forms.Button();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.label1 = new System.Windows.Forms.Label();
+            this.versionLabel = new System.Windows.Forms.Label();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             this.groupBox1.SuspendLayout();
             this.SuspendLayout();
@@ -71,21 +71,21 @@
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Image";
             // 
-            // label1
+            // versionLabel
             // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(12, 36);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(213, 26);
-            this.label1.TabIndex = 7;
-            this.label1.Text = "Trithemius Version [0.4]\r\nCopyright (c) 2012-2015 Timothy Baxendale";
+            this.versionLabel.AutoSize = true;
+            this.versionLabel.Location = new System.Drawing.Point(12, 36);
+            this.versionLabel.Name = "versionLabel";
+            this.versionLabel.Size = new System.Drawing.Size(213, 26);
+            this.versionLabel.TabIndex = 7;
+            this.versionLabel.Text = "Trithemius Version [0.4]\r\nCopyright (c) 2012-2015 Timothy Baxendale";
             // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(363, 104);
-            this.Controls.Add(this.label1);
+            this.Controls.Add(this.versionLabel);
             this.Controls.Add(this.groupBox1);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
@@ -105,7 +105,7 @@
         private System.Windows.Forms.Button encodeButton;
         private System.Windows.Forms.Button decodeButton;
         private System.Windows.Forms.GroupBox groupBox1;
-        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Label versionLabel;
         private System.Windows.Forms.ToolTip toolTip1;
     }
 }
