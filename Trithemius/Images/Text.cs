@@ -14,7 +14,7 @@ namespace Trithemius
             textBox1.Text = form.message;
         }
 
-        private void button1_Click(object sender, EventArgs e)
+        private void okButton_Click(object sender, EventArgs e)
         {
             form.message = textBox1.Text;
             Close();
