@@ -90,7 +90,7 @@ namespace Trithemius
         
         public int CheckSize()
         {
-            int size = BitConverter.ToInt32(ReadBits(sizeof(int)), 0);
+            int size = BitConverter.ToInt32(ReadBits(sizeof(int)).ToArray(), 0);
 
             if (size <= 0 || size > GetMaximumSize())
                 return -1; // size was invalid, there probably isn't a message
@@ -105,11 +105,11 @@ namespace Trithemius
             if (size < 0) 
                 return null; // no message
             
-            byte[] data = ReadBits(sizeof(int) + size);
+            IEnumerable<byte> data = ReadBits(sizeof(int) + size);
             return data.Skip(sizeof(int)).ToArray();
         }
 
-        private byte[] ReadBits(int byteCount)
+        private IEnumerable<byte> ReadBits(int byteCount)
         {
             BinaryList data = new BinaryList();
 
@@ -126,7 +126,7 @@ namespace Trithemius
 
             lockedBmp.UnlockBits();
 
-            return data.ToByteArray();
+            return data.ToBytes();
         }
 
         public int GetRequiredSize(ICollection<byte> message)

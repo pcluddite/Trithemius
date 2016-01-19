@@ -11,7 +11,7 @@ using System.Runtime.InteropServices;
 namespace Trithemius
 {
     public class LockedBitmap
-	{
+    {
         Bitmap source = null;
         IntPtr Iptr = IntPtr.Zero;
         BitmapData bitmapData = null;
@@ -22,7 +22,7 @@ namespace Trithemius
         public int Height { get; private set; }
 
         public LockedBitmap(Bitmap source)
-		{
+        {
             this.source = source;
         }
 
@@ -30,7 +30,7 @@ namespace Trithemius
         /// Lock bitmap data
         /// </summary>
         public void LockBits()
-		{
+        {
             try {
                 // Get width and height of bitmap
                 Width = source.Width;
@@ -71,7 +71,7 @@ namespace Trithemius
         /// Unlock bitmap data
         /// </summary>
         public void UnlockBits()
-		{
+        {
             try {
                 // Copy data from byte array to pointer
                 Marshal.Copy(Pixels, 0, Iptr, Pixels.Length);
@@ -84,14 +84,14 @@ namespace Trithemius
             }
         }
 
-		/// <summary>
-		/// Gets the pixel ARGB as an array
-		/// Author: Tim Baxendale
-		/// </summary>
-		/// <returns>The pixel ARGB.</returns>
-		/// <param name="p">P.</param>
+        /// <summary>
+        /// Gets the pixel ARGB as an array
+        /// Author: Tim Baxendale
+        /// </summary>
+        /// <returns>The pixel ARGB.</returns>
+        /// <param name="p">P.</param>
         public byte[] GetPixelArgb(int pixel)
-		{
+        {
             int x = pixel % Width,
                 y = (pixel - (pixel % Width)) / Width;
             Color c = GetPixel(x, y);
@@ -105,7 +105,7 @@ namespace Trithemius
         /// <param name="y"></param>
         /// <returns></returns>
         public Color GetPixel(int x, int y)
-		{
+        {
             Color clr = Color.Empty;
 
             // Get color components count
@@ -137,14 +137,14 @@ namespace Trithemius
             return clr;
         }
 
-		/// <summary>
-		/// Sets the pixel with an ARGB array
-		/// Author: Tim Baxendale
-		/// </summary>
-		/// <param name="p">P.</param>
-		/// <param name="color">Color.</param>
+        /// <summary>
+        /// Sets the pixel with an ARGB array
+        /// Author: Tim Baxendale
+        /// </summary>
+        /// <param name="p">P.</param>
+        /// <param name="color">Color.</param>
         public void SetPixel(Point p, byte[] color)
-		{
+        {
             SetPixel(p.X, p.Y,
                 Color.FromArgb(color[0], color[1], color[2], color[3])
                 );
@@ -157,7 +157,7 @@ namespace Trithemius
         /// <param name="y"></param>
         /// <param name="color"></param>
         public void SetPixel(int x, int y, Color color)
-		{
+        {
             // Get color components count
             int cCount = Depth / 8;
 

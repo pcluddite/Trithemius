@@ -101,7 +101,7 @@ namespace Trithemius
             bits.RemoveAt(index);
         }
 
-        public byte[] ToByteArray()
+        public IEnumerable<byte> ToBytes()
         {
             List<byte> data = new List<byte>();
 
@@ -111,13 +111,16 @@ namespace Trithemius
             foreach(bool b in this) {
                 curr[bit++] = b;
                 if (bit > 7) {
-                    data.Add(curr);
+                    data.Add(curr.ToByte());
                     curr = new BinaryOctet();
                     bit = 0;
                 }
             }
 
-            return data.ToArray();
+            if (bit > 0)
+                data.Add(curr.ToByte()); // the last remaining bits
+
+            return data;
         }
 
         public override string ToString()
