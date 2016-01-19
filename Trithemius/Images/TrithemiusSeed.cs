@@ -21,7 +21,7 @@ namespace Trithemius
         public bool IsReadOnly
         {
             get {
-                return false;
+                return true;
             }
         }
 
@@ -52,28 +52,28 @@ namespace Trithemius
                 }
             }
         }
-        
-		public TrithemiusSeed(ICollection<byte> _seed)
-		{
-			this.seed = new byte[_seed.Count];
-			int i = 0;
-			foreach (byte b in _seed) {
-				this.seed[i++] = b;
-			}
-            ThrowIfBad(seed);
-		}
 
-		public TrithemiusSeed(string _seed)
-		{
-			seed = new byte[_seed.Length];
-			int i = 0;
-			foreach (char c in _seed) {
-				seed[i++] = (byte)(c - '0');
-			}
+        public TrithemiusSeed(ICollection<byte> _seed)
+        {
+            this.seed = new byte[_seed.Count];
+            int i = 0;
+            foreach (byte b in _seed) {
+                this.seed[i++] = b;
+            }
             ThrowIfBad(seed);
-		}
+        }
 
-		public static TrithemiusSeed RandomSeed(int size)
+        public TrithemiusSeed(string _seed)
+        {
+            seed = new byte[_seed.Length];
+            int i = 0;
+            foreach (char c in _seed) {
+                seed[i++] = (byte)(c - '0');
+            }
+            ThrowIfBad(seed);
+        }
+
+        public static TrithemiusSeed RandomSeed(int size)
         {
             if (size > 10 || size < 1)
                 throw new ArgumentOutOfRangeException("size");
@@ -144,21 +144,21 @@ namespace Trithemius
 
         private void ConstructSeedIfNull()
         {
-            if (seed == null) 
+            if (seed == null)
                 seed = new byte[1];
         }
 
-		public override string ToString()
-		{
-			StringBuilder sb = new StringBuilder();
-			foreach(byte b in seed)
-				sb.Append(b);
-			return sb.ToString();
-		}
+        public override string ToString()
+        {
+            StringBuilder sb = new StringBuilder();
+            foreach (byte b in seed)
+                sb.Append(b);
+            return sb.ToString();
+        }
 
-		public static TrithemiusSeed FromString(string _seed)
-		{
-			return new TrithemiusSeed(_seed);
-		}
+        public static TrithemiusSeed FromString(string _seed)
+        {
+            return new TrithemiusSeed(_seed);
+        }
     }
 }
