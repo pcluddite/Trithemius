@@ -13,8 +13,7 @@
         /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
         protected override void Dispose(bool disposing)
         {
-            if (disposing && (components != null))
-            {
+            if (disposing && (components != null)) {
                 components.Dispose();
             }
             base.Dispose(disposing);
@@ -258,9 +257,9 @@
             this.label6.AutoSize = true;
             this.label6.Location = new System.Drawing.Point(10, 22);
             this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(117, 13);
+            this.label6.Size = new System.Drawing.Size(123, 13);
             this.label6.TabIndex = 0;
-            this.label6.Text = "Maximum Avalible Size:";
+            this.label6.Text = "Maximum Available Size:";
             // 
             // seedBox
             // 
