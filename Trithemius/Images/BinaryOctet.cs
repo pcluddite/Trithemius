@@ -4,9 +4,10 @@ using System.Collections.Generic;
 
 namespace Trithemius
 {
-    public class BinaryOctet : IList<bool>, IComparable, IConvertible, IEquatable<BinaryOctet>, IEquatable<byte>, IComparable<BinaryOctet>
+    public class BinaryOctet : IList<bool>, IComparable, IConvertible, IEquatable<BinaryOctet>, IEquatable<byte>, IComparable<BinaryOctet>, IComparable<byte>
     {
-        private bool[] bits = new bool[8];
+        private const int CHAR_BIT = 8;
+        private bool[] bits = new bool[CHAR_BIT];
 
         public BinaryOctet()
         {
@@ -14,8 +15,8 @@ namespace Trithemius
 
         public BinaryOctet(byte value)
         {
-            for(int i = 0; i < bits.Length; ++i) {
-                bits[i] = ((value & (1 << i)) > 0);
+            for (int i = 0; i < CHAR_BIT; ++i) {
+                bits[i] = (value & (1 << i)) != 0;
             }
         }
 
@@ -32,7 +33,7 @@ namespace Trithemius
         public int Count
         {
             get {
-                return bits.Length;
+                return CHAR_BIT;
             }
         }
 
@@ -41,6 +42,16 @@ namespace Trithemius
             get {
                 return true;
             }
+        }
+
+        public bool[] ToBoolArray()
+        {
+            bool[] bits = new bool[CHAR_BIT];
+
+            for (int i = 0; i < bits.Length; ++i)
+                bits[i] = this[i];
+
+            return bits;
         }
 
         public void Add(bool item)
@@ -55,7 +66,18 @@ namespace Trithemius
 
         public int CompareTo(object obj)
         {
-            throw new NotImplementedException();
+            if (obj == null)
+                return 1;
+
+            BinaryOctet octet = obj as BinaryOctet;
+            if (octet != null)
+                return CompareTo(octet);
+
+            byte? @byte = obj as byte?;
+            if (@byte != null)
+                return CompareTo(@byte);
+
+            throw new ArgumentException("Can only compare types BinaryOctet and byte");
         }
 
         public bool Contains(bool item)
@@ -156,6 +178,11 @@ namespace Trithemius
             return ToByte().CompareTo(other.ToByte());
         }
 
+        public int CompareTo(byte other)
+        {
+            return ToByte().CompareTo(other);
+        }
+
         #region implicit operators
 
         public static implicit operator BinaryOctet(byte value)
@@ -188,32 +215,32 @@ namespace Trithemius
             return !octet1.Equals(octet2);
         }
 
-        public static bool operator ==(BinaryOctet octet, byte _byte)
+        public static bool operator ==(BinaryOctet octet, byte @byte)
         {
             if (octet == null)
                 return false;
-            return octet.Equals(_byte);
+            return octet.Equals(@byte);
         }
 
-        public static bool operator !=(BinaryOctet octet, byte _byte)
+        public static bool operator !=(BinaryOctet octet, byte @byte)
         {
             if (octet == null)
                 return true;
-            return !octet.Equals(_byte);
+            return !octet.Equals(@byte);
         }
 
-        public static bool operator ==(byte _byte, BinaryOctet octet)
+        public static bool operator ==(byte @byte, BinaryOctet octet)
         {
             if (octet == null)
                 return false;
-            return octet.Equals(_byte);
+            return octet.Equals(@byte);
         }
 
-        public static bool operator !=(byte _byte, BinaryOctet octet)
+        public static bool operator !=(byte @byte, BinaryOctet octet)
         {
             if (octet == null)
                 return true;
-            return !octet.Equals(_byte);
+            return !octet.Equals(@byte);
         }
 
         #endregion

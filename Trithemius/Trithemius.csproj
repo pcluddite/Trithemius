@@ -50,6 +50,12 @@
     <Compile Include="Encryption.cs" />
     <Compile Include="Images\BinaryList.cs" />
     <Compile Include="Images\BinaryOctet.cs" />
+    <Compile Include="Images\TrithemiusForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Images\TrithemiusForm.Designer.cs">
+      <DependentUpon>TrithemiusForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="Images\LockedBitmap.cs" />
     <Compile Include="Images\TrithemiusSeed.cs" />
     <Compile Include="Images\Trithemius.cs" />
@@ -79,6 +85,9 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <EmbeddedResource Include="Images\TrithemiusForm.resx">
+      <DependentUpon>TrithemiusForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Images\Finished.resx">
       <DependentUpon>Finished.cs</DependentUpon>
     </EmbeddedResource>
