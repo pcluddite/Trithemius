@@ -78,7 +78,7 @@
             this.versionLabel.Name = "versionLabel";
             this.versionLabel.Size = new System.Drawing.Size(213, 26);
             this.versionLabel.TabIndex = 7;
-            this.versionLabel.Text = "Trithemius Version [0.4]\r\nCopyright (c) 2012-2015 Timothy Baxendale";
+            this.versionLabel.Text = "Trithemius Version [0.4.0.0]\r\nCopyright (c) 2012-2015 Timothy Baxendale";
             // 
             // MainForm
             // 

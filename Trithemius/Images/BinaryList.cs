@@ -16,10 +16,7 @@ namespace Trithemius
         public BinaryList(IEnumerable<byte> data)
         {
             foreach(byte b in data) {
-                BinaryOctet bin = b;
-                foreach(bool bit in bin) {
-                    Add(bit);
-                }
+                AddRange(b);
             }
         }
 
@@ -28,7 +25,6 @@ namespace Trithemius
             get {
                 return bits[index];
             }
-
             set {
                 bits[index] = value;
             }
@@ -55,8 +51,12 @@ namespace Trithemius
 
         public void AddRange(byte b)
         {
-            BinaryOctet bin = b;
-            foreach(bool bit in bin) {
+            AddRange(new BinaryOctet(b));
+        }
+
+        public void AddRange(BinaryOctet octet)
+        {
+            foreach(bool bit in octet) {
                 Add(bit);
             }
         }
@@ -101,15 +101,26 @@ namespace Trithemius
             bits.RemoveAt(index);
         }
 
-        public IEnumerable<byte> ToBytes()
+        /// <summary>
+        /// Converts each set of eight bits into a bytes
+        /// </summary>
+        /// <param name="invert">whether or not to invert bytes</param>
+        /// <returns></returns>
+        public IEnumerable<byte> ToBytes(bool invert = false)
         {
-            List<byte> data = new List<byte>();
+            List<byte> data;
+            if (IsValidBytes()) {
+                data = new List<byte>(bits.Count / 8);
+            }
+            else {
+                data = new List<byte>(bits.Count / 8 + 1);
+            }
 
             BinaryOctet curr = new BinaryOctet();
 
             int bit = 0;
             foreach(bool b in this) {
-                curr[bit++] = b;
+                curr[bit++] = invert ? !b : b;
                 if (bit > 7) {
                     data.Add(curr.ToByte());
                     curr = new BinaryOctet();
@@ -123,9 +134,18 @@ namespace Trithemius
             return data;
         }
 
+        /// <summary>
+        /// Determines if the bits can be evenly turned into bytes (octets), without remaining bits
+        /// </summary>
+        /// <returns></returns>
+        public bool IsValidBytes()
+        {
+            return bits.Count % 8 == 0;
+        }
+        
         public override string ToString()
         {
-            StringBuilder sb = new StringBuilder();
+            StringBuilder sb = new StringBuilder(bits.Count);
             foreach(bool b in this) {
                 sb.Append(b ? '1' : '0');
             }
