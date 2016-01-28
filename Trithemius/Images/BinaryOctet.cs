@@ -15,8 +15,8 @@ namespace Trithemius
 
         public BinaryOctet(byte value)
         {
-            for (int i = 0; i < OCTET; ++i) {
-                bits[i] = (value & (1 << i)) != 0;
+            for (int index = 0; index < bits.Length; ++index) {
+                bits[index] = (value & (1 << index)) != 0;
             }
         }
 
@@ -119,6 +119,16 @@ namespace Trithemius
         IEnumerator IEnumerable.GetEnumerator()
         {
             return bits.GetEnumerator();
+        }
+
+        /// <summary>
+        /// Sets each bit to the opposite of its current value
+        /// </summary>
+        public void Invert()
+        {
+            for (int index = 0; index < bits.Length; ++index) {
+                bits[index] = !bits[index];
+            }
         }
 
         public byte ToByte()

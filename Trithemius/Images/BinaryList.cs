@@ -135,6 +135,16 @@ namespace Trithemius
         }
 
         /// <summary>
+        /// Sets each bit to the opposite of its current value
+        /// </summary>
+        public void Invert()
+        {
+            for(int index = 0; index < bits.Count; ++index) {
+                bits[index] = !bits[index];
+            }
+        }
+
+        /// <summary>
         /// Determines if the bits can be evenly turned into bytes (octets), without remaining bits
         /// </summary>
         /// <returns></returns>

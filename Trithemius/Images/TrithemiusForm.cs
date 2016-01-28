@@ -199,6 +199,7 @@ namespace Trithemius
         {
             Trithemius t = new Trithemius(OpenBitmap(pathTextbox.Text));
             t.Color = (PixelColor)(pixelValueComboBox.SelectedIndex + 1);
+            t.InvertBits = invertBox.Checked;
 
             if (!seedBox.Text.Equals("")) {
                 t.Seed = new TrithemiusSeed(seedBox.Text);

@@ -25,8 +25,8 @@ namespace Trithemius
         }
 
         public Bitmap BitmapImage { get; set; }
-
 		public PixelColor Color { get; set; }
+        public bool InvertBits { get; set; }
 
 		public Trithemius(Bitmap image)
 		{
@@ -59,6 +59,9 @@ namespace Trithemius
             }
 
             BinaryList bits = new BinaryList(data);
+
+            if (InvertBits)
+                bits.Invert();
 
             LockedBitmap lockedBmp = new LockedBitmap(BitmapImage);
             lockedBmp.LockBits();
@@ -126,7 +129,7 @@ namespace Trithemius
 
             lockedBmp.UnlockBits();
 
-            return data.ToBytes();
+            return data.ToBytes(InvertBits);
         }
 
         public int GetRequiredSize(ICollection<byte> message)
