@@ -72,7 +72,7 @@ namespace Trithemius
                 }
                 
                 
-                encodeWorker.RunWorkerAsync(new object[] { t, msg });
+                encodeWorker.RunWorkerAsync(new object[] { t, msg, passwordBox.Text });
             }
             catch(FileNotFoundException ex) {
                 ShowError(ex);
@@ -104,6 +104,10 @@ namespace Trithemius
                 object[] args = (object[])e.Argument;
                 Trithemius t = (Trithemius)args[0];
                 byte[] msg = (byte[])args[1];
+                string pass = (string)args[2];
+
+                if (!"".Equals(pass))
+                    msg = Crypto.EncryptStringAES(msg, pass);
 
                 t.Encode(msg, imageSaveDialog.FileName);
                 
@@ -149,7 +153,7 @@ namespace Trithemius
                     return;
                 }
 
-                if (!password.Equals("")) {
+                if (!"".Equals(password)) {
                     data = Crypto.DecryptStringAES(data, password);
                 }
 
