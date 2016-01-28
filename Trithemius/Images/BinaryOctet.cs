@@ -6,8 +6,8 @@ namespace Trithemius
 {
     public class BinaryOctet : IList<bool>, IComparable, IConvertible, IEquatable<BinaryOctet>, IEquatable<byte>, IComparable<BinaryOctet>, IComparable<byte>
     {
-        private const int CHAR_BIT = 8;
-        private bool[] bits = new bool[CHAR_BIT];
+        private const int OCTET = 8;
+        private bool[] bits = new bool[OCTET];
 
         public BinaryOctet()
         {
@@ -15,7 +15,7 @@ namespace Trithemius
 
         public BinaryOctet(byte value)
         {
-            for (int i = 0; i < CHAR_BIT; ++i) {
+            for (int i = 0; i < OCTET; ++i) {
                 bits[i] = (value & (1 << i)) != 0;
             }
         }
@@ -33,7 +33,7 @@ namespace Trithemius
         public int Count
         {
             get {
-                return CHAR_BIT;
+                return bits.Length;
             }
         }
 
@@ -46,12 +46,7 @@ namespace Trithemius
 
         public bool[] ToBoolArray()
         {
-            bool[] bits = new bool[CHAR_BIT];
-
-            for (int i = 0; i < bits.Length; ++i)
-                bits[i] = this[i];
-
-            return bits;
+            return (bool[])bits.Clone();
         }
 
         public void Add(bool item)
