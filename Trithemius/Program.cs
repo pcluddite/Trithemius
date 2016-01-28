@@ -12,7 +12,7 @@ namespace Trithemius
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new MainForm());
+            Application.Run(new TrithemiusForm());
         }
 
         public static string SizeToString(double size)

@@ -5,9 +5,9 @@ namespace Trithemius
 {
     public partial class Text : Form
     {
-        EncodeForm form;
+        private TrithemiusForm form;
 
-        public Text(EncodeForm form)
+        public Text(TrithemiusForm form)
         {
             this.form = form;
             InitializeComponent();
@@ -17,6 +17,11 @@ namespace Trithemius
         private void okButton_Click(object sender, EventArgs e)
         {
             form.message = textBox1.Text;
+            Close();
+        }
+
+        private void cancelButton_Click(object sender, EventArgs e)
+        {
             Close();
         }
     }
