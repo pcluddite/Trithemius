@@ -40,7 +40,7 @@ namespace Trithemius
         public bool IsReadOnly
         {
             get {
-                return true;
+                return false;
             }
         }
 
@@ -49,14 +49,16 @@ namespace Trithemius
             return (bool[])bits.Clone();
         }
 
-        public void Add(bool item)
+        void ICollection<bool>.Add(bool item)
         {
             throw new NotImplementedException();
         }
 
         public void Clear()
         {
-            throw new NotImplementedException();
+            for(int i = 0; i < bits.Length; ++i) {
+                bits[i] = false;
+            }
         }
 
         public int CompareTo(object obj)
@@ -99,17 +101,17 @@ namespace Trithemius
             return -1; 
         }
 
-        public void Insert(int index, bool item)
+        void IList<bool>.Insert(int index, bool item)
         {
             throw new NotImplementedException();
         }
 
-        public bool Remove(bool item)
+        bool ICollection<bool>.Remove(bool item)
         {
             throw new NotImplementedException();
         }
 
-        public void RemoveAt(int index)
+        void IList<bool>.RemoveAt(int index)
         {
             throw new NotImplementedException();
         }
