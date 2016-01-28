@@ -59,24 +59,6 @@
     <Compile Include="Images\LockedBitmap.cs" />
     <Compile Include="Images\TrithemiusSeed.cs" />
     <Compile Include="Images\Trithemius.cs" />
-    <Compile Include="Images\EncodeForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Images\EncodeForm.Designer.cs">
-      <DependentUpon>EncodeForm.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Images\DecodeForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Images\DecodeForm.Designer.cs">
-      <DependentUpon>DecodeForm.cs</DependentUpon>
-    </Compile>
-    <Compile Include="MainForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="MainForm.Designer.cs">
-      <DependentUpon>MainForm.cs</DependentUpon>
-    </Compile>
     <Compile Include="Images\Finished.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -90,15 +72,6 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Images\Finished.resx">
       <DependentUpon>Finished.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Images\EncodeForm.resx">
-      <DependentUpon>EncodeForm.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Images\DecodeForm.resx">
-      <DependentUpon>DecodeForm.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="MainForm.resx">
-      <DependentUpon>MainForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
