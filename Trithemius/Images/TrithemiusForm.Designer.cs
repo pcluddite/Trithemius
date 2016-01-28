@@ -409,6 +409,7 @@
             // decodeWorker
             // 
             this.decodeWorker.DoWork += new System.ComponentModel.DoWorkEventHandler(this.decodeWorker_DoWork);
+            this.decodeWorker.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.decodeWorker_RunWorkerCompleted);
             // 
             // TrithemiusForm
             // 

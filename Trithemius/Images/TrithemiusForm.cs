@@ -323,12 +323,16 @@ namespace Trithemius
                 textRadioButton.Text = "Encode Text";
                 fileRadioButton.Text = "Encode File";
                 writeTextButton.Visible =  requiredSizeLabel.Visible = requiredSizeBox.Visible = true;
+                encodeButton.Click -= decodeButton_Click;
+                encodeButton.Click += encodeButton_Click;
             }
             else {
                 encodeButton.Text = "D&ecode";
                 textRadioButton.Text = "Decode Text";
                 fileRadioButton.Text = "Decode File";
                 writeTextButton.Visible = requiredSizeLabel.Visible = requiredSizeBox.Visible = false;
+                encodeButton.Click -= encodeButton_Click;
+                encodeButton.Click += decodeButton_Click;
             }
         }
 
