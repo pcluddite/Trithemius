@@ -114,7 +114,7 @@ namespace Trithemius
                 e.Result = true;
             }
             catch (Exception ex) {
-                ShowError(ex);
+                ShowErrorT(ex);
                 e.Result = false;
             }
         }
