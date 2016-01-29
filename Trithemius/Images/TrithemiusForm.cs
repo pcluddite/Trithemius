@@ -14,7 +14,6 @@ namespace Trithemius
     {
         public string message = null;
         private int maxSize = 0;
-        private Finished finishedDialog;
 
         public TrithemiusForm()
         {
@@ -65,7 +64,7 @@ namespace Trithemius
 
                 byte[] msg;
                 if (textRadioButton.Checked) {
-                    msg = Encoding.ASCII.GetBytes(message);
+                    msg = Encoding.UTF8.GetBytes(message);
                 }
                 else {
                     msg = File.ReadAllBytes(msgOpenDialog.FileName);
@@ -128,28 +127,12 @@ namespace Trithemius
                 bool checkSize = (bool)args[0];
                 Trithemius t = (Trithemius)args[1];
                 string password = (string)args[2];
-
-                if (checkSize) {
-                    int size = t.CheckSize();
-                    if (size < 0) {
-                        ErrorNoData();
-                        e.Result = false;
-                        return;
-                    }
-                    Invoke(new MethodInvoker(delegate
-                    {
-                        label6.Text = "Detected Message Size: " +
-                            Program.SizeToString(size);
-                    }));
-                    e.Result = true;
-                    return;
-                }
-
+                
                 byte[] data = t.Decode();
 
                 if (data == null) {
                     ErrorNoData();
-                    e.Result = false;
+                    e.Result = null;
                     return;
                 }
 
@@ -158,15 +141,14 @@ namespace Trithemius
                 }
 
                 if (textRadioButton.Checked) {
-                    finishedDialog = new Finished(Encoding.ASCII.GetString(data));
-                    finishedDialog.ShowDialog();
+                    e.Result = Encoding.UTF8.GetString(data);
                 }
                 else {
                     File.WriteAllBytes(msgSaveDialog.FileName, data);
+                    e.Result = ""; // just to indicate success
                 }
 
                 t.Dispose();
-                e.Result = true;
             }
             catch (Exception ex) {
                 if (ex.Message.Contains("Padding")) {
@@ -175,7 +157,7 @@ namespace Trithemius
                 else {
                     ShowErrorT(ex);
                 }
-                e.Result = false;
+                e.Result = null;
             }
         }
 
@@ -183,12 +165,15 @@ namespace Trithemius
         {
             UnlockWindow();
 
-            if (!(bool)e.Result) {
+            if (e.Result == null) {
                 return;
             }
 
-            if (fileRadioButton.Checked &&
-                MessageBox.Show(this, "Decoding Completed!\r\nWould you like to open the file?",
+            if (textRadioButton.Checked) {
+                Finished finished = new Finished((string)e.Result);
+                finished.ShowDialog();
+            }
+            else if (MessageBox.Show(this, "Decoding Completed!\r\nWould you like to open the file?",
                     Text, MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes) {
                 try {
                     Process.Start(msgSaveDialog.FileName);
