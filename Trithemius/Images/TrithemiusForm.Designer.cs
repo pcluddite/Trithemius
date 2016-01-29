@@ -322,7 +322,6 @@
             // label10
             // 
             this.label10.AutoSize = true;
-            this.label10.Enabled = false;
             this.label10.Location = new System.Drawing.Point(144, 22);
             this.label10.Name = "label10";
             this.label10.Size = new System.Drawing.Size(27, 13);
@@ -331,7 +330,6 @@
             // 
             // bitsNumericUpDown
             // 
-            this.bitsNumericUpDown.Enabled = false;
             this.bitsNumericUpDown.Location = new System.Drawing.Point(174, 19);
             this.bitsNumericUpDown.Maximum = new decimal(new int[] {
             4,
@@ -414,6 +412,7 @@
             // 
             // TrithemiusForm
             // 
+            this.AcceptButton = this.encodeButton;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(630, 179);

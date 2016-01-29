@@ -13,7 +13,8 @@ namespace Trithemius
     public partial class TrithemiusForm : Form
     {
         public string message = null;
-        private int maxSize = 0;
+        private double maxSize = 0;
+        private Size dimensions;
 
         public TrithemiusForm()
         {
@@ -51,11 +52,22 @@ namespace Trithemius
             return (Bitmap)Image.FromStream(stream);
         }
 
+        private bool CheckImagePath()
+        {
+            if (pathTextbox.Text == "") {
+                ShowError("You must specify an image file.");
+                return false;
+            }
+            return true;
+        }
+
         private void encodeButton_Click(object sender, EventArgs e)
         {
-            if (imageSaveDialog.ShowDialog() != DialogResult.OK) {
+            if (!CheckImagePath())
                 return;
-            }
+
+            if (imageSaveDialog.ShowDialog() != DialogResult.OK)
+                return;
 
             LockWindow();
 
@@ -81,6 +93,9 @@ namespace Trithemius
 
         private void decodeButton_Click(object sender, EventArgs e)
         {
+            if (!CheckImagePath())
+                return;
+
             LockWindow();
             if (fileRadioButton.Checked) {
                 if (msgSaveDialog.ShowDialog() != DialogResult.OK) {
@@ -220,12 +235,24 @@ namespace Trithemius
         {
             if (imageOpenDialog.ShowDialog() == DialogResult.OK)
             {
-                Image img = Image.FromFile(imageOpenDialog.FileName);
-                maxSize = ((img.Height - 1) * (img.Width - 1)) / 8;
-                availableSizeBox.Text = Program.SizeToString(maxSize * (int)bitsNumericUpDown.Value);
-                pathTextbox.Text = imageOpenDialog.FileName;
-                img.Dispose();
+                try {
+                    using (Image img = Image.FromFile(imageOpenDialog.FileName)) {
+                        dimensions = new Size(img.Width - 1, img.Height - 1);
+                        pathTextbox.Text = imageOpenDialog.FileName;
+                    }
+                    RefreshAvailableSize();
+                    RefreshRequiredSize();
+                }
+                catch (FileNotFoundException ex) {
+                    ShowError(ex);
+                }
             }
+        }
+
+        private void RefreshAvailableSize()
+        {
+            maxSize = ((dimensions.Width * dimensions.Height) / 8) * (int)bitsNumericUpDown.Value;
+            availableSizeBox.Text = Program.SizeToString(maxSize);
         }
 
         private void radioButton2_CheckedChanged(object sender, EventArgs e)
@@ -293,10 +320,7 @@ namespace Trithemius
         
         private void bitsNumericUpDown_ValueChanged(object sender, EventArgs e)
         {
-            label10.Text = bitsNumericUpDown.Value == 1 ? "Bit" : "Bits";
-            label6.Text = "Maximum Avalible Size: " + Program.SizeToString(maxSize
-                * (int)bitsNumericUpDown.Value);
-            RefreshRequiredSize();
+            RefreshAvailableSize();
         }
 
         private void seedBox_KeyPress(object sender, KeyPressEventArgs e)
