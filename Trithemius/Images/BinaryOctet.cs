@@ -7,7 +7,7 @@ namespace Trithemius
     public class BinaryOctet : IList<bool>, IComparable, IConvertible, IEquatable<BinaryOctet>, IEquatable<byte>, IComparable<BinaryOctet>, IComparable<byte>
     {
         private const int OCTET = 8;
-        private bool[] bits = new bool[OCTET];
+        private BitArray bits = new BitArray(OCTET);
 
         public BinaryOctet()
         {
@@ -89,7 +89,8 @@ namespace Trithemius
 
         public IEnumerator<bool> GetEnumerator()
         {
-            return ((IEnumerable<bool>)bits).GetEnumerator();
+            foreach (bool bit in bits)
+                yield return bit;
         }
 
         public int IndexOf(bool item)
@@ -126,9 +127,7 @@ namespace Trithemius
         /// </summary>
         public void Invert()
         {
-            for (int index = 0; index < bits.Length; ++index) {
-                bits[index] = !bits[index];
-            }
+            bits.Not();
         }
 
         public byte ToByte()

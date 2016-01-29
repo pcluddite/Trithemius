@@ -5,6 +5,9 @@ using System.Text;
 
 namespace Trithemius
 {
+    /// <summary>
+    /// A list of binary values 1 or 0, this class is more flexible than BitArray
+    /// </summary>
     public class BinaryList : IList<bool>
     {
         private List<bool> bits = new List<bool>();
