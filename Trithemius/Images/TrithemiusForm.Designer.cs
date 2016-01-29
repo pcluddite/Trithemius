@@ -375,6 +375,7 @@
             this.randomButton.TabIndex = 4;
             this.randomButton.Text = "Random";
             this.randomButton.UseVisualStyleBackColor = true;
+            this.randomButton.Click += new System.EventHandler(this.randomButton_Click);
             // 
             // groupBox4
             // 

@@ -46,11 +46,18 @@
     <Reference Include="System.Deployment" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Encryption.cs" />
     <Compile Include="Images\BinaryList.cs" />
     <Compile Include="Images\BinaryOctet.cs" />
+    <Compile Include="Images\RandomSeed.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Images\RandomSeed.Designer.cs">
+      <DependentUpon>RandomSeed.cs</DependentUpon>
+    </Compile>
     <Compile Include="Images\TrithemiusForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -68,6 +75,9 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <EmbeddedResource Include="Images\RandomSeed.resx">
+      <DependentUpon>RandomSeed.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Images\TrithemiusForm.resx">
       <DependentUpon>TrithemiusForm.cs</DependentUpon>
     </EmbeddedResource>

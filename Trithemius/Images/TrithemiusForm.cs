@@ -366,5 +366,11 @@ namespace Trithemius
             MessageBox.Show(this, message, Text, MessageBoxButtons.OK, MessageBoxIcon.Warning);
         }
 
+        private void randomButton_Click(object sender, EventArgs e)
+        {
+            RandomSeed randForm = new RandomSeed();
+            if (randForm.ShowDialog() == DialogResult.OK)
+                seedBox.Text = TrithemiusSeed.RandomSeed(randForm.Result).ToString();
+        }
     }
 }
