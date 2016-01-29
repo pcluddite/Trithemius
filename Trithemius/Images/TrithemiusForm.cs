@@ -12,7 +12,7 @@ namespace Trithemius
 {
     public partial class TrithemiusForm : Form
     {
-        public string message = null;
+        private string message = "";
         private double maxSize = 0;
         private Size dimensions;
 
@@ -273,8 +273,9 @@ namespace Trithemius
         private void writeTextButton_Click(object sender, EventArgs e)
         {
             if (textRadioButton.Checked) {
-                Text t = new Text(this);
-                t.ShowDialog();
+                Text t = new Text(message);
+                if (t.ShowDialog() == DialogResult.OK)
+                    message = t.Result;
             }
             else {
                 msgOpenDialog.ShowDialog();
