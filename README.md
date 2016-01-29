@@ -7,3 +7,8 @@ Features:
 
 Upcoming:
 - Choose how many bits to use per pixel for higher image capacity
+
+Credits:
+- Timothy Baxendale
+- Vano Maisuradze for LockedBitmap.cs (http://www.codeproject.com/Tips/240428/Work-with-bitmap-faster-with-Csharp)
+- Brett for Encryption.cs (http://stackoverflow.com/questions/202011/encrypt-and-decrypt-a-string)
