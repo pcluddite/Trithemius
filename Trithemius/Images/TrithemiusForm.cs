@@ -120,7 +120,7 @@ namespace Trithemius
                 byte[] msg = (byte[])args[1];
                 string pass = (string)args[2];
 
-                if (!"".Equals(pass))
+                if (pass != null && !pass.Equals(""))
                     msg = Crypto.EncryptStringAES(msg, pass);
 
                 t.Encode(msg, imageSaveDialog.FileName);
@@ -141,7 +141,7 @@ namespace Trithemius
 
                 bool checkSize = (bool)args[0];
                 Trithemius t = (Trithemius)args[1];
-                string password = (string)args[2];
+                string pass = (string)args[2];
                 
                 byte[] data = t.Decode();
 
@@ -151,9 +151,9 @@ namespace Trithemius
                     return;
                 }
 
-                if (!"".Equals(password)) {
-                    data = Crypto.DecryptStringAES(data, password);
-                }
+                if (pass != null && !pass.Equals(""))
+                    data = Crypto.DecryptStringAES(data, pass);
+                
 
                 if (textRadioButton.Checked) {
                     e.Result = Encoding.UTF8.GetString(data);
