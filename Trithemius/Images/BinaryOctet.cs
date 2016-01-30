@@ -174,11 +174,7 @@ namespace Trithemius
         /// </summary>
         public BinaryOctet Invert()
         {
-            byte newval = bvalue;
-            for(int index = 0; index < OCTET; ++index) {
-                newval = SetBit(newval, index, !GetBit(newval, index));
-            }
-            return new BinaryOctet(newval);
+            return new BinaryOctet((byte)~bvalue);
         }
 
         public byte ToByte()
