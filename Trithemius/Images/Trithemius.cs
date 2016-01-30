@@ -27,11 +27,17 @@ namespace Trithemius
         public Bitmap BitmapImage { get; set; }
 		public PixelColor Color { get; set; }
         public bool InvertBits { get; set; }
+        public bool Disposed { get; private set; }
 
-		public Trithemius(Bitmap image)
+        public Trithemius(Bitmap image)
 		{
             BitmapImage = image;
 		}
+
+        ~Trithemius()
+        {
+            Dispose();
+        }
 
         private bool MessageFitsImage(ICollection<byte> message)
         {
@@ -149,7 +155,8 @@ namespace Trithemius
 
         public void Dispose()
         {
-            if (BitmapImage != null) {
+            if (BitmapImage != null && !Disposed) {
+                Disposed = true;
                 BitmapImage.Dispose();
             }
         }
