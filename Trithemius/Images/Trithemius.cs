@@ -80,7 +80,7 @@ namespace Trithemius
 
                 BinaryOctet octet = pixelValue[(int)Color];
                 for (int currBit = 0; currBit < lsb; ++currBit)
-                    octet[currBit] = bits[bitIndex++];
+                    octet = octet.SetBit(currBit, bits[bitIndex++]);
 
                 if (octet != pixelValue[(int)Color]) {
                     changes.Add(pixelIndex, pixelValue[(int)Color]);

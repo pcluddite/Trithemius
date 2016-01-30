@@ -4,64 +4,78 @@ using System.Collections.Generic;
 
 namespace Trithemius
 {
-    public class BinaryOctet : IList<bool>, IComparable, IConvertible, IEquatable<BinaryOctet>, IEquatable<byte>, IComparable<BinaryOctet>, IComparable<byte>
+    public struct BinaryOctet : IList<bool>, IComparable, IConvertible, IEquatable<BinaryOctet>, IEquatable<byte>, IComparable<BinaryOctet>, IComparable<byte>
     {
         private const int OCTET = 8;
-        private BitArray bits = new BitArray(OCTET);
-
-        public BinaryOctet()
-        {
-        }
-
+        private byte bvalue;
+        
         public BinaryOctet(byte value)
         {
-            for (int index = 0; index < bits.Length; ++index) {
-                bits[index] = (value & (1 << index)) != 0;
+            bvalue = value;
+        }
+
+        public BinaryOctet(bool[] bits)
+        {
+            if (bits.Length > OCTET)
+                throw new ArgumentException("cannot have more than 8 bits in an octet", nameof(bits));
+            bvalue = 0;
+            for(int index = 0; index < bits.Length; ++index) {
+                bvalue = SetBit(bvalue, index, bits[index]);
             }
+        }
+
+        public BinaryOctet SetBit(int index, bool value)
+        {
+            return new BinaryOctet(SetBit(bvalue, index, value));
+        }
+
+        private static byte SetBit(byte bvalue, int index, bool value)
+        {
+            if (index < 0 || index >= OCTET)
+                throw new ArgumentOutOfRangeException(nameof(index));
+            if (value) {
+                bvalue = (byte)(bvalue | (1 << index));
+            }
+            else {
+                bvalue = (byte)(bvalue & ~(1 << index));
+            }
+            return bvalue;
+        }
+
+        public bool GetBit(int index)
+        {
+            return GetBit(bvalue, index);
+        }
+
+        private static bool GetBit(byte bvalue, int index)
+        {
+            if (index < 0 || index >= OCTET)
+                throw new ArgumentOutOfRangeException(nameof(index));
+            return (bvalue & (1 << index)) != 0;
         }
 
         public bool this[int index]
         {
             get {
-                return bits[index];
-            }
-            set {
-                bits[index] = value;
-            }
-        }
-
-        public int Count
-        {
-            get {
-                return bits.Length;
-            }
-        }
-
-        public bool IsReadOnly
-        {
-            get {
-                return false;
+                return GetBit(index);
             }
         }
 
         public bool[] ToBoolArray()
         {
-            bool[] bools = new bool[bits.Length];
-            for (int i = 0; i < bools.Length; ++i)
-                bools[i] = bits[i];
-            return bools;
+            bool[] bits = new bool[OCTET];
+            for (int index = 0; index < bits.Length; ++index) {
+                bits[index] = GetBit(index);
+            }
+            return bits;
         }
 
-        void ICollection<bool>.Add(bool item)
-        {
-            throw new NotImplementedException();
-        }
-
+        /// <summary>
+        /// Sets all bits to 0
+        /// </summary>
         public void Clear()
         {
-            for(int i = 0; i < bits.Length; ++i) {
-                bits[i] = false;
-            }
+            bvalue = 0;
         }
 
         public int CompareTo(object obj)
@@ -69,13 +83,13 @@ namespace Trithemius
             if (obj == null)
                 return 1;
 
-            BinaryOctet octet = obj as BinaryOctet;
+            BinaryOctet? octet = obj as BinaryOctet?;
             if (octet != null)
-                return CompareTo(octet);
+                return CompareTo(octet.Value);
 
             byte? @byte = obj as byte?;
             if (@byte != null)
-                return CompareTo(@byte);
+                return CompareTo(@byte.Value);
 
             throw new ArgumentException("Can only compare types BinaryOctet and byte");
         }
@@ -87,22 +101,52 @@ namespace Trithemius
 
         public void CopyTo(bool[] array, int arrayIndex)
         {
-            bits.CopyTo(array, arrayIndex);
+            ToBoolArray().CopyTo(array, arrayIndex);
         }
 
         public IEnumerator<bool> GetEnumerator()
         {
-            foreach (bool bit in bits)
+            foreach (bool bit in ToBoolArray())
                 yield return bit;
         }
 
         public int IndexOf(bool item)
         {
-            for(int i = 0; i < bits.Length; ++i) {
-                if (bits[i] == item)
+            for(int i = 0; i < OCTET; ++i) {
+                if (this[i] == item)
                     return i;
             }
-            return -1; 
+            return -1;
+        }
+
+        void ICollection<bool>.Add(bool item)
+        {
+            throw new NotImplementedException();
+        }
+
+        int ICollection<bool>.Count
+        {
+            get {
+                return OCTET;
+            }
+        }
+
+        bool ICollection<bool>.IsReadOnly
+        {
+            get {
+                return false;
+            }
+        }
+
+        bool IList<bool>.this[int index]
+        {
+            get {
+                return GetBit(index);
+            }
+
+            set {
+                throw new NotImplementedException();
+            }
         }
 
         void IList<bool>.Insert(int index, bool item)
@@ -122,53 +166,41 @@ namespace Trithemius
 
         IEnumerator IEnumerable.GetEnumerator()
         {
-            return bits.GetEnumerator();
+            return ToBoolArray().GetEnumerator();
         }
 
         /// <summary>
         /// Sets each bit to the opposite of its current value
         /// </summary>
-        public void Invert()
+        public BinaryOctet Invert()
         {
-            bits.Not();
+            byte newval = bvalue;
+            for(int index = 0; index < OCTET; ++index) {
+                newval = SetBit(newval, index, !GetBit(newval, index));
+            }
+            return new BinaryOctet(newval);
         }
 
         public byte ToByte()
         {
-            byte value = 0;
-
-            for (byte index = 0; index < bits.Length; ++index) {
-                if (bits[index]) {
-                    value |= (byte)(1 << index);
-                }
-            }
-
-            return value;
+            return bvalue;
         }
 
         public bool Equals(BinaryOctet other)
         {
-            for (int index = 0; index < bits.Length; ++index) {
-                if (bits[index] != other.bits[index])
-                    return false;
-            }
-            return true;
+            return bvalue == other.bvalue;
         }
 
         public bool Equals(byte other)
         {
-            for(int index = 0; index < bits.Length; ++index) {
-                if (bits[index] != ((other & (1 << index)) > 0))
-                    return false;
-            }
-            return true;
+            return bvalue == other;
         }
 
         public override bool Equals(object obj)
         {
-            BinaryOctet octet = obj as BinaryOctet;
+            BinaryOctet? octet = obj as BinaryOctet?;
             if (octet != null) {
-                return Equals(octet);
+                return Equals(octet.Value);
             }
             byte? byte_value = obj as byte?;
             if (byte_value != null) {
@@ -179,7 +211,7 @@ namespace Trithemius
 
         public override int GetHashCode()
         {
-            return bits.GetHashCode();
+            return bvalue.GetHashCode();
         }
 
         public int CompareTo(BinaryOctet other)
@@ -339,6 +371,31 @@ namespace Trithemius
         ulong IConvertible.ToUInt64(IFormatProvider provider)
         {
             return Convert.ToUInt64(ToByte());
+        }
+
+        int IList<bool>.IndexOf(bool item)
+        {
+            throw new NotImplementedException();
+        }
+
+        void ICollection<bool>.Clear()
+        {
+            throw new NotImplementedException();
+        }
+
+        bool ICollection<bool>.Contains(bool item)
+        {
+            throw new NotImplementedException();
+        }
+
+        void ICollection<bool>.CopyTo(bool[] array, int arrayIndex)
+        {
+            throw new NotImplementedException();
+        }
+
+        IEnumerator<bool> IEnumerable<bool>.GetEnumerator()
+        {
+            throw new NotImplementedException();
         }
 
         #endregion

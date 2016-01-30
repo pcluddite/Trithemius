@@ -123,7 +123,7 @@ namespace Trithemius
 
             int bit = 0;
             foreach(bool b in this) {
-                curr[bit++] = invert ? !b : b;
+                curr = curr.SetBit(bit++, invert ? !b : b);
                 if (bit > 7) {
                     data.Add(curr.ToByte());
                     curr = new BinaryOctet();
