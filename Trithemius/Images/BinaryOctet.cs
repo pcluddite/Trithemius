@@ -4,6 +4,9 @@ using System.Collections.Generic;
 
 namespace Trithemius
 {
+    /// <summary>
+    /// Wrapper for an 8-bit unsigned integer to manipulate bits easily
+    /// </summary>
     public struct BinaryOctet : IList<bool>, IComparable, IConvertible, IEquatable<BinaryOctet>, IEquatable<byte>, IComparable<BinaryOctet>, IComparable<byte>
     {
         private const int OCTET = 8;

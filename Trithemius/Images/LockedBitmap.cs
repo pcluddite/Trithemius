@@ -1,6 +1,7 @@
 ﻿/*
  * Authors: Vano Maisuradze, Tim Baxendale
- * Licensed under the Code Project Open License
+ * License: Code Project Open License (http://www.codeproject.com/info/cpol10.aspx)
+ * Original: http://stackoverflow.com/questions/202011/encrypt-and-decrypt-a-string
  */
 
 using System;

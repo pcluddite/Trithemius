@@ -1,4 +1,10 @@
-﻿using System;
+﻿/*
+ * Authors: Brett, Tim Baxendale
+ * License: Creative Commons 3.0 (http://creativecommons.org/licenses/by-sa/3.0/legalcode)
+ * Original: http://www.codeproject.com/Tips/240428/Work-with-bitmap-faster-with-Csharp
+ */
+
+using System;
 using System.Text;
 using System.IO;
 using System.Security.Cryptography;
