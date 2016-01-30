@@ -46,7 +46,10 @@ namespace Trithemius
 
         public bool[] ToBoolArray()
         {
-            return (bool[])bits.Clone();
+            bool[] bools = new bool[bits.Length];
+            for (int i = 0; i < bools.Length; ++i)
+                bools[i] = bits[i];
+            return bools;
         }
 
         void ICollection<bool>.Add(bool item)
