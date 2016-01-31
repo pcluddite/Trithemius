@@ -169,7 +169,7 @@ namespace Trithemius
                     return;
                 }
 
-                if (string.IsNullOrEmpty(pass))
+                if (!string.IsNullOrEmpty(pass))
                     data = Crypto.DecryptStringAES(data, pass);
                 
 
