@@ -94,9 +94,9 @@ namespace Trithemius
         /// <summary>
         /// Sets all bits to 0
         /// </summary>
-        public void Clear()
+        public BinaryOctet Clear()
         {
-            bvalue = 0;
+            return new BinaryOctet(0);
         }
 
         public int CompareTo(object obj)
@@ -257,48 +257,34 @@ namespace Trithemius
 
         #region equality operators
 
-        public static bool operator ==(BinaryOctet octet1, BinaryOctet octet2)
+        public static bool operator ==(BinaryOctet left, BinaryOctet right)
         {
-            if ((object)octet1 == null || (object)octet2 == null)
-                return object.Equals(octet1, octet2);
-
-            return octet1.Equals(octet2);
+            return left.Equals(right);
         }
 
-        public static bool operator !=(BinaryOctet octet1, BinaryOctet octet2)
+        public static bool operator !=(BinaryOctet left, BinaryOctet right)
         {
-            if ((object)octet1 == null || (object)octet2 == null)
-                return !object.Equals(octet1, octet2);
-
-            return !octet1.Equals(octet2);
+            return !left.Equals(right);
         }
 
-        public static bool operator ==(BinaryOctet octet, byte @byte)
+        public static bool operator ==(BinaryOctet left, byte right)
         {
-            if (octet == null)
-                return false;
-            return octet.Equals(@byte);
+            return left.Equals(right);
         }
 
-        public static bool operator !=(BinaryOctet octet, byte @byte)
+        public static bool operator !=(BinaryOctet left, byte right)
         {
-            if (octet == null)
-                return true;
-            return !octet.Equals(@byte);
+            return !left.Equals(right);
         }
 
-        public static bool operator ==(byte @byte, BinaryOctet octet)
+        public static bool operator ==(byte left, BinaryOctet right)
         {
-            if (octet == null)
-                return false;
-            return octet.Equals(@byte);
+            return right.Equals(left);
         }
 
-        public static bool operator !=(byte @byte, BinaryOctet octet)
+        public static bool operator !=(byte left, BinaryOctet right)
         {
-            if (octet == null)
-                return true;
-            return !octet.Equals(@byte);
+            return !right.Equals(left);
         }
 
         #endregion
