@@ -138,7 +138,7 @@ namespace Trithemius
                 byte[] msg = (byte[])args[1];
                 string pass = (string)args[2];
 
-                if (pass != null && !pass.Equals(""))
+                if (!string.IsNullOrEmpty(pass))
                     msg = Crypto.EncryptStringAES(msg, pass);
 
                 t.Encode(msg, imageSaveDialog.FileName);
@@ -169,7 +169,7 @@ namespace Trithemius
                     return;
                 }
 
-                if (pass != null && !pass.Equals(""))
+                if (string.IsNullOrEmpty(pass))
                     data = Crypto.DecryptStringAES(data, pass);
                 
 
@@ -223,7 +223,7 @@ namespace Trithemius
             t.Color = (PixelColor)(pixelValueComboBox.SelectedIndex + 1);
             t.InvertBits = invertBox.Checked;
 
-            if (!seedBox.Text.Equals("")) {
+            if (!string.IsNullOrEmpty(seedBox.Text)) {
                 t.Seed = new TrithemiusSeed(seedBox.Text);
             }
 
@@ -259,7 +259,6 @@ namespace Trithemius
                         pathTextbox.Text = imageOpenDialog.FileName;
                     }
                     RefreshAvailableSize();
-                    RefreshRequiredSize();
                 }
                 catch (FileNotFoundException ex) {
                     ShowError(ex);
@@ -319,7 +318,7 @@ namespace Trithemius
                     msg = File.ReadAllBytes(msgOpenDialog.FileName);
                 }
 
-                if (!passwordBox.Text.Equals(""))
+                if (!string.IsNullOrEmpty(passwordBox.Text))
                     msg = Crypto.EncryptStringAES(msg, passwordBox.Text);
 
                 int msgSize = t.GetRequiredSize(msg);

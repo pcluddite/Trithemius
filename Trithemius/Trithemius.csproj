@@ -49,40 +49,39 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AESThenHMAC.cs" />
-    <Compile Include="Encryption.cs" />
-    <Compile Include="Images\BinaryList.cs" />
-    <Compile Include="Images\BinaryOctet.cs" />
-    <Compile Include="Images\RandomSeed.cs">
+    <Compile Include="Classes\BinaryList.cs" />
+    <Compile Include="Classes\BinaryOctet.cs" />
+    <Compile Include="Classes\Encryption.cs" />
+    <Compile Include="Forms\RandomSeed.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Images\RandomSeed.Designer.cs">
+    <Compile Include="Forms\RandomSeed.Designer.cs">
       <DependentUpon>RandomSeed.cs</DependentUpon>
     </Compile>
-    <Compile Include="Images\TrithemiusForm.cs">
+    <Compile Include="Forms\TrithemiusForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Images\TrithemiusForm.Designer.cs">
+    <Compile Include="Forms\TrithemiusForm.Designer.cs">
       <DependentUpon>TrithemiusForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Images\LockedBitmap.cs" />
-    <Compile Include="Images\TrithemiusSeed.cs" />
-    <Compile Include="Images\Trithemius.cs" />
-    <Compile Include="Images\Finished.cs">
+    <Compile Include="Classes\LockedBitmap.cs" />
+    <Compile Include="Classes\TrithemiusSeed.cs" />
+    <Compile Include="Classes\Trithemius.cs" />
+    <Compile Include="Forms\Finished.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Images\Finished.Designer.cs">
+    <Compile Include="Forms\Finished.Designer.cs">
       <DependentUpon>Finished.cs</DependentUpon>
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <EmbeddedResource Include="Images\RandomSeed.resx">
+    <EmbeddedResource Include="Forms\RandomSeed.resx">
       <DependentUpon>RandomSeed.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Images\TrithemiusForm.resx">
+    <EmbeddedResource Include="Forms\TrithemiusForm.resx">
       <DependentUpon>TrithemiusForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Images\Finished.resx">
+    <EmbeddedResource Include="Forms\Finished.resx">
       <DependentUpon>Finished.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
@@ -90,7 +89,7 @@
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
       <SubType>Designer</SubType>
     </EmbeddedResource>
-    <EmbeddedResource Include="Images\Text.resx">
+    <EmbeddedResource Include="Forms\Text.resx">
       <DependentUpon>Text.cs</DependentUpon>
     </EmbeddedResource>
     <Compile Include="Properties\Resources.Designer.cs">
@@ -108,10 +107,10 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Images\Text.cs">
+    <Compile Include="Forms\Text.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Images\Text.Designer.cs">
+    <Compile Include="Forms\Text.Designer.cs">
       <DependentUpon>Text.cs</DependentUpon>
     </Compile>
   </ItemGroup>
