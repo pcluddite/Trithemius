@@ -53,7 +53,7 @@ namespace Trithemius
         private static byte SetBit(byte bvalue, int index, bool value)
         {
             if (index < 0 || index >= OCTET)
-                throw new ArgumentOutOfRangeException(nameof(index));
+                throw new IndexOutOfRangeException();
             if (value) {
                 bvalue = (byte)(bvalue | (1 << index));
             }
@@ -71,7 +71,7 @@ namespace Trithemius
         private static bool GetBit(byte bvalue, int index)
         {
             if (index < 0 || index >= OCTET)
-                throw new ArgumentOutOfRangeException(nameof(index));
+                throw new IndexOutOfRangeException();
             return (bvalue & (1 << index)) != 0;
         }
 
@@ -127,8 +127,7 @@ namespace Trithemius
 
         public IEnumerator<bool> GetEnumerator()
         {
-            foreach (bool bit in ToBoolArray())
-                yield return bit;
+            return new BinOctetEnumerator(bvalue);
         }
 
         public int IndexOf(bool item)
@@ -187,7 +186,7 @@ namespace Trithemius
 
         IEnumerator IEnumerable.GetEnumerator()
         {
-            return ToBoolArray().GetEnumerator();
+            return GetEnumerator();
         }
 
         /// <summary>
@@ -239,6 +238,46 @@ namespace Trithemius
         public int CompareTo(byte other)
         {
             return ToByte().CompareTo(other);
+        }
+
+        private class BinOctetEnumerator : IEnumerator<bool>
+        {
+            private byte value;
+            private int index = -1;
+
+            public BinOctetEnumerator(byte value)
+            {
+                this.value = value;
+            }
+
+            public bool Current
+            {
+                get {
+                    return GetBit(value, index);
+                }
+            }
+
+            object IEnumerator.Current
+            {
+                get {
+                    return Current;
+                }
+            }
+
+            public void Dispose()
+            {
+                // nothing to do here
+            }
+
+            public bool MoveNext()
+            {
+                return ++index < OCTET;
+            }
+
+            public void Reset()
+            {
+                index = -1;
+            }
         }
 
         #region implicit operators
