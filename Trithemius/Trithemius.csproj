@@ -10,7 +10,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Trithemius</RootNamespace>
     <AssemblyName>Trithemius</AssemblyName>
-    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <StartupObject>
     </StartupObject>
@@ -49,6 +49,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AESThenHMAC.cs" />
     <Compile Include="Encryption.cs" />
     <Compile Include="Images\BinaryList.cs" />
     <Compile Include="Images\BinaryOctet.cs" />
