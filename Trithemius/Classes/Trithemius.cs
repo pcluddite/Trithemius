@@ -56,12 +56,12 @@ namespace Trithemius
             return GetRequiredSize(message) < GetMaximumSize();
         }
 
-        public static int PixelNumber(int x, int y, int width)
+        private static int PixelNumber(int x, int y, int width)
         {
             return (y * width) + x;
         }
 
-        public static Point PixelCoord(int number, int width)
+        private static Point PixelCoord(int number, int width)
         {
             return new Point(number % width, (number - (number % width)) / width);
         }

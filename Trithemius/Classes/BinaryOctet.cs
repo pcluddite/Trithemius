@@ -155,7 +155,7 @@ namespace Trithemius
         bool ICollection<bool>.IsReadOnly
         {
             get {
-                return false;
+                return true;
             }
         }
 
