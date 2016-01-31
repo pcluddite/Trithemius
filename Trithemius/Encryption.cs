@@ -1,7 +1,7 @@
 ﻿/*
  * Authors: Brett, Tim Baxendale
  * License: Creative Commons 3.0 (http://creativecommons.org/licenses/by-sa/3.0/legalcode)
- * Original: http://www.codeproject.com/Tips/240428/Work-with-bitmap-faster-with-Csharp
+ * Original: http://stackoverflow.com/questions/202011/encrypt-and-decrypt-a-string
  */
 
 using System;
