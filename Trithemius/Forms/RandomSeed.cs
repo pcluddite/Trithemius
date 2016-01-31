@@ -23,7 +23,7 @@ namespace Trithemius
 {
     public partial class RandomSeed : Form
     {
-        public int Result { get; set; }
+        public int Result { get; private set; }
 
         public RandomSeed()
         {

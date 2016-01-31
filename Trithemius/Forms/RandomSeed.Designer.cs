@@ -79,6 +79,11 @@ namespace Trithemius
             0,
             0,
             0});
+            this.seedNumericUpDown.Minimum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
             this.seedNumericUpDown.Name = "seedNumericUpDown";
             this.seedNumericUpDown.Size = new System.Drawing.Size(90, 20);
             this.seedNumericUpDown.TabIndex = 2;
