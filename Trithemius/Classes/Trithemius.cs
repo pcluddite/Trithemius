@@ -51,11 +51,6 @@ namespace Trithemius
             BitmapImage = image;
 		}
 
-        ~Trithemius()
-        {
-            Dispose();
-        }
-
         private bool MessageFitsImage(ICollection<byte> message)
         {
             return GetRequiredSize(message) < GetMaximumSize();
