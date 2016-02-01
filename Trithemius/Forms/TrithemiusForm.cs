@@ -26,6 +26,7 @@ using System.Windows.Forms;
 using System.Drawing.Imaging;
 using System.Diagnostics;
 using Encryption;
+using Trithemius.Properties;
 
 namespace Trithemius
 {
@@ -145,11 +146,10 @@ namespace Trithemius
                 t.Encode(msg, imageSaveDialog.FileName);
                 
                 t.Dispose();
-                e.Result = true;
+                e.Result = new object[] { true };
             }
             catch (Exception ex) {
-                ShowErrorT(ex);
-                e.Result = false;
+                e.Result = new object[] { false, ex.Message };
             }
         }
 
@@ -165,33 +165,30 @@ namespace Trithemius
                 byte[] msg = t.Decode();
 
                 if (msg == null) {
-                    ErrorNoData();
-                    e.Result = null;
+                    e.Result = new object[] { false, "No decodable data was detected." };
                     return;
                 }
 
                 if (!string.IsNullOrEmpty(pass)) {
                     msg = AESThenHMAC.SimpleDecryptWithPassword(msg, pass);
                     if (msg == null) {
-                        ShowErrorT("The encryption key was invalid.");
-                        e.Result = null;
+                        e.Result = new object[] { false, "The encryption key was invalid." };
                         return;
                     }
                 }
 
                 if (textRadioButton.Checked) {
-                    e.Result = Encoding.UTF8.GetString(msg);
+                    e.Result = new object[] { true, Encoding.UTF8.GetString(msg) };
                 }
                 else {
                     File.WriteAllBytes(msgSaveDialog.FileName, msg);
-                    e.Result = ""; // just to indicate success
+                    e.Result = new object[] { true };
                 }
 
                 t.Dispose();
             }
             catch (Exception ex) {
-                ShowErrorT(ex);
-                e.Result = null;
+                e.Result = new object[] { false, ex.Message };
             }
         }
 
@@ -199,22 +196,25 @@ namespace Trithemius
         {
             UnlockWindow();
 
-            if (e.Result == null) {
-                return;
-            }
+            object[] result = (object[])e.Result;
 
-            if (textRadioButton.Checked) {
-                Finished finished = new Finished((string)e.Result);
-                finished.ShowDialog();
+            if ((bool)result[0]) {
+                if (textRadioButton.Checked) {
+                    Finished finished = new Finished((string)result[1]);
+                    finished.ShowDialog();
+                }
+                else if (MessageBox.Show(this, "Decoding Completed!\r\nWould you like to open the file?",
+                        Text, MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes) {
+                    try {
+                        Process.Start(msgSaveDialog.FileName);
+                    }
+                    catch (Exception ex) {
+                        ShowError(ex);
+                    }
+                }
             }
-            else if (MessageBox.Show(this, "Decoding Completed!\r\nWould you like to open the file?",
-                    Text, MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes) {
-                try {
-                    Process.Start(msgSaveDialog.FileName);
-                }
-                catch (Exception ex) {
-                    ShowError(ex);
-                }
+            else {
+                ShowError((string)result[1]);
             }
         }
 
@@ -282,9 +282,14 @@ namespace Trithemius
         {
             UnlockWindow();
 
-            if ((bool)e.Result) {
+            object[] result = (object[])e.Result;
+
+            if ((bool)result[0]) {
                 MessageBox.Show(this, "Encoding completed! You should spot no visible image differences.", Text,
                     MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            else {
+                ShowError((string)result[1]);
             }
         }
 
@@ -369,24 +374,9 @@ namespace Trithemius
             }
         }
 
-        private void ErrorNoData()
-        {
-            ShowErrorT("No decodable data was detected.");
-        }
-
-        private void ShowErrorT(Exception ex)
-        {
-            ShowErrorT(ex.Message + "\n" + ex.TargetSite);
-        }
-
-        private void ShowErrorT(string message)
-        {
-            MessageBox.Show(message, Text, MessageBoxButtons.OK, MessageBoxIcon.Warning);
-        }
-
         private void ShowError(Exception ex)
         {
-            ShowError(ex.Message + "\n" + ex.TargetSite);
+            ShowError(ex.Message);
         }
 
         private void ShowError(string message)
