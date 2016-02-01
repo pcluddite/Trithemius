@@ -49,9 +49,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Classes\AESThenHMAC.cs" />
     <Compile Include="Classes\BinaryList.cs" />
     <Compile Include="Classes\BinaryOctet.cs" />
-    <Compile Include="Classes\Encryption.cs" />
     <Compile Include="Forms\RandomSeed.cs">
       <SubType>Form</SubType>
     </Compile>

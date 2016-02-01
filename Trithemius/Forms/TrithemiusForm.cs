@@ -25,6 +25,7 @@ using System.Text;
 using System.Windows.Forms;
 using System.Drawing.Imaging;
 using System.Diagnostics;
+using Encryption;
 
 namespace Trithemius
 {
@@ -139,7 +140,7 @@ namespace Trithemius
                 string pass = (string)args[2];
 
                 if (!string.IsNullOrEmpty(pass))
-                    msg = Crypto.EncryptStringAES(msg, pass);
+                    msg = AESThenHMAC.SimpleEncryptWithPassword(msg, pass);
 
                 t.Encode(msg, imageSaveDialog.FileName);
                 
@@ -161,35 +162,35 @@ namespace Trithemius
                 Trithemius t = (Trithemius)args[1];
                 string pass = (string)args[2];
                 
-                byte[] data = t.Decode();
+                byte[] msg = t.Decode();
 
-                if (data == null) {
+                if (msg == null) {
                     ErrorNoData();
                     e.Result = null;
                     return;
                 }
 
-                if (!string.IsNullOrEmpty(pass))
-                    data = Crypto.DecryptStringAES(data, pass);
-                
+                if (!string.IsNullOrEmpty(pass)) {
+                    msg = AESThenHMAC.SimpleDecryptWithPassword(msg, pass);
+                    if (msg == null) {
+                        ShowErrorT("The encryption key was invalid.");
+                        e.Result = null;
+                        return;
+                    }
+                }
 
                 if (textRadioButton.Checked) {
-                    e.Result = Encoding.UTF8.GetString(data);
+                    e.Result = Encoding.UTF8.GetString(msg);
                 }
                 else {
-                    File.WriteAllBytes(msgSaveDialog.FileName, data);
+                    File.WriteAllBytes(msgSaveDialog.FileName, msg);
                     e.Result = ""; // just to indicate success
                 }
 
                 t.Dispose();
             }
             catch (Exception ex) {
-                if (ex.Message.Contains("Padding")) {
-                    ShowErrorT("The decryption code was most likely invalid.");
-                }
-                else {
-                    ShowErrorT(ex);
-                }
+                ShowErrorT(ex);
                 e.Result = null;
             }
         }
@@ -319,7 +320,7 @@ namespace Trithemius
                 }
 
                 if (!string.IsNullOrEmpty(passwordBox.Text))
-                    msg = Crypto.EncryptStringAES(msg, passwordBox.Text);
+                    msg = AESThenHMAC.SimpleEncryptWithPassword(msg, passwordBox.Text);
 
                 int msgSize = t.GetRequiredSize(msg);
 
