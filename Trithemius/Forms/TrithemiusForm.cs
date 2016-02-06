@@ -309,10 +309,10 @@ namespace Trithemius
 
         private void RefreshRequiredSize()
         {
-            try {
-                Trithemius t = new Trithemius(null);
-                t.LeastSignificantBits = (int)bitsNumericUpDown.Value;
+            Trithemius t = new Trithemius(null);
+            t.LeastSignificantBits = (int)bitsNumericUpDown.Value;
 
+            try {    
                 byte[] msg;
                 if (textRadioButton.Checked) {
                     if (message == null)
@@ -340,6 +340,9 @@ namespace Trithemius
             }
             catch (FileNotFoundException ex) {
                 ShowError(ex);
+            }
+            finally {
+                t.Dispose();
             }
         }
         
