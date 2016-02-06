@@ -26,7 +26,6 @@ using System.Windows.Forms;
 using System.Drawing.Imaging;
 using System.Diagnostics;
 using Encryption;
-using Trithemius.Properties;
 
 namespace Trithemius
 {
@@ -102,7 +101,6 @@ namespace Trithemius
                 else {
                     msg = File.ReadAllBytes(msgOpenDialog.FileName);
                 }
-                
                 
                 encodeWorker.RunWorkerAsync(new object[] { t, msg, passwordBox.Text });
             }
@@ -320,7 +318,7 @@ namespace Trithemius
                     msg = Encoding.ASCII.GetBytes(message);
                 }
                 else {
-                    if (msgOpenDialog.FileName.Equals(""))
+                    if (string.IsNullOrEmpty(msgOpenDialog.FileName))
                         return;
                     msg = File.ReadAllBytes(msgOpenDialog.FileName);
                 }
