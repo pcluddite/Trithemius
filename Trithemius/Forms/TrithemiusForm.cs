@@ -35,6 +35,7 @@ namespace Trithemius
         private string message = "";
         private double maxSize = 0;
         private Size dimensions;
+        private int previous_rand = 5;
 
         public TrithemiusForm()
         {
@@ -386,9 +387,11 @@ namespace Trithemius
 
         private void randomButton_Click(object sender, EventArgs e)
         {
-            RandomSeed randForm = new RandomSeed();
-            if (randForm.ShowDialog() == DialogResult.OK)
-                seedBox.Text = TrithemiusSeed.RandomSeed(randForm.Result).ToString();
+            RandomSeed randForm = new RandomSeed(previous_rand);
+            if (randForm.ShowDialog() == DialogResult.OK) {
+                previous_rand = randForm.Result;
+                seedBox.Text = TrithemiusSeed.RandomSeed(previous_rand).ToString();
+            }
         }
     }
 }

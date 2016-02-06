@@ -25,9 +25,10 @@ namespace Trithemius
     {
         public int Result { get; private set; }
 
-        public RandomSeed()
+        public RandomSeed(decimal value)
         {
             InitializeComponent();
+            seedNumericUpDown.Value = value;
         }
 
         private void cancelButton_Click(object sender, EventArgs e)
