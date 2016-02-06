@@ -133,34 +133,35 @@ namespace Trithemius
 
         private void encodeWorker_DoWork(object sender, DoWorkEventArgs e)
         {
-            try {
-                object[] args = (object[])e.Argument;
-                Trithemius t = (Trithemius)args[0];
-                byte[] msg = (byte[])args[1];
-                string pass = (string)args[2];
+            object[] args = (object[])e.Argument;
+            Trithemius t = (Trithemius)args[0];
+            byte[] msg = (byte[])args[1];
+            string pass = (string)args[2];
 
+            try {
                 if (!string.IsNullOrEmpty(pass))
                     msg = AESThenHMAC.SimpleEncryptWithPassword(msg, pass);
 
                 t.Encode(msg, imageSaveDialog.FileName);
                 
-                t.Dispose();
                 e.Result = new object[] { true };
             }
             catch (Exception ex) {
                 e.Result = new object[] { false, ex.Message };
             }
+            finally {
+                t.Dispose();
+            }
         }
 
         private void decodeWorker_DoWork(object sender, DoWorkEventArgs e)
         {
-            try {
-                object[] args = (object[])e.Argument;
+            object[] args = (object[])e.Argument;
+            bool checkSize = (bool)args[0];
+            Trithemius t = (Trithemius)args[1];
+            string pass = (string)args[2];
 
-                bool checkSize = (bool)args[0];
-                Trithemius t = (Trithemius)args[1];
-                string pass = (string)args[2];
-                
+            try {
                 byte[] msg = t.Decode();
 
                 if (msg == null) {
@@ -183,11 +184,12 @@ namespace Trithemius
                     File.WriteAllBytes(msgSaveDialog.FileName, msg);
                     e.Result = new object[] { true };
                 }
-
-                t.Dispose();
             }
             catch (Exception ex) {
                 e.Result = new object[] { false, ex.Message };
+            }
+            finally {
+                t.Dispose();
             }
         }
 
