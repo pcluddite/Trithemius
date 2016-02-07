@@ -30,22 +30,5 @@ namespace Trithemius
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(new TrithemiusForm());
         }
-
-        public static string SizeToString(double size)
-        {
-            int unit = 0;
-            if (size >= 1024) { size /= 1024; unit = 1; }
-            if (size >= 1024) { size /= 1024; unit = 2; }
-            if (size >= 1024) { size /= 1024; unit = 3; }
-            string n = size.ToString("0.##");
-            switch (unit)
-            {
-                case 0: n += " B"; break;
-                case 1: n += " KB"; break;
-                case 2: n += " MB"; break;
-                case 3: n += " GB"; break;
-            }
-            return n;
-        }
     }
 }

@@ -271,7 +271,23 @@ namespace Trithemius
         private void RefreshAvailableSize()
         {
             maxSize = ((dimensions.Width * dimensions.Height) / 8) * (int)bitsNumericUpDown.Value;
-            availableSizeBox.Text = Program.SizeToString(maxSize);
+            availableSizeBox.Text = SizeToString(maxSize);
+        }
+
+        private static string SizeToString(double size)
+        {
+            int unit = 0;
+            if (size >= 1024) { size /= 1024; unit = 1; }
+            if (size >= 1024) { size /= 1024; unit = 2; }
+            if (size >= 1024) { size /= 1024; unit = 3; }
+            string n = size.ToString("0.##");
+            switch (unit) {
+                case 0: n += " B"; break;
+                case 1: n += " KB"; break;
+                case 2: n += " MB"; break;
+                case 3: n += " GB"; break;
+            }
+            return n;
         }
 
         private void radioButton2_CheckedChanged(object sender, EventArgs e)
@@ -330,7 +346,7 @@ namespace Trithemius
 
                 int msgSize = t.GetRequiredSize(msg);
 
-                requiredSizeBox.Text = Program.SizeToString(msgSize);
+                requiredSizeBox.Text = SizeToString(msgSize);
                 if (msgSize > maxSize) {
                     requiredSizeLabel.ForeColor = Color.Red;
                 }
