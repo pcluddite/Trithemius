@@ -27,7 +27,7 @@ namespace Trithemius
     /// </summary>
     public struct BinaryOctet : IList<bool>, IComparable, IConvertible, IEquatable<BinaryOctet>, IEquatable<byte>, IComparable<BinaryOctet>, IComparable<byte>
     {
-        private const int OCTET = 8;
+        public const int OCTET = 8;
         private byte bvalue;
         
         public BinaryOctet(byte value)
@@ -122,7 +122,8 @@ namespace Trithemius
 
         public void CopyTo(bool[] array, int arrayIndex)
         {
-            ToBoolArray().CopyTo(array, arrayIndex);
+            for (int i = arrayIndex; i < Count; ++i)
+                array[i] = this[i];
         }
 
         public IEnumerator<bool> GetEnumerator()
@@ -139,16 +140,16 @@ namespace Trithemius
             return -1;
         }
 
-        void ICollection<bool>.Add(bool item)
-        {
-            throw new NotImplementedException();
-        }
-
-        int ICollection<bool>.Count
+        public int Count
         {
             get {
                 return OCTET;
             }
+        }
+
+        void ICollection<bool>.Add(bool item)
+        {
+            throw new NotImplementedException();
         }
 
         bool ICollection<bool>.IsReadOnly
@@ -161,7 +162,7 @@ namespace Trithemius
         bool IList<bool>.this[int index]
         {
             get {
-                return GetBit(index);
+                return this[index];
             }
 
             set {
