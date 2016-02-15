@@ -27,6 +27,9 @@ namespace Trithemius
     /// </summary>
     public struct BinaryOctet : IList<bool>, IComparable, IConvertible, IEquatable<BinaryOctet>, IEquatable<byte>, IComparable<BinaryOctet>, IComparable<byte>
     {
+        /// <summary>
+        /// The number of bits in a byte
+        /// </summary>
         public const int OCTET = 8;
         private byte bvalue;
         
