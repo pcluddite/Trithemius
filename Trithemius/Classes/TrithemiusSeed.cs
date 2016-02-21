@@ -50,9 +50,6 @@ namespace Trithemius
             }
 
             set {
-                if (value > 9) {
-                    throw new ArgumentOutOfRangeException("Value must be less than 10");
-                }
                 ConstructSeedIfNull();
                 seed[index] = value;
             }
