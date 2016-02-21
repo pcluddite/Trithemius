@@ -146,7 +146,7 @@ namespace Trithemius
             }
 
             lockedBmp.UnlockBits();
-
+            
             return data.ToBytes(InvertBits);
         }
 

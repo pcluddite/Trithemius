@@ -110,26 +110,6 @@ namespace Trithemius
             return ((IList<byte>)seed).IndexOf(item);
         }
 
-        public void Insert(int index, byte item)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void RemoveAt(int index)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void Add(byte item)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void Clear()
-        {
-            throw new NotImplementedException();
-        }
-
         public bool Contains(byte item)
         {
             ConstructSeedIfNull();
@@ -142,11 +122,6 @@ namespace Trithemius
             seed.CopyTo(array, arrayIndex);
         }
 
-        public bool Remove(byte item)
-        {
-            throw new NotImplementedException();
-        }
-
         public IEnumerator<byte> GetEnumerator()
         {
             ConstructSeedIfNull();
@@ -155,8 +130,7 @@ namespace Trithemius
 
         IEnumerator IEnumerable.GetEnumerator()
         {
-            ConstructSeedIfNull();
-            return seed.GetEnumerator();
+            return GetEnumerator();
         }
 
         private void ConstructSeedIfNull()
@@ -177,5 +151,34 @@ namespace Trithemius
         {
             return new TrithemiusSeed(_seed);
         }
+
+        #region unimplemented
+
+        void IList<byte>.Insert(int index, byte item)
+        {
+            throw new NotImplementedException();
+        }
+
+        void IList<byte>.RemoveAt(int index)
+        {
+            throw new NotImplementedException();
+        }
+
+        void ICollection<byte>.Add(byte item)
+        {
+            throw new NotImplementedException();
+        }
+
+        void ICollection<byte>.Clear()
+        {
+            throw new NotImplementedException();
+        }
+
+        bool ICollection<byte>.Remove(byte item)
+        {
+            throw new NotImplementedException();
+        }
+
+        #endregion
     }
 }
