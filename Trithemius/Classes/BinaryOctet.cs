@@ -188,9 +188,9 @@ namespace Trithemius
             throw new NotImplementedException();
         }
 
-        IEnumerator IEnumerable.GetEnumerator()
+        IEnumerator<bool> IEnumerable<bool>.GetEnumerator()
         {
-            return GetEnumerator();
+            throw new NotImplementedException();
         }
 
         /// <summary>
@@ -419,6 +419,10 @@ namespace Trithemius
             return Convert.ToUInt64(ToByte());
         }
 
+        #endregion
+
+        #region unimplemented
+
         int IList<bool>.IndexOf(bool item)
         {
             throw new NotImplementedException();
@@ -439,7 +443,7 @@ namespace Trithemius
             throw new NotImplementedException();
         }
 
-        IEnumerator<bool> IEnumerable<bool>.GetEnumerator()
+        IEnumerator IEnumerable.GetEnumerator()
         {
             throw new NotImplementedException();
         }
