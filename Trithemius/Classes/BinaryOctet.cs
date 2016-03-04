@@ -188,11 +188,6 @@ namespace Trithemius
             throw new NotImplementedException();
         }
 
-        IEnumerator<bool> IEnumerable<bool>.GetEnumerator()
-        {
-            throw new NotImplementedException();
-        }
-
         /// <summary>
         /// Sets each bit to the opposite of its current value
         /// </summary>

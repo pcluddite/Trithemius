@@ -184,7 +184,7 @@ namespace Trithemius
 
         IEnumerator IEnumerable.GetEnumerator()
         {
-            return bits.GetEnumerator();
+            return GetEnumerator();
         }
     }
 }
