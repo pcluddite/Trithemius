@@ -115,22 +115,6 @@ namespace Trithemius
             return new BinaryOctet(0);
         }
 
-        public int CompareTo(object obj)
-        {
-            if (obj == null)
-                return 1;
-
-            BinaryOctet? octet = obj as BinaryOctet?;
-            if (octet != null)
-                return CompareTo(octet.Value);
-
-            byte? @byte = obj as byte?;
-            if (@byte != null)
-                return CompareTo(@byte.Value);
-
-            throw new ArgumentException("Can only compare types BinaryOctet and byte");
-        }
-
         public bool Contains(bool item)
         {
             return IndexOf(item) >= 0;
@@ -161,39 +145,6 @@ namespace Trithemius
             get {
                 return OCTET;
             }
-        }
-
-        bool ICollection<bool>.IsReadOnly
-        {
-            get {
-                return true;
-            }
-        }
-
-        bool IList<bool>.this[int index]
-        {
-            get {
-                return this[index];
-            }
-
-            set {
-                throw new NotImplementedException();
-            }
-        }
-
-        void IList<bool>.Insert(int index, bool item)
-        {
-            throw new NotImplementedException();
-        }
-
-        bool ICollection<bool>.Remove(bool item)
-        {
-            throw new NotImplementedException();
-        }
-
-        void IList<bool>.RemoveAt(int index)
-        {
-            throw new NotImplementedException();
         }
 
         /// <summary>
@@ -424,9 +375,62 @@ namespace Trithemius
 
         #endregion
 
-        #region unimplemented
+        #region implicit methods
+        
+        bool ICollection<bool>.IsReadOnly
+        {
+            get {
+                return true;
+            }
+        }
+
+        bool IList<bool>.this[int index]
+        {
+            get {
+                return this[index];
+            }
+
+            set {
+                throw new NotImplementedException();
+            }
+        }
+
+        int IComparable.CompareTo(object obj)
+        {
+            if (obj == null)
+                return 1;
+
+            BinaryOctet? octet = obj as BinaryOctet?;
+            if (octet != null)
+                return CompareTo(octet.Value);
+
+            byte? @byte = obj as byte?;
+            if (@byte != null)
+                return CompareTo(@byte.Value);
+
+            throw new ArgumentException("Can only compare types BinaryOctet and byte");
+        }
+
+        #endregion
+
+        #region unimplemented methods
 
         void ICollection<bool>.Add(bool item)
+        {
+            throw new NotImplementedException();
+        }
+
+        void IList<bool>.Insert(int index, bool item)
+        {
+            throw new NotImplementedException();
+        }
+
+        bool ICollection<bool>.Remove(bool item)
+        {
+            throw new NotImplementedException();
+        }
+
+        void IList<bool>.RemoveAt(int index)
         {
             throw new NotImplementedException();
         }
