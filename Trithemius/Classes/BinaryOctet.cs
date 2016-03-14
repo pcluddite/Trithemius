@@ -53,6 +53,13 @@ namespace Trithemius
             return new BinaryOctet(SetBit(bvalue, index, value));
         }
 
+        /// <summary>
+        /// Sets a bit at a given index to either 1 or 0
+        /// </summary>
+        /// <param name="bvalue">the original byte value</param>
+        /// <param name="index">the index of the bit to set</param>
+        /// <param name="value">the new value of the bit, either true (1) or false (0)</param>
+        /// <returns>the new byte</returns>
         private static byte SetBit(byte bvalue, int index, bool value)
         {
             if (index < 0 || index >= OCTET)
@@ -71,6 +78,12 @@ namespace Trithemius
             return GetBit(bvalue, index);
         }
 
+        /// <summary>
+        /// Gets a bit value at a given index
+        /// </summary>
+        /// <param name="bvalue">the original byte value</param>
+        /// <param name="index">the index of the bit to get</param>
+        /// <returns>either true (1) or false (0)</returns>
         private static bool GetBit(byte bvalue, int index)
         {
             if (index < 0 || index >= OCTET)
@@ -148,11 +161,6 @@ namespace Trithemius
             get {
                 return OCTET;
             }
-        }
-
-        void ICollection<bool>.Add(bool item)
-        {
-            throw new NotImplementedException();
         }
 
         bool ICollection<bool>.IsReadOnly
@@ -417,6 +425,11 @@ namespace Trithemius
         #endregion
 
         #region unimplemented
+
+        void ICollection<bool>.Add(bool item)
+        {
+            throw new NotImplementedException();
+        }
 
         int IList<bool>.IndexOf(bool item)
         {
