@@ -1,7 +1,7 @@
 ﻿/*
  * Authors: Vano Maisuradze, Tim Baxendale
  * License: Code Project Open License (http://www.codeproject.com/info/cpol10.aspx)
- * Original: http://stackoverflow.com/questions/202011/encrypt-and-decrypt-a-string
+ * Original: http://www.codeproject.com/Tips/240428/Work-with-bitmap-faster-with-Csharp
  */
 
 using System;
