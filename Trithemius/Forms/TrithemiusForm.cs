@@ -333,7 +333,7 @@ namespace Trithemius
                 if (textRadioButton.Checked) {
                     if (message == null)
                         return;
-                    msg = Encoding.ASCII.GetBytes(message);
+                    msg = Encoding.UTF8.GetBytes(message);
                 }
                 else {
                     if (string.IsNullOrEmpty(msgOpenDialog.FileName))
