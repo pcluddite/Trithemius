@@ -16,7 +16,10 @@
  *  with this program; if not, write to the Free Software Foundation, Inc.,
  *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 **/
+using System;
+using System.IO;
 using System.Windows.Forms;
+using System.Security;
 
 namespace Trithemius
 {
@@ -31,6 +34,18 @@ namespace Trithemius
         private void closeButton_Click(object sender, System.EventArgs e)
         {
             Close();
+        }
+
+        private void saveButton_Click(object sender, System.EventArgs e)
+        {
+            if (saveFileDialog.ShowDialog() == DialogResult.OK) {
+                try {
+                    File.WriteAllText(saveFileDialog.FileName, textBox2.Text);
+                }
+                catch(Exception ex) when (ex is IOException || ex is SecurityException) {
+                    Program.ShowError(this, ex.Message);
+                }
+            }
         }
     }
 }

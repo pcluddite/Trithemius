@@ -26,6 +26,7 @@ using System.Windows.Forms;
 using System.Drawing.Imaging;
 using System.Diagnostics;
 using Encryption;
+using System.Security;
 
 namespace Trithemius
 {
@@ -75,7 +76,7 @@ namespace Trithemius
         private bool CheckImagePath()
         {
             if (pathTextbox.Text == "") {
-                ShowError("You must specify an image file.");
+                Program.ShowError(this, "You must specify an image file.");
                 return false;
             }
             return true;
@@ -104,7 +105,7 @@ namespace Trithemius
                 
                 encodeWorker.RunWorkerAsync(new object[] { t, msg, passwordBox.Text });
             }
-            catch(FileNotFoundException ex) {
+            catch(Exception ex) when (ex is EncoderFallbackException || ex is IOException || ex is SecurityException) {
                 ShowError(ex);
                 UnlockWindow();
             }
@@ -206,16 +207,11 @@ namespace Trithemius
                 }
                 else if (MessageBox.Show(this, "Decoding Completed!\r\nWould you like to open the file?",
                         Text, MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes) {
-                    try {
-                        Process.Start(msgSaveDialog.FileName);
-                    }
-                    catch (Exception ex) {
-                        ShowError(ex);
-                    }
+                    Program.TryStart(this, new ProcessStartInfo(msgSaveDialog.FileName));
                 }
             }
             else {
-                ShowError((string)result[1]);
+                Program.ShowError(this, (string)result[1]);
             }
         }
 
@@ -306,7 +302,7 @@ namespace Trithemius
                     MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             else {
-                ShowError((string)result[1]);
+                Program.ShowError(this, (string)result[1]);
             }
         }
 
@@ -396,12 +392,7 @@ namespace Trithemius
 
         private void ShowError(Exception ex)
         {
-            ShowError(ex.Message);
-        }
-
-        private void ShowError(string message)
-        {
-            MessageBox.Show(this, message, Text, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            Program.ShowError(this, ex.Message);
         }
 
         private void randomButton_Click(object sender, EventArgs e)
