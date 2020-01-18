@@ -9,7 +9,7 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.Runtime.InteropServices;
 
-namespace Trithemius.Imaging
+namespace Monk.Imaging
 {
     public class LockedBitmap
     {

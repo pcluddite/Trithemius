@@ -26,8 +26,8 @@ using System.IO;
 using System.Security;
 using System.Text;
 using System.Windows.Forms;
-using Trithemius.Encryption;
-using Trithemius.Imaging;
+using Monk.Encryption;
+using Monk.Imaging;
 
 namespace Trithemius.Windows
 {

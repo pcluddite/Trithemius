@@ -1,5 +1,5 @@
 ﻿/**
- *  Trithemius
+ *  Monk
  *  Copyright (C) Timothy Baxendale
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -21,7 +21,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Trithemius.Imaging
+namespace Monk.Imaging
 {
     public struct Seed : IList<byte>
     {

@@ -1,5 +1,5 @@
 ﻿/**
- *  Trithemius
+ *  Monk
  *  Copyright (C) Timothy Baxendale
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -20,7 +20,7 @@ using System.Collections.Generic;
 using System.Collections;
 using System.Text;
 
-namespace Trithemius.Bittwiddling
+namespace Monk.Bittwiddling
 {
     /// <summary>
     /// A list of binary values 1 or 0, this class is more flexible than BitArray

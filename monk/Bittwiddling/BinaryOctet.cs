@@ -1,5 +1,5 @@
 ﻿/**
- *  Trithemius
+ *  Monk
  *  Copyright (C) Timothy Baxendale
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -20,7 +20,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 
-namespace Trithemius.Bittwiddling
+namespace Monk.Bittwiddling
 {
     /// <summary>
     /// Wrapper for an 8-bit unsigned integer to manipulate bits easily

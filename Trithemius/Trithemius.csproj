@@ -10,7 +10,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Trithemius</RootNamespace>
     <AssemblyName>Trithemius</AssemblyName>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <StartupObject>
     </StartupObject>
@@ -31,6 +31,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <UseVSHostingProcess>true</UseVSHostingProcess>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -39,6 +40,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -49,9 +51,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Encryption\AESThenHMAC.cs" />
-    <Compile Include="Bittwiddling\BinaryList.cs" />
-    <Compile Include="Bittwiddling\BinaryOctet.cs" />
     <Compile Include="Windows\RandomSeed.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -64,9 +63,6 @@
     <Compile Include="Windows\TrithemiusForm.Designer.cs">
       <DependentUpon>TrithemiusForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Imaging\LockedBitmap.cs" />
-    <Compile Include="Imaging\Seed.cs" />
-    <Compile Include="Imaging\Steganographer.cs" />
     <Compile Include="Windows\Finished.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -118,7 +114,12 @@
   <ItemGroup>
     <Content Include="Icojam-Blue-Bits-Pictures.ico" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="..\monk\monk.csproj">
+      <Project>{a2194d53-72ab-4a3c-90fd-ba2b58a5f60e}</Project>
+      <Name>monk</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

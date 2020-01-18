@@ -1,5 +1,5 @@
 /**
- *  Trithemius
+ *  Monk
  *  Copyright (C) Timothy Baxendale
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -21,9 +21,9 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.Collections.Generic;
 using System.Linq;
-using Trithemius.Bittwiddling;
+using Monk.Bittwiddling;
 
-namespace Trithemius.Imaging
+namespace Monk.Imaging
 {
     public class Steganographer : IDisposable
     {

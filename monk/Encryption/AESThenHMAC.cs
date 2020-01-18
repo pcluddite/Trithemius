@@ -10,7 +10,7 @@ using System.IO;
 using System.Security.Cryptography;
 using System.Text;
 
-namespace Trithemius.Encryption
+namespace Monk.Encryption
 {
   public static class AESThenHMAC
   {
