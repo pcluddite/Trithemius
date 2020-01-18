@@ -17,32 +17,35 @@
  *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 **/
 using System;
+using System.IO;
 using System.Windows.Forms;
+using System.Security;
 
-namespace Trithemius
+namespace Trithemius.Windows
 {
-    public partial class Text : Form
+    public partial class Finished : Form
     {
-
-        public string Result { get; private set; }
-
-        public Text(string msg)
+        public Finished(string text)
         {
             InitializeComponent();
-            textBox1.Text = msg;
+            textBox2.Text = text;
         }
 
-        private void okButton_Click(object sender, EventArgs e)
+        private void closeButton_Click(object sender, System.EventArgs e)
         {
-            DialogResult = DialogResult.OK;
-            Result = textBox1.Text;
             Close();
         }
 
-        private void cancelButton_Click(object sender, EventArgs e)
+        private void saveButton_Click(object sender, System.EventArgs e)
         {
-            DialogResult = DialogResult.Cancel;
-            Close();
+            if (saveFileDialog.ShowDialog() == DialogResult.OK) {
+                try {
+                    File.WriteAllText(saveFileDialog.FileName, textBox2.Text);
+                }
+                catch(Exception ex) when (ex is IOException || ex is SecurityException) {
+                    Program.ShowError(this, ex.Message);
+                }
+            }
         }
     }
 }

@@ -49,47 +49,48 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Classes\AESThenHMAC.cs" />
-    <Compile Include="Classes\BinaryList.cs" />
-    <Compile Include="Classes\BinaryOctet.cs" />
-    <Compile Include="Forms\RandomSeed.cs">
+    <Compile Include="Encryption\AESThenHMAC.cs" />
+    <Compile Include="Bittwiddling\BinaryList.cs" />
+    <Compile Include="Bittwiddling\BinaryOctet.cs" />
+    <Compile Include="Windows\RandomSeed.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Forms\RandomSeed.Designer.cs">
+    <Compile Include="Windows\RandomSeed.Designer.cs">
       <DependentUpon>RandomSeed.cs</DependentUpon>
     </Compile>
-    <Compile Include="Forms\TrithemiusForm.cs">
+    <Compile Include="Windows\TrithemiusForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Forms\TrithemiusForm.Designer.cs">
+    <Compile Include="Windows\TrithemiusForm.Designer.cs">
       <DependentUpon>TrithemiusForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Classes\LockedBitmap.cs" />
-    <Compile Include="Classes\TrithemiusSeed.cs" />
-    <Compile Include="Classes\Trithemius.cs" />
-    <Compile Include="Forms\Finished.cs">
+    <Compile Include="Imaging\LockedBitmap.cs" />
+    <Compile Include="Imaging\Seed.cs" />
+    <Compile Include="Imaging\Steganographer.cs" />
+    <Compile Include="Windows\Finished.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Forms\Finished.Designer.cs">
+    <Compile Include="Windows\Finished.Designer.cs">
       <DependentUpon>Finished.cs</DependentUpon>
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <EmbeddedResource Include="Forms\RandomSeed.resx">
+    <EmbeddedResource Include="Windows\RandomSeed.resx">
       <DependentUpon>RandomSeed.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Forms\TrithemiusForm.resx">
+    <EmbeddedResource Include="Windows\TrithemiusForm.resx">
       <DependentUpon>TrithemiusForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Forms\Finished.resx">
+    <EmbeddedResource Include="Windows\Finished.resx">
       <DependentUpon>Finished.cs</DependentUpon>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
       <SubType>Designer</SubType>
     </EmbeddedResource>
-    <EmbeddedResource Include="Forms\Text.resx">
+    <EmbeddedResource Include="Windows\Text.resx">
       <DependentUpon>Text.cs</DependentUpon>
     </EmbeddedResource>
     <Compile Include="Properties\Resources.Designer.cs">
@@ -107,19 +108,17 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Forms\Text.cs">
+    <Compile Include="Windows\Text.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Forms\Text.Designer.cs">
+    <Compile Include="Windows\Text.Designer.cs">
       <DependentUpon>Text.cs</DependentUpon>
     </Compile>
   </ItemGroup>
   <ItemGroup>
     <Content Include="Icojam-Blue-Bits-Pictures.ico" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Resources\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

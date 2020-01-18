@@ -20,7 +20,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 
-namespace Trithemius
+namespace Trithemius.Bittwiddling
 {
     /// <summary>
     /// Wrapper for an 8-bit unsigned integer to manipulate bits easily
@@ -32,7 +32,7 @@ namespace Trithemius
         /// </summary>
         public const int OCTET = 8;
         private byte bvalue;
-        
+
         public BinaryOctet(byte value)
         {
             bvalue = value;
@@ -43,7 +43,7 @@ namespace Trithemius
             if (bits.Length > OCTET)
                 throw new ArgumentException("cannot have more than 8 bits in an octet", nameof(bits));
             bvalue = 0;
-            for(int index = 0; index < bits.Length; ++index) {
+            for (int index = 0; index < bits.Length; ++index) {
                 bvalue = SetBit(bvalue, index, bits[index]);
             }
         }
@@ -65,7 +65,7 @@ namespace Trithemius
             if (index < 0 || index >= OCTET)
                 throw new IndexOutOfRangeException();
             if (value) {
-                bvalue = (byte)(bvalue | (1 << index));
+                bvalue = (byte)(bvalue | 1 << index);
             }
             else {
                 bvalue = (byte)(bvalue & ~(1 << index));
@@ -88,7 +88,7 @@ namespace Trithemius
         {
             if (index < 0 || index >= OCTET)
                 throw new IndexOutOfRangeException();
-            return (bvalue & (1 << index)) != 0;
+            return (bvalue & 1 << index) != 0;
         }
 
         public bool this[int index]
@@ -133,7 +133,7 @@ namespace Trithemius
 
         public int IndexOf(bool item)
         {
-            for(int i = 0; i < OCTET; ++i) {
+            for (int i = 0; i < OCTET; ++i) {
                 if (this[i] == item)
                     return i;
             }
@@ -376,7 +376,7 @@ namespace Trithemius
         #endregion
 
         #region implicit methods
-        
+
         bool ICollection<bool>.IsReadOnly
         {
             get {

@@ -19,16 +19,17 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Drawing;
+using System.Drawing.Imaging;
 using System.IO;
+using System.Security;
 using System.Text;
 using System.Windows.Forms;
-using System.Drawing.Imaging;
-using System.Diagnostics;
-using Encryption;
-using System.Security;
+using Trithemius.Encryption;
+using Trithemius.Imaging;
 
-namespace Trithemius
+namespace Trithemius.Windows
 {
     public partial class TrithemiusForm : Form
     {
@@ -93,7 +94,7 @@ namespace Trithemius
             LockWindow();
 
             try {
-                Trithemius t = MakeTrithemius();
+                Steganographer t = MakeTrithemius();
 
                 byte[] msg;
                 if (textRadioButton.Checked) {
@@ -135,7 +136,7 @@ namespace Trithemius
         private void encodeWorker_DoWork(object sender, DoWorkEventArgs e)
         {
             object[] args = (object[])e.Argument;
-            Trithemius t = (Trithemius)args[0];
+            Steganographer t = (Steganographer)args[0];
             byte[] msg = (byte[])args[1];
             string pass = (string)args[2];
 
@@ -159,7 +160,7 @@ namespace Trithemius
         {
             object[] args = (object[])e.Argument;
             bool checkSize = (bool)args[0];
-            Trithemius t = (Trithemius)args[1];
+            Steganographer t = (Steganographer)args[1];
             string pass = (string)args[2];
 
             try {
@@ -215,14 +216,14 @@ namespace Trithemius
             }
         }
 
-        private Trithemius MakeTrithemius()
+        private Steganographer MakeTrithemius()
         {
-            Trithemius t = new Trithemius(OpenBitmap(pathTextbox.Text));
+            Steganographer t = new Steganographer(OpenBitmap(pathTextbox.Text));
             t.Color = (PixelColor)(pixelValueComboBox.SelectedIndex + 1);
             t.InvertBits = invertBox.Checked;
 
             if (!string.IsNullOrEmpty(seedBox.Text)) {
-                t.Seed = new TrithemiusSeed(seedBox.Text);
+                t.Seed = new Seed(seedBox.Text);
             }
 
             t.LeastSignificantBits = (int)bitsNumericUpDown.Value;
@@ -321,7 +322,7 @@ namespace Trithemius
 
         private void RefreshRequiredSize()
         {
-            Trithemius t = new Trithemius(null);
+            Steganographer t = new Steganographer(null);
             t.LeastSignificantBits = (int)bitsNumericUpDown.Value;
 
             try {    
@@ -400,7 +401,7 @@ namespace Trithemius
             RandomSeed randForm = new RandomSeed(previous_rand);
             if (randForm.ShowDialog() == DialogResult.OK) {
                 previous_rand = randForm.Result;
-                seedBox.Text = TrithemiusSeed.RandomSeed(previous_rand).ToString();
+                seedBox.Text = Seed.RandomSeed(previous_rand).ToString();
             }
         }
     }

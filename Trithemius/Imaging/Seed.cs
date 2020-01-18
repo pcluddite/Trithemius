@@ -21,9 +21,9 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Trithemius
+namespace Trithemius.Imaging
 {
-    public struct TrithemiusSeed : IList<byte>
+    public struct Seed : IList<byte>
     {
         private byte[] seed;
 
@@ -67,17 +67,17 @@ namespace Trithemius
             }
         }
 
-        public TrithemiusSeed(ICollection<byte> _seed)
+        public Seed(ICollection<byte> _seed)
         {
-            this.seed = new byte[_seed.Count];
+            seed = new byte[_seed.Count];
             int i = 0;
             foreach (byte b in _seed) {
-                this.seed[i++] = b;
+                seed[i++] = b;
             }
             ThrowIfBad(seed);
         }
 
-        public TrithemiusSeed(string _seed)
+        public Seed(string _seed)
         {
             seed = new byte[_seed.Length];
             int i = 0;
@@ -87,7 +87,7 @@ namespace Trithemius
             ThrowIfBad(seed);
         }
 
-        public static TrithemiusSeed RandomSeed(int size)
+        public static Seed RandomSeed(int size)
         {
             if (size > 10 || size < 1)
                 throw new ArgumentOutOfRangeException("size");
@@ -98,7 +98,7 @@ namespace Trithemius
             for (int i = 0; i < seed.Length; ++i)
                 seed[i] = (byte)rand.Next(10);
 
-            return new TrithemiusSeed(seed);
+            return new Seed(seed);
         }
 
         public int IndexOf(byte item)
@@ -144,9 +144,9 @@ namespace Trithemius
             return sb.ToString();
         }
 
-        public static TrithemiusSeed FromString(string _seed)
+        public static Seed FromString(string _seed)
         {
-            return new TrithemiusSeed(_seed);
+            return new Seed(_seed);
         }
 
         #region unimplemented

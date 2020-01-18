@@ -20,7 +20,7 @@ using System.Collections.Generic;
 using System.Collections;
 using System.Text;
 
-namespace Trithemius
+namespace Trithemius.Bittwiddling
 {
     /// <summary>
     /// A list of binary values 1 or 0, this class is more flexible than BitArray
@@ -35,7 +35,7 @@ namespace Trithemius
 
         public BinaryList(IEnumerable<byte> data)
         {
-            foreach(byte b in data) {
+            foreach (byte b in data) {
                 AddRange(b);
             }
         }
@@ -76,7 +76,7 @@ namespace Trithemius
 
         public void AddRange(BinaryOctet octet)
         {
-            foreach(bool bit in octet) {
+            foreach (bool bit in octet) {
                 Add(bit);
             }
         }
@@ -139,7 +139,7 @@ namespace Trithemius
             BinaryOctet curr = new BinaryOctet();
 
             int bit = 0;
-            foreach(bool b in this) {
+            foreach (bool b in this) {
                 curr = curr.SetBit(bit++, invert ? !b : b);
                 if (bit > 7) {
                     data.Add(curr.ToByte());
@@ -159,7 +159,7 @@ namespace Trithemius
         /// </summary>
         public void Invert()
         {
-            for(int index = 0; index < bits.Count; ++index) {
+            for (int index = 0; index < bits.Count; ++index) {
                 bits[index] = !bits[index];
             }
         }
@@ -172,11 +172,11 @@ namespace Trithemius
         {
             return bits.Count % 8 == 0;
         }
-        
+
         public override string ToString()
         {
             StringBuilder sb = new StringBuilder(bits.Count);
-            foreach(bool b in this) {
+            foreach (bool b in this) {
                 sb.Append(b ? '1' : '0');
             }
             return sb.ToString();

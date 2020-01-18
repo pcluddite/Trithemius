@@ -19,7 +19,7 @@
 using System;
 using System.Windows.Forms;
 
-namespace Trithemius
+namespace Trithemius.Windows
 {
     public partial class RandomSeed : Form
     {

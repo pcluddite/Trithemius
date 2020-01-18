@@ -21,15 +21,17 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.Collections.Generic;
 using System.Linq;
+using Trithemius.Bittwiddling;
 
-namespace Trithemius
+namespace Trithemius.Imaging
 {
-    public class Trithemius : IDisposable
-	{
-		public TrithemiusSeed Seed { get; set; }
+    public class Steganographer : IDisposable
+    {
+        public Seed Seed { get; set; }
 
         private int lsb = 1;
-        public int LeastSignificantBits {
+        public int LeastSignificantBits
+        {
             get {
                 return lsb;
             }
@@ -42,14 +44,14 @@ namespace Trithemius
         }
 
         public Bitmap BitmapImage { get; set; }
-		public PixelColor Color { get; set; }
+        public PixelColor Color { get; set; }
         public bool InvertBits { get; set; }
         public bool Disposed { get; private set; }
 
-        public Trithemius(Bitmap image)
-		{
+        public Steganographer(Bitmap image)
+        {
             BitmapImage = image;
-		}
+        }
 
         private bool MessageFitsImage(ICollection<byte> message)
         {
@@ -58,14 +60,14 @@ namespace Trithemius
 
         private static int PixelNumber(int x, int y, int width)
         {
-            return (y * width) + x;
+            return y * width + x;
         }
 
         private static Point PixelCoord(int number, int width)
         {
-            return new Point(number % width, (number - (number % width)) / width);
+            return new Point(number % width, (number - number % width) / width);
         }
-        
+
         public Dictionary<int, byte> Encode(byte[] message, string savePath)
         {
             List<byte> data = new List<byte>();
@@ -87,7 +89,7 @@ namespace Trithemius
             Dictionary<int, byte> changes = new Dictionary<int, byte>();
 
             int bitIndex = 0;
-            for (int pixelIndex = Seed[0]; pixelIndex <= (BitmapImage.Height * BitmapImage.Width) && bitIndex < bits.Count; pixelIndex += (Seed[bitIndex % Seed.Count] + 1)) {
+            for (int pixelIndex = Seed[0]; pixelIndex <= BitmapImage.Height * BitmapImage.Width && bitIndex < bits.Count; pixelIndex += Seed[bitIndex % Seed.Count] + 1) {
                 byte[] pixelValue = lockedBmp.GetPixelArgb(pixelIndex);
 
                 BinaryOctet octet = pixelValue[(int)Color];
@@ -108,7 +110,7 @@ namespace Trithemius
 
             return changes;
         }
-        
+
         public int CheckSize()
         {
             int size = BitConverter.ToInt32(ReadBits(sizeof(int)).ToArray(), 0);
@@ -123,9 +125,9 @@ namespace Trithemius
         {
             int size = CheckSize();
 
-            if (size < 0) 
+            if (size < 0)
                 return null; // no message
-            
+
             IEnumerable<byte> data = ReadBits(sizeof(int) + size);
             return data.Skip(sizeof(int)).ToArray();
         }
@@ -138,7 +140,7 @@ namespace Trithemius
             lockedBmp.LockBits();
 
             int bitIndex = 0;
-            for (int pixelIndex = Seed[0]; bitIndex < byteCount * 8; pixelIndex += (Seed[bitIndex % Seed.Count] + 1)) {
+            for (int pixelIndex = Seed[0]; bitIndex < byteCount * 8; pixelIndex += Seed[bitIndex % Seed.Count] + 1) {
                 BinaryOctet octet = lockedBmp.GetPixelArgb(pixelIndex)[(int)Color];
 
                 for (byte currBit = 0; currBit < lsb; ++currBit, ++bitIndex)
@@ -146,7 +148,7 @@ namespace Trithemius
             }
 
             lockedBmp.UnlockBits();
-            
+
             return data.ToBytes(InvertBits);
         }
 
@@ -154,7 +156,7 @@ namespace Trithemius
         {
             int size = message.Count + sizeof(int);
             int newSize = 0;
-            for(int i = 0; i < size; ++i) {
+            for (int i = 0; i < size; ++i) {
                 newSize += Seed[i % Seed.Count] + 1;
             }
             return newSize;
@@ -174,9 +176,9 @@ namespace Trithemius
         }
     }
 
-	public enum PixelColor : int
-	{
-		Alpha = 0, Red = 1, Green = 2, Blue = 3
-	}
+    public enum PixelColor : int
+    {
+        Alpha = 0, Red = 1, Green = 2, Blue = 3
+    }
 }
 

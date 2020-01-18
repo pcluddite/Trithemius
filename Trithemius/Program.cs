@@ -22,13 +22,14 @@ using System.Diagnostics;
 using System.IO;
 using System.ComponentModel;
 using System.Diagnostics.Contracts;
+using Trithemius.Windows;
 
 namespace Trithemius
 {
-    static class Program
+    internal static class Program
     {
         [STAThread]
-        static void Main()
+        public static void Main()
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
