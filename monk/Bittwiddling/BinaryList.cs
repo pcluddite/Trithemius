@@ -19,6 +19,7 @@
 using System.Collections.Generic;
 using System.Collections;
 using System.Text;
+using System.Linq;
 
 namespace Monk.Bittwiddling
 {
@@ -42,27 +43,11 @@ namespace Monk.Bittwiddling
 
         public bool this[int index]
         {
-            get {
-                return bits[index];
-            }
-            set {
-                bits[index] = value;
-            }
+            get => bits[index];
+            set => bits[index] = value;
         }
 
-        public int Count
-        {
-            get {
-                return bits.Count;
-            }
-        }
-
-        public bool IsReadOnly
-        {
-            get {
-                return false;
-            }
-        }
+        public int Count => bits.Count;
 
         public void Add(bool item)
         {
@@ -121,37 +106,27 @@ namespace Monk.Bittwiddling
             bits.RemoveAt(index);
         }
 
+        public IEnumerable<byte> ToBytes()
+        {
+            return ToBytes(invert: false);
+        }
+
         /// <summary>
         /// Converts each set of eight bits into a bytes
         /// </summary>
         /// <param name="invert">whether or not to invert bytes</param>
         /// <returns></returns>
-        public IEnumerable<byte> ToBytes(bool invert = false)
+        public IEnumerable<byte> ToBytes(bool invert)
         {
-            List<byte> data;
-            if (IsValidBytes()) {
-                data = new List<byte>(bits.Count / 8);
+            int idx = 0;
+            for(; idx < bits.Count; ++idx) {
+                BinaryOctet curr = new BinaryOctet();
+                int n = 0;
+                do {
+                    curr = curr.SetBit(n, invert ? !bits[idx] : bits[idx]);
+                } while (++n < BinaryOctet.OCTET && ++idx < bits.Count);
+                yield return curr;
             }
-            else {
-                data = new List<byte>(bits.Count / 8 + 1);
-            }
-
-            BinaryOctet curr = new BinaryOctet();
-
-            int bit = 0;
-            foreach (bool b in this) {
-                curr = curr.SetBit(bit++, invert ? !b : b);
-                if (bit > 7) {
-                    data.Add(curr.ToByte());
-                    curr = new BinaryOctet();
-                    bit = 0;
-                }
-            }
-
-            if (bit > 0)
-                data.Add(curr.ToByte()); // the last remaining bits
-
-            return data;
         }
 
         /// <summary>
@@ -181,6 +156,8 @@ namespace Monk.Bittwiddling
             }
             return sb.ToString();
         }
+
+        bool ICollection<bool>.IsReadOnly => false;
 
         IEnumerator IEnumerable.GetEnumerator()
         {

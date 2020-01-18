@@ -25,13 +25,16 @@ namespace Monk.Bittwiddling
     /// <summary>
     /// Wrapper for an 8-bit unsigned integer to manipulate bits easily
     /// </summary>
-    public struct BinaryOctet : IList<bool>, IComparable, IConvertible, IEquatable<BinaryOctet>, IEquatable<byte>, IComparable<BinaryOctet>, IComparable<byte>
+    public struct BinaryOctet : IList<bool>, IComparable, IConvertible,
+        IEquatable<BinaryOctet>, IEquatable<byte>, IComparable<BinaryOctet>, IComparable<byte>
     {
+        private static readonly BinaryOctet EMPTY_OCTET = new BinaryOctet(0);
+
         /// <summary>
         /// The number of bits in a byte
         /// </summary>
         public const int OCTET = 8;
-        private byte bvalue;
+        private readonly byte bvalue;
 
         public BinaryOctet(byte value)
         {
@@ -42,49 +45,40 @@ namespace Monk.Bittwiddling
         {
             if (bits.Length > OCTET)
                 throw new ArgumentException("cannot have more than 8 bits in an octet", nameof(bits));
-            bvalue = 0;
+            BinaryOctet n = new BinaryOctet();
             for (int index = 0; index < bits.Length; ++index) {
-                bvalue = SetBit(bvalue, index, bits[index]);
+                n = n.SetBit(index, bits[index]);
             }
-        }
-
-        public BinaryOctet SetBit(int index, bool value)
-        {
-            return new BinaryOctet(SetBit(bvalue, index, value));
+            bvalue = n;
         }
 
         /// <summary>
         /// Sets a bit at a given index to either 1 or 0
         /// </summary>
-        /// <param name="bvalue">the original byte value</param>
         /// <param name="index">the index of the bit to set</param>
         /// <param name="value">the new value of the bit, either true (1) or false (0)</param>
         /// <returns>the new byte</returns>
-        private static byte SetBit(byte bvalue, int index, bool value)
+        public BinaryOctet SetBit(int index, bool value)
         {
             if (index < 0 || index >= OCTET)
                 throw new IndexOutOfRangeException();
+            byte newbyte;
             if (value) {
-                bvalue = (byte)(bvalue | 1 << index);
+                newbyte = (byte)(bvalue | 1 << index);
             }
             else {
-                bvalue = (byte)(bvalue & ~(1 << index));
+                newbyte = (byte)(bvalue & ~(1 << index));
             }
-            return bvalue;
+            return newbyte;
         }
 
-        public bool GetBit(int index)
-        {
-            return GetBit(bvalue, index);
-        }
 
         /// <summary>
         /// Gets a bit value at a given index
         /// </summary>
-        /// <param name="bvalue">the original byte value</param>
         /// <param name="index">the index of the bit to get</param>
         /// <returns>either true (1) or false (0)</returns>
-        private static bool GetBit(byte bvalue, int index)
+        public bool GetBit(int index)
         {
             if (index < 0 || index >= OCTET)
                 throw new IndexOutOfRangeException();
@@ -112,39 +106,32 @@ namespace Monk.Bittwiddling
         /// </summary>
         public BinaryOctet Clear()
         {
-            return new BinaryOctet(0);
+            return EMPTY_OCTET;
         }
 
-        public bool Contains(bool item)
+        public bool Contains(bool bit)
         {
-            return IndexOf(item) >= 0;
+            return IndexOf(bit) >= 0;
         }
 
         public void CopyTo(bool[] array, int arrayIndex)
         {
-            for (int i = arrayIndex; i < Count; ++i)
+            for (int i = arrayIndex; i < OCTET; ++i)
                 array[i] = this[i];
         }
 
         public IEnumerator<bool> GetEnumerator()
         {
-            return new BinOctetEnumerator(bvalue);
+            for (int i = 0; i < OCTET; ++i)
+                yield return GetBit(i);
         }
 
         public int IndexOf(bool item)
         {
             for (int i = 0; i < OCTET; ++i) {
-                if (this[i] == item)
-                    return i;
+                if (this[i] == item) return i;
             }
             return -1;
-        }
-
-        public int Count
-        {
-            get {
-                return OCTET;
-            }
         }
 
         /// <summary>
@@ -196,46 +183,6 @@ namespace Monk.Bittwiddling
         public int CompareTo(byte other)
         {
             return ToByte().CompareTo(other);
-        }
-
-        private class BinOctetEnumerator : IEnumerator<bool>
-        {
-            private byte value;
-            private int index = -1;
-
-            public BinOctetEnumerator(byte value)
-            {
-                this.value = value;
-            }
-
-            public bool Current
-            {
-                get {
-                    return GetBit(value, index);
-                }
-            }
-
-            object IEnumerator.Current
-            {
-                get {
-                    return Current;
-                }
-            }
-
-            public void Dispose()
-            {
-                // nothing to do here
-            }
-
-            public bool MoveNext()
-            {
-                return ++index < OCTET;
-            }
-
-            public void Reset()
-            {
-                index = -1;
-            }
         }
 
         #region implicit operators
@@ -377,22 +324,13 @@ namespace Monk.Bittwiddling
 
         #region implicit methods
 
-        bool ICollection<bool>.IsReadOnly
-        {
-            get {
-                return true;
-            }
-        }
+        int ICollection<bool>.Count => OCTET;
+        bool ICollection<bool>.IsReadOnly => true;
 
         bool IList<bool>.this[int index]
         {
-            get {
-                return this[index];
-            }
-
-            set {
-                throw new NotImplementedException();
-            }
+            get => this[index];
+            set => throw new NotImplementedException();
         }
 
         int IComparable.CompareTo(object obj)
@@ -435,29 +373,14 @@ namespace Monk.Bittwiddling
             throw new NotImplementedException();
         }
 
-        int IList<bool>.IndexOf(bool item)
-        {
-            throw new NotImplementedException();
-        }
-
         void ICollection<bool>.Clear()
-        {
-            throw new NotImplementedException();
-        }
-
-        bool ICollection<bool>.Contains(bool item)
-        {
-            throw new NotImplementedException();
-        }
-
-        void ICollection<bool>.CopyTo(bool[] array, int arrayIndex)
         {
             throw new NotImplementedException();
         }
 
         IEnumerator IEnumerable.GetEnumerator()
         {
-            throw new NotImplementedException();
+            return GetEnumerator();
         }
 
         #endregion
