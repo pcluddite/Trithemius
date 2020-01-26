@@ -113,7 +113,7 @@ namespace Monk.Imaging
             int cCount = Depth / 8;
 
             // Get start index of the specified pixel
-            int i = (y * Width + x) * cCount;
+            int i = (y * bitmapData.Stride + x) * cCount;
 
             if (i > Pixels.Length - cCount)
                 throw new IndexOutOfRangeException();
