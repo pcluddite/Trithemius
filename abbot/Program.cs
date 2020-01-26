@@ -31,13 +31,13 @@ namespace Abbot
     {
         public static void Main(string[] args)
         {
-            var results = Parser.Default.ParseArguments<EncodeOptions, DecodeOptions>(args)
+            int exitCode = Parser.Default.ParseArguments<EncodeOptions, DecodeOptions>(args)
                 .MapResult(
                     (EncodeOptions opts) => EncodeImage(opts),
                     (DecodeOptions opts) => DecodeImage(opts),
                     errors => GetError(errors)
                 );
-            Console.ReadKey(true);
+            Environment.Exit(exitCode);
         }
 
         private static int EncodeImage(EncodeOptions opts)
@@ -76,8 +76,29 @@ namespace Abbot
 
         private static int DecodeImage(DecodeOptions opts)
         {
-            Steganographer trithemius = opts.BuildTrithemius();
-            return 0;
+            try {
+                Steganographer trithemius = opts.BuildTrithemius();
+                byte[] data = trithemius.Decode();
+                if (!string.IsNullOrEmpty(opts.Key)) {
+                    data = AESThenHMAC.SimpleDecryptWithPassword(data, opts.Key);
+                    if (data == null) {
+                        throw new ArgumentException("The encryption key is incorrect");
+                    }
+                }
+
+                if (string.IsNullOrEmpty(opts.Output)) {
+                    Console.WriteLine(Encoding.UTF8.GetString(data));
+                }
+                else { 
+                    File.WriteAllBytes(opts.Output, data);
+                }
+
+                return 0;
+            }
+            catch (Exception ex) when (ex is ArgumentException || ex is IOException) {
+                Console.Error.WriteLine(ex.Message);
+                return 1;
+            }
         }
 
         private static int GetError(IEnumerable<Error> errors)
