@@ -25,6 +25,12 @@ using Monk.Bittwiddling;
 
 namespace Monk.Imaging
 {
+    public enum PixelColor : int
+    {
+        Alpha = 0, Red = 1, Green = 2, Blue = 3
+    }
+
+
     public class Steganographer : IDisposable
     {
         public Seed Seed { get; set; }
@@ -47,6 +53,11 @@ namespace Monk.Imaging
         public PixelColor Color { get; set; }
         public bool InvertBits { get; set; }
         public bool Disposed { get; private set; }
+
+        public Steganographer(string filename)
+        {
+            BitmapImage = new Bitmap(filename);
+        }
 
         public Steganographer(Bitmap image)
         {
@@ -169,16 +180,20 @@ namespace Monk.Imaging
 
         public void Dispose()
         {
-            if (BitmapImage != null && !Disposed) {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposing) {
+                if (BitmapImage != null) {
+                    BitmapImage.Dispose();
+                    BitmapImage = null;
+                }
                 Disposed = true;
-                BitmapImage.Dispose();
             }
         }
-    }
-
-    public enum PixelColor : int
-    {
-        Alpha = 0, Red = 1, Green = 2, Blue = 3
     }
 }
 

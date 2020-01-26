@@ -322,7 +322,7 @@ namespace Trithemius.Windows
 
         private void RefreshRequiredSize()
         {
-            Steganographer t = new Steganographer(null);
+            Steganographer t = new Steganographer((Bitmap)null);
             t.LeastSignificantBits = (int)bitsNumericUpDown.Value;
 
             try {    
