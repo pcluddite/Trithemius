@@ -25,12 +25,6 @@ using Monk.Bittwiddling;
 
 namespace Monk.Imaging
 {
-    public enum PixelColor : int
-    {
-        Alpha = 0, Red = 1, Green = 2, Blue = 3
-    }
-
-
     public class Steganographer : IDisposable
     {
         public Seed Seed { get; set; }
@@ -69,16 +63,6 @@ namespace Monk.Imaging
             return GetRequiredSize(message) < GetMaximumSize();
         }
 
-        private static int PixelNumber(int x, int y, int width)
-        {
-            return y * width + x;
-        }
-
-        private static Point PixelCoord(int number, int width)
-        {
-            return new Point(number % width, (number - number % width) / width);
-        }
-
         public Dictionary<int, byte> Encode(byte[] message, string savePath)
         {
             List<byte> data = new List<byte>();
@@ -101,18 +85,18 @@ namespace Monk.Imaging
 
             int bitIndex = 0;
             for (int pixelIndex = Seed[0]; pixelIndex <= BitmapImage.Height * BitmapImage.Width && bitIndex < bits.Count; pixelIndex += Seed[bitIndex % Seed.Count] + 1) {
-                byte[] pixelValue = lockedBmp.GetPixelArgb(pixelIndex);
-
-                BinaryOctet octet = pixelValue[(int)Color];
+                int x = pixelIndex % lockedBmp.Width;
+                int y = (pixelIndex - x) / lockedBmp.Width;
+                BinaryOctet oldval = lockedBmp.GetPixelColor(x, y, Color);
+                BinaryOctet newval = oldval;
                 for (int currBit = 0; currBit < lsb; ++currBit)
-                    octet = octet.SetBit(currBit, bits[bitIndex++]);
+                    newval = newval.SetBit(currBit, bits[bitIndex++]);
 
-                if (octet != pixelValue[(int)Color]) {
-                    changes.Add(pixelIndex, pixelValue[(int)Color]);
-                    pixelValue[(int)Color] = octet;
+                if (newval != oldval) {
+                    changes.Add(pixelIndex, oldval);
                 }
 
-                lockedBmp.SetPixel(PixelCoord(pixelIndex, BitmapImage.Width), pixelValue);
+                lockedBmp.SetPixelColor(x, y, newval, Color);
             }
 
             lockedBmp.UnlockBits();
@@ -152,7 +136,9 @@ namespace Monk.Imaging
 
             int bitIndex = 0;
             for (int pixelIndex = Seed[0]; bitIndex < byteCount * 8; pixelIndex += Seed[bitIndex % Seed.Count] + 1) {
-                BinaryOctet octet = lockedBmp.GetPixelArgb(pixelIndex)[(int)Color];
+                int x = pixelIndex % lockedBmp.Width;
+                int y = (pixelIndex - x) / lockedBmp.Width;
+                BinaryOctet octet = lockedBmp.GetPixelColor(x, y, Color);
 
                 for (byte currBit = 0; currBit < lsb; ++currBit, ++bitIndex)
                     data.Add(octet[currBit]);

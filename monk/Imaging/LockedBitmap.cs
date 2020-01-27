@@ -1,9 +1,21 @@
-﻿/*
- * Authors: Vano Maisuradze, Tim Baxendale
- * License: Code Project Open License (http://www.codeproject.com/info/cpol10.aspx)
- * Original: http://www.codeproject.com/Tips/240428/Work-with-bitmap-faster-with-Csharp
- */
-
+﻿/**
+ *  Monk
+ *  Copyright (C) Timothy Baxendale
+ *
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License along
+ *  with this program; if not, write to the Free Software Foundation, Inc.,
+ *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+**/
 using System;
 using System.Drawing;
 using System.Drawing.Imaging;
@@ -11,174 +23,161 @@ using System.Runtime.InteropServices;
 
 namespace Monk.Imaging
 {
-    public class LockedBitmap
+    public partial class LockedBitmap : IDisposable
     {
-        Bitmap source = null;
-        IntPtr Iptr = IntPtr.Zero;
-        BitmapData bitmapData = null;
-
-        public byte[] Pixels { get; set; }
+        private Bitmap bitmap;
+        private BitmapData bitmapData;
+        private int stride;
+        private int size;
+        
         public int Depth { get; private set; }
         public int Width { get; private set; }
         public int Height { get; private set; }
 
-        public LockedBitmap(Bitmap source)
+        public bool Locked { get => bitmapData != null; }
+
+        public int BytesPerPixel { get => Depth / 8; }
+
+        public LockedBitmap(Bitmap bitmap)
         {
-            this.source = source;
+            this.bitmap = bitmap;
+            Depth = Image.GetPixelFormatSize(bitmap.PixelFormat);
+            Width = bitmap.Width;
+            Height = bitmap.Height;
         }
 
-        /// <summary>
-        /// Lock bitmap data
-        /// </summary>
         public void LockBits()
         {
-            try {
-                // Get width and height of bitmap
-                Width = source.Width;
-                Height = source.Height;
-
-                // get total locked pixels count
-                //int PixelCount = Width * Height;
-
-                // Create rectangle to lock
-                Rectangle rect = new Rectangle(0, 0, Width, Height);
-
-                // get source bitmap pixel format size
-                Depth = Image.GetPixelFormatSize(source.PixelFormat);
-
-                // Check if bpp (Bits Per Pixel) is 8, 24, or 32
-                if (Depth != 8 && Depth != 24 && Depth != 32) {
-                    throw new ArgumentException("Only 8, 24 and 32 bpp images are supported.");
-                }
-
-                // Lock bitmap and return bitmap data
-                bitmapData = source.LockBits(rect, ImageLockMode.ReadWrite,
-                                             source.PixelFormat);
-
-                // create byte array to copy pixel values
-                //int step = Depth / 8;
-                Pixels = new byte[bitmapData.Stride * bitmapData.Height];
-                Iptr = bitmapData.Scan0;
-
-                // Copy data from pointer to array
-                Marshal.Copy(Iptr, Pixels, 0, Pixels.Length);
-            }
-            catch (Exception ex) {
-                throw ex;
-            }
+            Rectangle rect = new Rectangle(0, 0, Width, Height);
+            bitmapData = bitmap.LockBits(rect, ImageLockMode.ReadWrite, bitmap.PixelFormat);
+            stride = bitmapData.Stride;
+            size = Height * stride;
         }
 
-        /// <summary>
-        /// Unlock bitmap data
-        /// </summary>
         public void UnlockBits()
         {
-            try {
-                // Copy data from byte array to pointer
-                Marshal.Copy(Pixels, 0, Iptr, Pixels.Length);
-
-                // Unlock bitmap data
-                source.UnlockBits(bitmapData);
-            }
-            catch (Exception ex) {
-                throw ex;
-            }
+            bitmap.UnlockBits(bitmapData);
+            bitmapData = null;
         }
 
-        /// <summary>
-        /// Gets the pixel ARGB as an array
-        /// Author: Tim Baxendale
-        /// </summary>
-        /// <returns>The pixel ARGB.</returns>
-        /// <param name="p">P.</param>
-        public byte[] GetPixelArgb(int pixel)
-        {
-            int x = pixel % Width,
-                y = (pixel - pixel % Width) / Width;
-            Color c = GetPixel(x, y);
-            return new byte[] { c.A, c.R, c.G, c.B };
-        }
-
-        /// <summary>
-        /// Get the color of the specified pixel
-        /// </summary>
-        /// <param name="x"></param>
-        /// <param name="y"></param>
-        /// <returns></returns>
         public Color GetPixel(int x, int y)
         {
-            Color clr = Color.Empty;
+            return FromBytes(GetPixelArgb(x, y));
+        }
 
-            // Get color components count
-            int cCount = Depth / 8;
+        public byte[] GetPixelArgb(int x, int y)
+        {
+            return GetPixelArgb((y * stride + x) * BytesPerPixel);
+        }
 
-            // Get start index of the specified pixel
-            int i = (y * bitmapData.Stride + x) * cCount;
-
-            if (i > Pixels.Length - cCount)
+        private byte[] GetPixelArgb(int idx)
+        {
+            if (idx < 0 || idx > size - BytesPerPixel)
                 throw new IndexOutOfRangeException();
 
-            if (Depth == 32) {
-                byte b = Pixels[i];
-                byte g = Pixels[i + 1];
-                byte r = Pixels[i + 2];
-                byte a = Pixels[i + 3]; // a
-                clr = Color.FromArgb(a, r, g, b);
+            byte[] bytes = new byte[BytesPerPixel];
+            switch(BytesPerPixel) {
+                case 4:
+                    bytes[0] = GetPixelColor(idx, PixelColor.Alpha);
+                    bytes[1] = GetPixelColor(idx, PixelColor.Red);
+                    bytes[2] = GetPixelColor(idx, PixelColor.Green);
+                    bytes[3] = GetPixelColor(idx, PixelColor.Blue);
+                    break;
+                case 3:
+                    bytes[0] = GetPixelColor(idx, PixelColor.Red);
+                    bytes[1] = GetPixelColor(idx, PixelColor.Green);
+                    bytes[2] = GetPixelColor(idx, PixelColor.Blue);
+                    break;
+                case 1:
+                    bytes[0] = GetPixelColor(idx, PixelColor.Blue);
+                    break;
             }
-            if (Depth == 24) {
-                byte b = Pixels[i];
-                byte g = Pixels[i + 1];
-                byte r = Pixels[i + 2];
-                clr = Color.FromArgb(r, g, b);
-            }
-            if (Depth == 8) {
-                byte c = Pixels[i];
-                clr = Color.FromArgb(c, c, c);
-            }
-            return clr;
+            return bytes;
         }
 
-        /// <summary>
-        /// Sets the pixel with an ARGB array
-        /// Author: Tim Baxendale
-        /// </summary>
-        /// <param name="p">P.</param>
-        /// <param name="color">Color.</param>
-        public void SetPixel(Point p, byte[] color)
+
+        public byte GetPixelColor(int x, int y, PixelColor color)
         {
-            SetPixel(p.X, p.Y,
-                Color.FromArgb(color[0], color[1], color[2], color[3])
-                );
+            return GetPixelColor((y * stride + x) * BytesPerPixel, color);
         }
 
-        /// <summary>
-        /// Set the color of the specified pixel
-        /// </summary>
-        /// <param name="x"></param>
-        /// <param name="y"></param>
-        /// <param name="color"></param>
+        private byte GetPixelColor(int idx, PixelColor color)
+        {
+            return Marshal.ReadByte(bitmapData.Scan0, idx + (3 - (int)color));
+        }
+
         public void SetPixel(int x, int y, Color color)
         {
-            // Get color components count
-            int cCount = Depth / 8;
+            SetPixel((y * stride + x) * BytesPerPixel, color);
+        }
 
-            // Get start index of the specified pixel
-            int i = (y * bitmapData.Stride + x) * cCount;
+        private void SetPixel(int idx, Color color)
+        {
+            switch (BytesPerPixel) {
+                case 4: 
+                    SetPixelColor(idx, color.B, PixelColor.Blue);
+                    SetPixelColor(idx, color.G, PixelColor.Green);
+                    SetPixelColor(idx, color.R, PixelColor.Red);
+                    SetPixelColor(idx, color.A, PixelColor.Alpha);
+                    break;
+                case 3:
+                    SetPixelColor(idx, color.B, PixelColor.Blue);
+                    SetPixelColor(idx, color.G, PixelColor.Green);
+                    SetPixelColor(idx, color.R, PixelColor.Red);
+                    break;
+                case 1:
+                    SetPixelColor(idx, color.B, PixelColor.Blue);
+                    break;
+                default: throw UnsupportedColorDepth();
+            }
+        }
 
-            if (Depth == 32) {
-                Pixels[i] = color.B;
-                Pixels[i + 1] = color.G;
-                Pixels[i + 2] = color.R;
-                Pixels[i + 3] = color.A;
+        public void SetPixelColor(int x, int y, byte value, PixelColor color)
+        {
+            SetPixelColor((y * stride + x) * BytesPerPixel, value, color);
+        }
+
+        private void SetPixelColor(int idx, byte value, PixelColor color)
+        {
+            if (idx < 0 || idx > size - BytesPerPixel)
+                throw new IndexOutOfRangeException();
+            Marshal.WriteByte(bitmapData.Scan0, idx + (3 - (int)color), value);
+        }
+
+        public void SetPixelArgb(int x, int y, byte[] data)
+        {
+            SetPixel(x, y, FromBytes(data));
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposing) {
+                if (Locked) {
+                    UnlockBits();
+                }
+                bitmap.Dispose();
             }
-            if (Depth == 24) {
-                Pixels[i] = color.B;
-                Pixels[i + 1] = color.G;
-                Pixels[i + 2] = color.R;
+        }
+
+        private Color FromBytes(byte[] data)
+        {
+            switch (BytesPerPixel) {
+                case 4: return Color.FromArgb(data[0], data[1], data[2], data[3]);
+                case 3: return Color.FromArgb(data[0], data[1], data[2]);
+                case 1: return Color.FromArgb(data[0], data[0], data[0]);
+                default: throw UnsupportedColorDepth();
             }
-            if (Depth == 8) {
-                Pixels[i] = color.B;
-            }
+        }
+
+        private Exception UnsupportedColorDepth()
+        {
+            return new ArgumentException("unsupported color depth " + Depth + "bpp");
         }
     }
 }

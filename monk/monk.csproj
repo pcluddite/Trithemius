@@ -47,9 +47,13 @@
     <Compile Include="Bittwiddling\BinaryOctet.cs" />
     <Compile Include="Encryption\AESThenHMAC.cs" />
     <Compile Include="Imaging\LockedBitmap.cs" />
+    <Compile Include="Imaging\PixelColor.cs" />
     <Compile Include="Imaging\Seed.cs" />
     <Compile Include="Imaging\Steganographer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
