@@ -229,6 +229,10 @@ namespace Trithemius.Windows
 
             t.LeastSignificantBits = (int)bitsNumericUpDown.Value;
 
+            if (legacyCheck.Checked) {
+                t.SetLegacyOptions();
+            }
+
             return t;
         }
 
@@ -379,6 +383,7 @@ namespace Trithemius.Windows
                 textRadioButton.Text = "Encode Text";
                 fileRadioButton.Text = "Encode File";
                 writeTextButton.Visible =  requiredSizeLabel.Visible = requiredSizeBox.Visible = true;
+                legacyCheck.Visible = false;
                 encodeButton.Click -= decodeButton_Click;
                 encodeButton.Click += encodeButton_Click;
             }
@@ -387,6 +392,7 @@ namespace Trithemius.Windows
                 textRadioButton.Text = "Decode Text";
                 fileRadioButton.Text = "Decode File";
                 writeTextButton.Visible = requiredSizeLabel.Visible = requiredSizeBox.Visible = false;
+                legacyCheck.Visible = true;
                 encodeButton.Click -= encodeButton_Click;
                 encodeButton.Click += decodeButton_Click;
             }
@@ -404,6 +410,11 @@ namespace Trithemius.Windows
                 previous_rand = randForm.Result;
                 seedBox.Text = Seed.RandomSeed(previous_rand).ToString();
             }
+        }
+
+        private void legacyCheck_CheckedChanged(object sender, EventArgs e)
+        {
+            bitsNumericUpDown.Enabled = invertBox.Enabled = !legacyCheck.Checked || !legacyCheck.Visible;
         }
     }
 }

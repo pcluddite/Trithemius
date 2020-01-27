@@ -181,7 +181,14 @@ namespace Monk.Imaging
 
         public int GetMaximumSize()
         {
-            return BitmapImage.Width * BitmapImage.Width * LeastSignificantBits;
+            return (BitmapImage.Width * BitmapImage.Height * LeastSignificantBits) / 8;
+        }
+
+        public void SetLegacyOptions()
+        {
+            Endianness = EndianMode.LittleEndian;
+            ZeroBasedSize = true;
+            LeastSignificantBits = 1;
         }
 
         public void Dispose()

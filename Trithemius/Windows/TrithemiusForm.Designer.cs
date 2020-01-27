@@ -77,6 +77,7 @@ namespace Trithemius.Windows
             this.groupBox3 = new System.Windows.Forms.GroupBox();
             this.randomButton = new System.Windows.Forms.Button();
             this.groupBox4 = new System.Windows.Forms.GroupBox();
+            this.legacyCheck = new System.Windows.Forms.CheckBox();
             this.invertBox = new System.Windows.Forms.CheckBox();
             this.msgSaveDialog = new System.Windows.Forms.SaveFileDialog();
             this.decodeWorker = new System.ComponentModel.BackgroundWorker();
@@ -393,6 +394,7 @@ namespace Trithemius.Windows
             // 
             // groupBox4
             // 
+            this.groupBox4.Controls.Add(this.legacyCheck);
             this.groupBox4.Controls.Add(this.invertBox);
             this.groupBox4.Controls.Add(this.label10);
             this.groupBox4.Controls.Add(this.encodeButton);
@@ -405,6 +407,19 @@ namespace Trithemius.Windows
             this.groupBox4.TabIndex = 4;
             this.groupBox4.TabStop = false;
             this.groupBox4.Text = "Encoding";
+            // 
+            // legacyCheck
+            // 
+            this.legacyCheck.AutoSize = true;
+            this.legacyCheck.Location = new System.Drawing.Point(13, 48);
+            this.legacyCheck.Name = "legacyCheck";
+            this.legacyCheck.Size = new System.Drawing.Size(113, 17);
+            this.legacyCheck.TabIndex = 10;
+            this.legacyCheck.Text = "Use Legacy Rules";
+            this.legacyCheck.UseVisualStyleBackColor = true;
+            this.legacyCheck.Visible = false;
+            this.legacyCheck.CheckedChanged += new System.EventHandler(this.legacyCheck_CheckedChanged);
+            this.legacyCheck.VisibleChanged += new System.EventHandler(this.legacyCheck_CheckedChanged);
             // 
             // invertBox
             // 
@@ -495,5 +510,6 @@ namespace Trithemius.Windows
         private System.Windows.Forms.Label requiredSizeLabel;
         private System.Windows.Forms.SaveFileDialog msgSaveDialog;
         private System.ComponentModel.BackgroundWorker decodeWorker;
+        private System.Windows.Forms.CheckBox legacyCheck;
     }
 }
