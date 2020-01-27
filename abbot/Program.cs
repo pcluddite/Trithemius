@@ -62,7 +62,7 @@ namespace Abbot
                 var changes = trithemius.Encode(data, opts.Output);
                 if (opts.Verbose) {
                     foreach (var diff in changes) {
-                        Console.WriteLine("{0} => {1}", diff.Key, diff.Value);
+                        Console.WriteLine("({0}, {1}): {2} => {3}", diff.Point.X, diff.Point.Y, diff.OldColor, diff.NewColor);
                     }
                 }
                 
