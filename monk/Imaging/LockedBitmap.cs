@@ -67,32 +67,38 @@ namespace Monk.Imaging
 
         public byte[] GetPixelArgb(int x, int y)
         {
-            return GetPixelArgb((y * stride + x) * BytesPerPixel);
+            Color color = GetPixelArgb((y * stride + x) * BytesPerPixel);
+            switch(BytesPerPixel) {
+                case 4: return new byte[] { color.A, color.R, color.G, color.B };
+                case 3: return new byte[] { color.R, color.G, color.B };
+                case 1: return new byte[] { color.B };
+                default: throw UnsupportedColorDepth();
+            }
         }
 
-        private byte[] GetPixelArgb(int idx)
+        private Color GetPixelArgb(int idx)
         {
             if (idx < 0 || idx > size - BytesPerPixel)
                 throw new IndexOutOfRangeException();
 
-            byte[] bytes = new byte[BytesPerPixel];
             switch(BytesPerPixel) {
                 case 4:
-                    bytes[0] = GetPixelColor(idx, PixelColor.Alpha);
-                    bytes[1] = GetPixelColor(idx, PixelColor.Red);
-                    bytes[2] = GetPixelColor(idx, PixelColor.Green);
-                    bytes[3] = GetPixelColor(idx, PixelColor.Blue);
-                    break;
+                    return Color.FromArgb(
+                        GetPixelColor(idx, PixelColor.Alpha),
+                        GetPixelColor(idx, PixelColor.Red),
+                        GetPixelColor(idx, PixelColor.Green),
+                        GetPixelColor(idx, PixelColor.Blue));
                 case 3:
-                    bytes[0] = GetPixelColor(idx, PixelColor.Red);
-                    bytes[1] = GetPixelColor(idx, PixelColor.Green);
-                    bytes[2] = GetPixelColor(idx, PixelColor.Blue);
-                    break;
+                    return Color.FromArgb(
+                        GetPixelColor(idx, PixelColor.Red),
+                        GetPixelColor(idx, PixelColor.Green),
+                        GetPixelColor(idx, PixelColor.Blue));
                 case 1:
-                    bytes[0] = GetPixelColor(idx, PixelColor.Blue);
-                    break;
+                    byte color = GetPixelColor(idx, PixelColor.Blue);
+                    return Color.FromArgb(color, color, color);
+                default:
+                    throw UnsupportedColorDepth();
             }
-            return bytes;
         }
 
 
