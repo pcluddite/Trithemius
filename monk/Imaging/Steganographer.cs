@@ -49,7 +49,7 @@ namespace Monk.Imaging
         public bool InvertPrefixBits { get; set; } = false;
         public bool InvertDataBits { get; set; } = false;
         public bool ZeroBasedSize { get; set; } = false;
-        public EndianMode Edianness { get; set; } = EndianMode.BigEndian;
+        public EndianMode Endianness { get; set; } = EndianMode.BigEndian;
 
         public bool Disposed { get; private set; }
 
@@ -137,6 +137,10 @@ namespace Monk.Imaging
             if (size < 0)
                 return null; // no message
 
+            if (ZeroBasedSize) {
+                size += 1;
+            }
+
             IEnumerable<byte> data = ReadBits(sizeof(int) + size, InvertDataBits);
             return data.Skip(sizeof(int)).ToArray();
         }
@@ -159,8 +163,10 @@ namespace Monk.Imaging
             }
 
             lockedBmp.UnlockBits();
-
-            return data.ToBytes(invert);
+            if (invert) {
+                data.Invert();
+            }
+            return data.ToBytes(Endianness);
         }
 
         public int GetRequiredSize(ICollection<byte> message)

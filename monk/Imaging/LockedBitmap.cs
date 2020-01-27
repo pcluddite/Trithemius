@@ -67,7 +67,7 @@ namespace Monk.Imaging
 
         public byte[] GetPixelArgb(int x, int y)
         {
-            Color color = GetPixelArgb((y * stride + x) * BytesPerPixel);
+            Color color = GetPixelArgb(PointToOffset(x, y));
             switch(BytesPerPixel) {
                 case 4: return new byte[] { color.A, color.R, color.G, color.B };
                 case 3: return new byte[] { color.R, color.G, color.B };
@@ -101,10 +101,15 @@ namespace Monk.Imaging
             }
         }
 
+        private int PointToOffset(int x, int y)
+        {
+            return (y * stride) + (x * BytesPerPixel);
+        }
+
 
         public byte GetPixelColor(int x, int y, PixelColor color)
         {
-            return GetPixelColor((y * stride + x) * BytesPerPixel, color);
+            return GetPixelColor(PointToOffset(x, y), color);
         }
 
         private byte GetPixelColor(int idx, PixelColor color)
@@ -114,7 +119,7 @@ namespace Monk.Imaging
 
         public void SetPixel(int x, int y, Color color)
         {
-            SetPixel((y * stride + x) * BytesPerPixel, color);
+            SetPixel(PointToOffset(x, y), color);
         }
 
         private void SetPixel(int idx, Color color)
@@ -140,7 +145,7 @@ namespace Monk.Imaging
 
         public void SetPixelColor(int x, int y, byte value, PixelColor color)
         {
-            SetPixelColor((y * stride + x) * BytesPerPixel, value, color);
+            SetPixelColor(PointToOffset(x, y), value, color);
         }
 
         private void SetPixelColor(int idx, byte value, PixelColor color)

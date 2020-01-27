@@ -30,8 +30,6 @@ namespace Monk.Bittwiddling
     {
         private BitArray bits;
 
-        public EndianMode Endianness { get; set; } = EndianMode.BigEndian;
-
         public BinaryList()
         {
             bits = new BitArray(0);
@@ -128,25 +126,28 @@ namespace Monk.Bittwiddling
             return -1;
         }
 
-        public IEnumerable<byte> ToBytes()
-        {
-            return ToBytes(invert: false);
-        }
-
         /// <summary>
         /// Converts each set of eight bits into a bytes
         /// </summary>
         /// <param name="invert">whether or not to invert bytes</param>
         /// <returns></returns>
-        public IEnumerable<byte> ToBytes(bool invert)
+        public IEnumerable<byte> ToBytes(EndianMode endianness)
         {
             int idx = 0;
             for(; idx < Count; ++idx) {
                 BinaryOctet curr = new BinaryOctet();
-                int n = 0;
-                do {
-                    curr = curr.SetBit(n, invert ? !bits[idx] : bits[idx]);
-                } while (++n < BinaryOctet.OCTET && ++idx < bits.Count);
+                if (endianness == EndianMode.BigEndian) {
+                    int n = 0;
+                    do {
+                        curr = curr.SetBit(n, bits[idx]);
+                    } while (++n < BinaryOctet.OCTET && ++idx < Count);
+                }
+                else {
+                    int n = BinaryOctet.OCTET - 1;
+                    do {
+                        curr = curr.SetBit(n, bits[idx]);
+                    } while (--n >= 0 && ++idx < Count);
+                }
                 yield return curr;
             }
         }
@@ -165,14 +166,14 @@ namespace Monk.Bittwiddling
         /// <returns></returns>
         public bool IsValidBytes()
         {
-            return bits.Count % 8 == 0;
+            return Count % 8 == 0;
         }
 
         public override string ToString()
         {
             StringBuilder sb = new StringBuilder(bits.Count);
             int idx = 0;
-            foreach (BinaryOctet octet in ToBytes()) {
+            foreach (BinaryOctet octet in ToBytes(EndianMode.BigEndian)) {
                 foreach(bool bit in octet) {
                     sb.Append(bit ? '1' : '0');
                     if (++idx == Count) {
