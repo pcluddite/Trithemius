@@ -8,5 +8,4 @@ Features:
 
 Credits:
 - Timothy Baxendale
-- Vano Maisuradze for LockedBitmap.cs (http://www.codeproject.com/Tips/240428/Work-with-bitmap-faster-with-Csharp)
 - James Tuley for AESThenHMAC.cs (http://stackoverflow.com/questions/202011/encrypt-and-decrypt-a-string/10366194#10366194)
