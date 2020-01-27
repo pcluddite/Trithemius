@@ -21,6 +21,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -29,12 +30,14 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Bittwiddling\BinaryList.cs" />
     <Compile Include="Bittwiddling\BinaryOctet.cs" />
     <Compile Include="Encryption\AESThenHMAC.cs" />
     <Compile Include="Bittwiddling\EndianMode.cs" />
+    <Compile Include="Imaging\ImageChange.cs" />
     <Compile Include="Imaging\LockedBitmap.cs" />
     <Compile Include="Imaging\PixelColor.cs" />
     <Compile Include="Imaging\Seed.cs" />

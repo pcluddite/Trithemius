@@ -68,7 +68,7 @@ namespace Monk.Imaging
             return GetRequiredSize(message) < GetMaximumSize();
         }
 
-        public Dictionary<int, byte> Encode(byte[] message, string savePath)
+        public IEnumerable<ImageChange> Encode(byte[] message, string savePath)
         {
             if (!MessageFitsImage(message)) {
                 throw new ArgumentException("Message is too big to encode in the image.");
@@ -92,10 +92,10 @@ namespace Monk.Imaging
                 }
             }
 
-            LockedBitmap lockedBmp = new LockedBitmap(BitmapImage);
+            LockedBitmap lockedBmp = LockedBitmap.CreateLockedBitmap(BitmapImage);
             lockedBmp.LockBits();
 
-            Dictionary<int, byte> changes = new Dictionary<int, byte>();
+            IList<ImageChange> changes = new List<ImageChange>();
 
             int bitIndex = 0;
             for (int pixelIndex = Seed[0]; pixelIndex <= BitmapImage.Height * BitmapImage.Width && bitIndex < bits.Count; pixelIndex += Seed[bitIndex % Seed.Count] + 1) {
@@ -107,7 +107,7 @@ namespace Monk.Imaging
                     newval = newval.SetBit(currBit, bits[bitIndex++]);
 
                 if (newval != oldval) {
-                    changes.Add(pixelIndex, oldval);
+                    changes.Add(new ImageChange(x, y, oldval, newval));
                 }
 
                 lockedBmp.SetPixelColor(x, y, newval, Color);
@@ -149,7 +149,7 @@ namespace Monk.Imaging
         {
             BinaryList data = new BinaryList();
 
-            LockedBitmap lockedBmp = new LockedBitmap(BitmapImage);
+            LockedBitmap lockedBmp = LockedBitmap.CreateLockedBitmap(BitmapImage);
             lockedBmp.LockBits();
 
             int bitIndex = 0;

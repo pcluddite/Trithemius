@@ -23,141 +23,44 @@ using System.Runtime.InteropServices;
 
 namespace Monk.Imaging
 {
-    public partial class LockedBitmap : IDisposable
+    public abstract class LockedBitmap : IDisposable
     {
-        private Bitmap bitmap;
-        private BitmapData bitmapData;
-        private int stride;
-        private int size;
-        
-        public int Depth { get; private set; }
-        public int Width { get; private set; }
-        public int Height { get; private set; }
+        protected Bitmap Bitmap { get; set; }
+        protected BitmapData BitmapData { get; set; }
+        protected int Stride => BitmapData.Stride;
+        protected int Size => Height * Stride;
+        protected IntPtr Scan0 => BitmapData.Scan0;
 
-        public bool Locked { get => bitmapData != null; }
+        public int Width => Bitmap.Width;
+        public int Height => Bitmap.Height;
+        public bool Locked => BitmapData != null;
 
-        public int BytesPerPixel { get => Depth / 8; }
+        public int BytesPerPixel => Depth / 8;
+        public abstract int Depth { get; }
 
-        public LockedBitmap(Bitmap bitmap)
-        {
-            this.bitmap = bitmap;
-            Depth = Image.GetPixelFormatSize(bitmap.PixelFormat);
-            Width = bitmap.Width;
-            Height = bitmap.Height;
-        }
-
-        public void LockBits()
+        public virtual void LockBits()
         {
             Rectangle rect = new Rectangle(0, 0, Width, Height);
-            bitmapData = bitmap.LockBits(rect, ImageLockMode.ReadWrite, bitmap.PixelFormat);
-            stride = bitmapData.Stride;
-            size = Height * stride;
+            BitmapData = Bitmap.LockBits(rect, ImageLockMode.ReadWrite, Bitmap.PixelFormat);
         }
 
-        public void UnlockBits()
+        public virtual void UnlockBits()
         {
-            bitmap.UnlockBits(bitmapData);
-            bitmapData = null;
+            Bitmap.UnlockBits(BitmapData);
+            BitmapData = null;
         }
 
-        public Color GetPixel(int x, int y)
+        public abstract Color GetPixel(int x, int y);
+
+        public abstract byte GetPixelColor(int x, int y, PixelColor color);
+
+        public abstract void SetPixel(int x, int y, Color color);
+
+        public abstract void SetPixelColor(int x, int y, byte value, PixelColor color);
+
+        protected int PointToOffset(int x, int y)
         {
-            return FromBytes(GetPixelArgb(x, y));
-        }
-
-        public byte[] GetPixelArgb(int x, int y)
-        {
-            Color color = GetPixelArgb(PointToOffset(x, y));
-            switch(BytesPerPixel) {
-                case 4: return new byte[] { color.A, color.R, color.G, color.B };
-                case 3: return new byte[] { color.R, color.G, color.B };
-                case 1: return new byte[] { color.B };
-                default: throw UnsupportedColorDepth();
-            }
-        }
-
-        private Color GetPixelArgb(int idx)
-        {
-            if (idx < 0 || idx > size - BytesPerPixel)
-                throw new IndexOutOfRangeException();
-
-            switch(BytesPerPixel) {
-                case 4:
-                    return Color.FromArgb(
-                        GetPixelColor(idx, PixelColor.Alpha),
-                        GetPixelColor(idx, PixelColor.Red),
-                        GetPixelColor(idx, PixelColor.Green),
-                        GetPixelColor(idx, PixelColor.Blue));
-                case 3:
-                    return Color.FromArgb(
-                        GetPixelColor(idx, PixelColor.Red),
-                        GetPixelColor(idx, PixelColor.Green),
-                        GetPixelColor(idx, PixelColor.Blue));
-                case 1:
-                    byte color = GetPixelColor(idx, PixelColor.Blue);
-                    return Color.FromArgb(color, color, color);
-                default:
-                    throw UnsupportedColorDepth();
-            }
-        }
-
-        private int PointToOffset(int x, int y)
-        {
-            return (y * stride) + (x * BytesPerPixel);
-        }
-
-
-        public byte GetPixelColor(int x, int y, PixelColor color)
-        {
-            return GetPixelColor(PointToOffset(x, y), color);
-        }
-
-        private byte GetPixelColor(int idx, PixelColor color)
-        {
-            return Marshal.ReadByte(bitmapData.Scan0, idx + (3 - (int)color));
-        }
-
-        public void SetPixel(int x, int y, Color color)
-        {
-            SetPixel(PointToOffset(x, y), color);
-        }
-
-        private void SetPixel(int idx, Color color)
-        {
-            switch (BytesPerPixel) {
-                case 4: 
-                    SetPixelColor(idx, color.B, PixelColor.Blue);
-                    SetPixelColor(idx, color.G, PixelColor.Green);
-                    SetPixelColor(idx, color.R, PixelColor.Red);
-                    SetPixelColor(idx, color.A, PixelColor.Alpha);
-                    break;
-                case 3:
-                    SetPixelColor(idx, color.B, PixelColor.Blue);
-                    SetPixelColor(idx, color.G, PixelColor.Green);
-                    SetPixelColor(idx, color.R, PixelColor.Red);
-                    break;
-                case 1:
-                    SetPixelColor(idx, color.B, PixelColor.Blue);
-                    break;
-                default: throw UnsupportedColorDepth();
-            }
-        }
-
-        public void SetPixelColor(int x, int y, byte value, PixelColor color)
-        {
-            SetPixelColor(PointToOffset(x, y), value, color);
-        }
-
-        private void SetPixelColor(int idx, byte value, PixelColor color)
-        {
-            if (idx < 0 || idx > size - BytesPerPixel)
-                throw new IndexOutOfRangeException();
-            Marshal.WriteByte(bitmapData.Scan0, idx + (3 - (int)color), value);
-        }
-
-        public void SetPixelArgb(int x, int y, byte[] data)
-        {
-            SetPixel(x, y, FromBytes(data));
+            return (y * Stride) + (x * BytesPerPixel);
         }
 
         public void Dispose()
@@ -172,23 +75,190 @@ namespace Monk.Imaging
                 if (Locked) {
                     UnlockBits();
                 }
-                bitmap.Dispose();
+                Bitmap.Dispose();
             }
         }
 
-        private Color FromBytes(byte[] data)
+        public static LockedBitmap CreateLockedBitmap(Bitmap bitmap)
         {
-            switch (BytesPerPixel) {
-                case 4: return Color.FromArgb(data[0], data[1], data[2], data[3]);
-                case 3: return Color.FromArgb(data[0], data[1], data[2]);
-                case 1: return Color.FromArgb(data[0], data[0], data[0]);
-                default: throw UnsupportedColorDepth();
+            int depth = Image.GetPixelFormatSize(bitmap.PixelFormat);
+            if (depth == 32) {
+                return new LockedBitmap32bpp(bitmap);
+            }
+            else if (depth == 24) {
+                return new LockedBitmap24bpp(bitmap);
+            }
+            else if (depth == 8) {
+                return new LockedBitmap8bpp(bitmap);
+            }
+            else {
+                throw new ArgumentException($"unsupported color depth {depth}bpp");
             }
         }
 
-        private Exception UnsupportedColorDepth()
+        private class LockedBitmap32bpp : LockedBitmap
         {
-            return new ArgumentException("unsupported color depth " + Depth + "bpp");
+            public override int Depth => 32;
+
+            public LockedBitmap32bpp(Bitmap bitmap)
+            {
+                Bitmap = bitmap;
+            }
+
+            public override Color GetPixel(int x, int y)
+            {
+                return Color.FromArgb(Marshal.ReadInt32(Scan0, PointToOffset(x, y)));
+            }
+
+            public override byte GetPixelColor(int x, int y, PixelColor color)
+            {
+                int offset = PointToOffset(x, y);
+                if (color == PixelColor.Blue) {
+                    return Marshal.ReadByte(Scan0, offset);
+                }
+                else if (color == PixelColor.Green) {
+                    return Marshal.ReadByte(Scan0, offset + 1);
+                }
+                else if (color == PixelColor.Red) {
+                    return Marshal.ReadByte(Scan0, offset + 2);
+                }
+                else if (color == PixelColor.Alpha) {
+                    return Marshal.ReadByte(Scan0, offset + 3);
+                }
+                else {
+                    throw new ArgumentException(nameof(color));
+                }
+            }
+
+            public override void SetPixel(int x, int y, Color color)
+            {
+                Marshal.WriteInt32(Scan0, PointToOffset(x, y), color.ToArgb());
+            }
+
+            public override void SetPixelColor(int x, int y, byte value, PixelColor color)
+            {
+                int offset = PointToOffset(x, y);
+                if (color == PixelColor.Blue) {
+                    Marshal.WriteByte(Scan0, offset, value);
+                }
+                else if (color == PixelColor.Green) {
+                    Marshal.WriteByte(Scan0, offset + 1, value);
+                }
+                else if (color == PixelColor.Red) {
+                    Marshal.WriteByte(Scan0, offset + 2, value);
+                }
+                else if (color == PixelColor.Alpha) {
+                    Marshal.WriteByte(Scan0, offset + 3, value);
+                }
+                else {
+                    throw new ArgumentException(nameof(color));
+                }
+            }
+        }
+
+        private class LockedBitmap24bpp : LockedBitmap
+        {
+            public override int Depth => 24;
+
+            public LockedBitmap24bpp(Bitmap bitmap)
+            {
+                Bitmap = bitmap;
+            }
+
+            public override Color GetPixel(int x, int y)
+            {
+                int offset = PointToOffset(x, y);
+                unsafe {
+                    byte* lpPixel = (byte*)Scan0.ToPointer() + offset;
+                    return Color.FromArgb(lpPixel[2], lpPixel[1], lpPixel[0]);
+                }
+            }
+
+            public override byte GetPixelColor(int x, int y, PixelColor color)
+            {
+                Color c = GetPixel(x, y);
+                if (color == PixelColor.Blue) {
+                    return c.B;
+                }
+                else if (color == PixelColor.Green) {
+                    return c.G;
+                }
+                else if (color == PixelColor.Red) {
+                    return c.R;
+                }
+                else {
+                    throw new ArgumentException(nameof(color));
+                }
+            }
+
+            public override void SetPixel(int x, int y, Color color)
+            {
+                int offset = PointToOffset(x, y);
+                unsafe {
+                    byte* lpPixel = (byte*)Scan0.ToPointer() + offset;
+                    lpPixel[0] = color.B;
+                    lpPixel[1] = color.G;
+                    lpPixel[2] = color.R;
+                }
+            }
+
+            public override void SetPixelColor(int x, int y, byte value, PixelColor color)
+            {
+                int offset = PointToOffset(x, y);
+                if (color == PixelColor.Blue) {
+                    Marshal.WriteByte(Scan0, offset, value);
+                }
+                else if (color == PixelColor.Green) {
+                    Marshal.WriteByte(Scan0, offset + 1, value);
+                }
+                else if (color == PixelColor.Red) {
+                    Marshal.WriteByte(Scan0, offset + 2, value);
+                }
+                else {
+                    throw new ArgumentException(nameof(color));
+                }
+            }
+        }
+
+        private class LockedBitmap8bpp : LockedBitmap
+        {
+            public override int Depth => 24;
+
+            public LockedBitmap8bpp(Bitmap bitmap)
+            {
+                Bitmap = bitmap;
+            }
+
+            public override Color GetPixel(int x, int y)
+            {
+                return Color.FromArgb(GetPixelColor(x, y, PixelColor.Blue));
+            }
+
+            public override byte GetPixelColor(int x, int y, PixelColor color)
+            {
+                if (color == PixelColor.Blue) {
+                    return Marshal.ReadByte(Scan0, PointToOffset(x, y));
+                }
+                else {
+                    throw new ArgumentException(nameof(color));
+                }
+            }
+
+            public override void SetPixel(int x, int y, Color color)
+            {
+                Marshal.WriteByte(Scan0, PointToOffset(x, y), (byte)color.ToArgb());
+            }
+
+            public override void SetPixelColor(int x, int y, byte value, PixelColor color)
+            {
+                int offset = PointToOffset(x, y);
+                if (color == PixelColor.Blue) {
+                    Marshal.WriteByte(Scan0, offset, value);
+                }
+                else {
+                    throw new ArgumentException(nameof(color));
+                }
+            }
         }
     }
 }
