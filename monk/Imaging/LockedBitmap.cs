@@ -25,18 +25,19 @@ namespace Monk.Imaging
 {
     public abstract class LockedBitmap : IDisposable
     {
-        protected Bitmap Bitmap { get; set; }
         protected BitmapData BitmapData { get; set; }
         protected int Stride => BitmapData.Stride;
         protected int Size => Height * Stride;
         protected IntPtr Scan0 => BitmapData.Scan0;
 
+        public Bitmap Bitmap { get; protected set; }
         public int Width => Bitmap.Width;
         public int Height => Bitmap.Height;
-        public bool Locked => BitmapData != null;
-
         public int BytesPerPixel => Depth / 8;
+
         public abstract int Depth { get; }
+
+        public virtual bool Locked => BitmapData != null;
 
         public virtual void LockBits()
         {

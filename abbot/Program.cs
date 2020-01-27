@@ -22,6 +22,7 @@ using Monk.Encryption;
 using Monk.Imaging;
 using System;
 using System.Collections.Generic;
+using System.Drawing.Imaging;
 using System.IO;
 using System.Text;
 
@@ -59,13 +60,15 @@ namespace Abbot
                     data = AESThenHMAC.SimpleEncryptWithPassword(data, opts.Key);
                 }
 
-                var changes = trithemius.Encode(data, opts.Output);
+                var changes = trithemius.Encode(data);
                 if (opts.Verbose) {
                     foreach (var diff in changes) {
                         Console.WriteLine("({0}, {1}): {2} => {3}", diff.Point.X, diff.Point.Y, diff.OldColor, diff.NewColor);
                     }
                 }
-                
+
+                trithemius.Image.Save(opts.Output, ImageFormat.Png);
+
                 return 0;
             }
             catch(Exception ex) when (ex is ArgumentException || ex is IOException) {

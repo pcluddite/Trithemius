@@ -43,7 +43,9 @@ namespace Monk.Imaging
             }
         }
 
-        public Bitmap BitmapImage { get; set; }
+        private LockedBitmap lockedBitmap;
+
+        public Bitmap Image => lockedBitmap.Bitmap;
         public PixelColor Color { get; set; }
 
         public bool InvertPrefixBits { get; set; } = false;
@@ -54,13 +56,13 @@ namespace Monk.Imaging
         public bool Disposed { get; private set; }
 
         public Steganographer(string filename)
+            : this(new Bitmap(filename))
         {
-            BitmapImage = new Bitmap(filename);
         }
 
         public Steganographer(Bitmap image)
         {
-            BitmapImage = image;
+            lockedBitmap = LockedBitmap.CreateLockedBitmap(image);
         }
 
         private bool MessageFitsImage(ICollection<byte> message)
@@ -68,7 +70,7 @@ namespace Monk.Imaging
             return GetRequiredSize(message) < GetMaximumSize();
         }
 
-        public IEnumerable<ImageChange> Encode(byte[] message, string savePath)
+        public IEnumerable<ImageChange> Encode(byte[] message)
         {
             if (!MessageFitsImage(message)) {
                 throw new ArgumentException("Message is too big to encode in the image.");
@@ -92,16 +94,15 @@ namespace Monk.Imaging
                 }
             }
 
-            LockedBitmap lockedBmp = LockedBitmap.CreateLockedBitmap(BitmapImage);
-            lockedBmp.LockBits();
+            lockedBitmap.LockBits();
 
             IList<ImageChange> changes = new List<ImageChange>();
 
             int bitIndex = 0;
-            for (int pixelIndex = Seed[0]; pixelIndex <= BitmapImage.Height * BitmapImage.Width && bitIndex < bits.Count; pixelIndex += Seed[bitIndex % Seed.Count] + 1) {
-                int x = pixelIndex % lockedBmp.Width;
-                int y = (pixelIndex - x) / lockedBmp.Width;
-                BinaryOctet oldval = lockedBmp.GetPixelColor(x, y, Color);
+            for (int pixelIndex = Seed[0]; pixelIndex <= Image.Height * Image.Width && bitIndex < bits.Count; pixelIndex += Seed[bitIndex % Seed.Count] + 1) {
+                int x = pixelIndex % lockedBitmap.Width;
+                int y = (pixelIndex - x) / lockedBitmap.Width;
+                BinaryOctet oldval = lockedBitmap.GetPixelColor(x, y, Color);
                 BinaryOctet newval = oldval;
                 for (int currBit = 0; currBit < lsb; ++currBit)
                     newval = newval.SetBit(currBit, bits[bitIndex++]);
@@ -110,12 +111,10 @@ namespace Monk.Imaging
                     changes.Add(new ImageChange(x, y, oldval, newval));
                 }
 
-                lockedBmp.SetPixelColor(x, y, newval, Color);
+                lockedBitmap.SetPixelColor(x, y, newval, Color);
             }
 
-            lockedBmp.UnlockBits();
-
-            BitmapImage.Save(savePath, ImageFormat.Png);
+            lockedBitmap.UnlockBits();
 
             return changes;
         }
@@ -149,20 +148,20 @@ namespace Monk.Imaging
         {
             BinaryList data = new BinaryList();
 
-            LockedBitmap lockedBmp = LockedBitmap.CreateLockedBitmap(BitmapImage);
-            lockedBmp.LockBits();
+            lockedBitmap.LockBits();
 
             int bitIndex = 0;
             for (int pixelIndex = Seed[0]; bitIndex < byteCount * 8; pixelIndex += Seed[bitIndex % Seed.Count] + 1) {
-                int x = pixelIndex % lockedBmp.Width;
-                int y = (pixelIndex - x) / lockedBmp.Width;
-                BinaryOctet octet = lockedBmp.GetPixelColor(x, y, Color);
+                int x = pixelIndex % lockedBitmap.Width;
+                int y = (pixelIndex - x) / lockedBitmap.Width;
+                BinaryOctet octet = lockedBitmap.GetPixelColor(x, y, Color);
 
                 for (byte currBit = 0; currBit < lsb; ++currBit, ++bitIndex)
                     data.Add(octet[currBit]);
             }
 
-            lockedBmp.UnlockBits();
+            lockedBitmap.UnlockBits();
+
             if (invert) {
                 data.Invert();
             }
@@ -181,7 +180,7 @@ namespace Monk.Imaging
 
         public int GetMaximumSize()
         {
-            return (BitmapImage.Width * BitmapImage.Height * LeastSignificantBits) / 8;
+            return (Image.Width * Image.Height * LeastSignificantBits) / 8;
         }
 
         public void SetLegacyOptions()
@@ -200,9 +199,9 @@ namespace Monk.Imaging
         protected virtual void Dispose(bool disposing)
         {
             if (disposing) {
-                if (BitmapImage != null) {
-                    BitmapImage.Dispose();
-                    BitmapImage = null;
+                if (lockedBitmap != null) {
+                    lockedBitmap.Dispose();
+                    lockedBitmap = null;
                 }
                 Disposed = true;
             }

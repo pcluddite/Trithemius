@@ -144,11 +144,12 @@ namespace Trithemius.Windows
                 if (!string.IsNullOrEmpty(pass))
                     msg = AESThenHMAC.SimpleEncryptWithPassword(msg, pass);
 
-                t.Encode(msg, imageSaveDialog.FileName);
-                
+                t.Encode(msg);
+                t.Image.Save(imageSaveDialog.FileName, ImageFormat.Png);
+
                 e.Result = new object[] { true };
             }
-            catch (Exception ex) {
+            catch (Exception ex) when (ex is ArgumentException || ex is IOException) {
                 e.Result = new object[] { false, ex.Message };
             }
             finally {
