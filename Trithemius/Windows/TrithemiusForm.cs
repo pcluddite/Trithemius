@@ -230,7 +230,7 @@ namespace Trithemius.Windows
 
             t.LeastSignificantBits = (int)bitsNumericUpDown.Value;
 
-            if (legacyCheck.Checked) {
+            if (legacyCheck.Checked && legacyCheck.Visible) {
                 t.SetLegacyOptions();
             }
 
