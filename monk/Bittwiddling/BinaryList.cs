@@ -19,7 +19,7 @@
 using System.Collections.Generic;
 using System.Collections;
 using System.Text;
-using System.Linq;
+using System;
 
 namespace Monk.Bittwiddling
 {
@@ -28,17 +28,25 @@ namespace Monk.Bittwiddling
     /// </summary>
     public class BinaryList : IList<bool>
     {
-        private List<bool> bits = new List<bool>();
+        private BitArray bits;
+
+        public EndianMode Endianness { get; set; } = EndianMode.BigEndian;
 
         public BinaryList()
         {
+            bits = new BitArray(0);
+            Count = 0;
+        }
+
+        public BinaryList(byte[] data)
+        {
+            bits = new BitArray(data);
         }
 
         public BinaryList(IEnumerable<byte> data)
         {
-            foreach (byte b in data) {
-                AddRange(b);
-            }
+            bits = new BitArray(10);
+            AddRange(data);
         }
 
         public bool this[int index]
@@ -47,16 +55,38 @@ namespace Monk.Bittwiddling
             set => bits[index] = value;
         }
 
-        public int Count => bits.Count;
+        public int Count { get; private set; }
 
         public void Add(bool item)
         {
-            bits.Add(item);
+            EnsureCapacity();
+            bits[Count++] = item;
+        }
+
+        public void AddRange(IEnumerable<bool> bits)
+        {
+            foreach (bool bit in bits) {
+                Add(bit);
+            }
+        }
+
+        public void AddRange(IEnumerable<byte> data)
+        {
+            foreach(byte b in data) {
+                AddRange(b);
+            }
+        }
+
+        public void AddRange(IEnumerable<BinaryOctet> data)
+        {
+            foreach (BinaryOctet b in data) {
+                AddRange(b);
+            }
         }
 
         public void AddRange(byte b)
         {
-            AddRange(new BinaryOctet(b));
+            AddRange((BinaryOctet)b);
         }
 
         public void AddRange(BinaryOctet octet)
@@ -68,12 +98,12 @@ namespace Monk.Bittwiddling
 
         public void Clear()
         {
-            bits.Clear();
+            bits.Length = 0;
         }
 
         public bool Contains(bool item)
         {
-            return bits.Contains(item);
+            return IndexOf(item) >= 0;
         }
 
         public void CopyTo(bool[] array, int arrayIndex)
@@ -83,27 +113,19 @@ namespace Monk.Bittwiddling
 
         public IEnumerator<bool> GetEnumerator()
         {
-            return bits.GetEnumerator();
+            for(int idx = 0; idx < Count; ++idx) {
+                yield return bits[idx];
+            }
         }
 
         public int IndexOf(bool item)
         {
-            return bits.IndexOf(item);
-        }
-
-        public void Insert(int index, bool item)
-        {
-            bits.Insert(index, item);
-        }
-
-        public bool Remove(bool item)
-        {
-            return bits.Remove(item);
-        }
-
-        public void RemoveAt(int index)
-        {
-            bits.RemoveAt(index);
+            for (int idx = 0; idx < Count; ++idx) {
+                if (bits[idx] == item) {
+                    return idx;
+                }
+            }
+            return -1;
         }
 
         public IEnumerable<byte> ToBytes()
@@ -119,7 +141,7 @@ namespace Monk.Bittwiddling
         public IEnumerable<byte> ToBytes(bool invert)
         {
             int idx = 0;
-            for(; idx < bits.Count; ++idx) {
+            for(; idx < Count; ++idx) {
                 BinaryOctet curr = new BinaryOctet();
                 int n = 0;
                 do {
@@ -134,9 +156,7 @@ namespace Monk.Bittwiddling
         /// </summary>
         public void Invert()
         {
-            for (int index = 0; index < bits.Count; ++index) {
-                bits[index] = !bits[index];
-            }
+            bits.Not();
         }
 
         /// <summary>
@@ -151,10 +171,43 @@ namespace Monk.Bittwiddling
         public override string ToString()
         {
             StringBuilder sb = new StringBuilder(bits.Count);
-            foreach (bool b in this) {
-                sb.Append(b ? '1' : '0');
+            int idx = 0;
+            foreach (BinaryOctet octet in ToBytes()) {
+                foreach(bool bit in octet) {
+                    sb.Append(bit ? '1' : '0');
+                    if (++idx == Count) {
+                        break;
+                    }
+                }
+                sb.Append(' ');
+
             }
             return sb.ToString();
+        }
+
+        private void EnsureCapacity()
+        {
+            if (bits.Count == 0) {
+                bits.Length = 10;
+            }
+            else if (bits.Count == Count + 1) {
+                bits.Length *= 2;
+            }
+        }
+
+        void IList<bool>.Insert(int index, bool item)
+        {
+            throw new InvalidOperationException();
+        }
+
+        bool ICollection<bool>.Remove(bool item)
+        {
+            throw new InvalidOperationException();
+        }
+
+        void IList<bool>.RemoveAt(int index)
+        {
+            throw new InvalidOperationException();
         }
 
         bool ICollection<bool>.IsReadOnly => false;

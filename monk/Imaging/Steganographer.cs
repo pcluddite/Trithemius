@@ -45,7 +45,12 @@ namespace Monk.Imaging
 
         public Bitmap BitmapImage { get; set; }
         public PixelColor Color { get; set; }
-        public bool InvertBits { get; set; }
+
+        public bool InvertPrefixBits { get; set; } = false;
+        public bool InvertDataBits { get; set; } = false;
+        public bool ZeroBasedSize { get; set; } = false;
+        public EndianMode Edianness { get; set; } = EndianMode.BigEndian;
+
         public bool Disposed { get; private set; }
 
         public Steganographer(string filename)
@@ -65,18 +70,27 @@ namespace Monk.Imaging
 
         public Dictionary<int, byte> Encode(byte[] message, string savePath)
         {
-            List<byte> data = new List<byte>();
-            data.AddRange(BitConverter.GetBytes(message.Length));
-            data.AddRange(message);
-
-            if (!MessageFitsImage(data)) {
+            if (!MessageFitsImage(message)) {
                 throw new ArgumentException("Message is too big to encode in the image.");
             }
 
-            BinaryList bits = new BinaryList(data);
+            BinaryList bits = new BinaryList(BitConverter.GetBytes(message.Length));
 
-            if (InvertBits)
+            if (InvertDataBits && InvertPrefixBits) {
+                bits.AddRange(message);
                 bits.Invert();
+            }
+            else {
+                if (InvertPrefixBits) {
+                    bits.Invert();
+                    bits.AddRange(message);
+                }
+                else if (InvertDataBits) {
+                    BinaryList databin = new BinaryList(message);
+                    databin.Invert();
+                    bits.AddRange(databin);
+                }
+            }
 
             LockedBitmap lockedBmp = new LockedBitmap(BitmapImage);
             lockedBmp.LockBits();
@@ -108,7 +122,7 @@ namespace Monk.Imaging
 
         public int CheckSize()
         {
-            int size = BitConverter.ToInt32(ReadBits(sizeof(int)).ToArray(), 0);
+            int size = BitConverter.ToInt32(ReadBits(sizeof(int), InvertPrefixBits).ToArray(), 0);
 
             if (size <= 0 || size > GetMaximumSize())
                 return -1; // size was invalid, there probably isn't a message
@@ -123,11 +137,11 @@ namespace Monk.Imaging
             if (size < 0)
                 return null; // no message
 
-            IEnumerable<byte> data = ReadBits(sizeof(int) + size);
+            IEnumerable<byte> data = ReadBits(sizeof(int) + size, InvertDataBits);
             return data.Skip(sizeof(int)).ToArray();
         }
 
-        private IEnumerable<byte> ReadBits(int byteCount)
+        private IEnumerable<byte> ReadBits(int byteCount, bool invert)
         {
             BinaryList data = new BinaryList();
 
@@ -146,7 +160,7 @@ namespace Monk.Imaging
 
             lockedBmp.UnlockBits();
 
-            return data.ToBytes(InvertBits);
+            return data.ToBytes(invert);
         }
 
         public int GetRequiredSize(ICollection<byte> message)

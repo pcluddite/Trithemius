@@ -220,7 +220,7 @@ namespace Trithemius.Windows
         {
             Steganographer t = new Steganographer(OpenBitmap(pathTextbox.Text));
             t.Color = (PixelColor)(pixelValueComboBox.SelectedIndex + 1);
-            t.InvertBits = invertBox.Checked;
+            t.InvertDataBits = invertBox.Checked;
 
             if (!string.IsNullOrEmpty(seedBox.Text)) {
                 t.Seed = new Seed(seedBox.Text);

@@ -69,7 +69,7 @@ namespace Abbot.Arguments
             }
 
             trithemius.LeastSignificantBits = LeastSignificantBits;
-            trithemius.InvertBits = Invert;
+            trithemius.InvertDataBits = Invert;
 
             return trithemius;
         }
