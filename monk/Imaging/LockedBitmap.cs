@@ -85,7 +85,7 @@ namespace Monk.Imaging
         public virtual void SetPixelColor(int x, int y, byte value, PixelColor color)
         {
             Color c = GetPixel(x, y);
-            switch(color) {
+            switch (color) {
                 case PixelColor.Alpha:
                     c = Color.FromArgb(value, c.A, c.G, c.B);
                     break;
@@ -117,8 +117,8 @@ namespace Monk.Imaging
         public virtual Color[,] ToColorMatrix()
         {
             Color[,] colors = new Color[Height, Width];
-            for(int y = 0; y < Height; ++y) {
-                for(int x = 0; x < Width; ++x) {
+            for (int y = 0; y < Height; ++y) {
+                for (int x = 0; x < Width; ++x) {
                     colors[y, x] = GetPixel(x, y);
                 }
             }
@@ -152,6 +152,19 @@ namespace Monk.Imaging
         protected void EnsureState()
         {
             if (!Locked) throw new InvalidOperationException();
+        }
+
+        public virtual void Save(string filename)
+        {
+            using (Stream stream = File.OpenWrite(filename)) {
+                Save(stream);
+            }
+        }
+
+        public virtual void Save(Stream stream)
+        {
+            if (Locked) Commit();
+            Bitmap.Save(stream, ImageFormat.Png);
         }
 
         public static LockedBitmap CreateLockedBitmap(Bitmap bitmap)
