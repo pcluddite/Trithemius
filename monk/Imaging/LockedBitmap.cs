@@ -46,7 +46,7 @@ namespace Monk.Imaging
         {
             Rectangle rect = new Rectangle(0, 0, Bitmap.Width, Bitmap.Height);
             BitmapData = Bitmap.LockBits(rect, ImageLockMode.ReadWrite, Bitmap.PixelFormat);
-            data = new byte[BitmapData.Height * BitmapData.Stride];
+            data = new byte[Size];
             Reload();
         }
 

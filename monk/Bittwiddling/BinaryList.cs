@@ -39,6 +39,7 @@ namespace Monk.Bittwiddling
         public BinaryList(byte[] data)
         {
             bits = new BitArray(data);
+            Count = bits.Length;
         }
 
         public BinaryList(IEnumerable<byte> data)
@@ -191,7 +192,7 @@ namespace Monk.Bittwiddling
             if (bits.Count == 0) {
                 bits.Length = 10;
             }
-            else if (bits.Count == Count + 1) {
+            else if (bits.Count <= Count + 1) {
                 bits.Length *= 2;
             }
         }

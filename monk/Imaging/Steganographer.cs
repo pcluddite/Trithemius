@@ -92,6 +92,9 @@ namespace Monk.Imaging
                     databin.Invert();
                     bits.AddRange(databin);
                 }
+                else {
+                    bits.AddRange(message);
+                }
             }
 
             lockedBitmap.LockBits();
