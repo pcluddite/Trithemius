@@ -328,40 +328,37 @@ namespace Trithemius.Windows
 
         private void RefreshRequiredSize()
         {
-            Steganographer t = new Steganographer((Bitmap)null);
-            t.LeastSignificantBits = (int)bitsNumericUpDown.Value;
+            try {
+                using (Steganographer t = new Steganographer(pathTextbox.Text)) {
+                t.LeastSignificantBits = (int)bitsNumericUpDown.Value;
+                    byte[] msg;
+                    if (textRadioButton.Checked) {
+                        if (message == null)
+                            return;
+                        msg = Encoding.UTF8.GetBytes(message);
+                    }
+                    else {
+                        if (string.IsNullOrEmpty(msgOpenDialog.FileName))
+                            return;
+                        msg = File.ReadAllBytes(msgOpenDialog.FileName);
+                    }
 
-            try {    
-                byte[] msg;
-                if (textRadioButton.Checked) {
-                    if (message == null)
-                        return;
-                    msg = Encoding.UTF8.GetBytes(message);
-                }
-                else {
-                    if (string.IsNullOrEmpty(msgOpenDialog.FileName))
-                        return;
-                    msg = File.ReadAllBytes(msgOpenDialog.FileName);
-                }
+                    if (!string.IsNullOrEmpty(passwordBox.Text))
+                        msg = AESThenHMAC.SimpleEncryptWithPassword(msg, passwordBox.Text);
 
-                if (!string.IsNullOrEmpty(passwordBox.Text))
-                    msg = AESThenHMAC.SimpleEncryptWithPassword(msg, passwordBox.Text);
+                    int msgSize = t.GetRequiredSize(msg);
 
-                int msgSize = t.GetRequiredSize(msg);
-
-                requiredSizeBox.Text = SizeToString(msgSize);
-                if (msgSize > maxSize) {
-                    requiredSizeLabel.ForeColor = Color.Red;
-                }
-                else {
-                    requiredSizeLabel.ForeColor = Color.Black;
+                    requiredSizeBox.Text = SizeToString(msgSize);
+                    if (msgSize > maxSize) {
+                        requiredSizeLabel.ForeColor = Color.Red;
+                    }
+                    else {
+                        requiredSizeLabel.ForeColor = Color.Black;
+                    }
                 }
             }
-            catch (FileNotFoundException ex) {
+            catch (Exception ex) when (ex is IOException || ex is ArgumentException) {
                 ShowError(ex);
-            }
-            finally {
-                t.Dispose();
             }
         }
         

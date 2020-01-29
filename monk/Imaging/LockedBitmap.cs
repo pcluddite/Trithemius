@@ -20,6 +20,9 @@ using System;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Runtime.InteropServices;
+#if DEBUG
+using System.IO;
+#endif
 
 namespace Monk.Imaging
 {
@@ -28,11 +31,11 @@ namespace Monk.Imaging
         protected BitmapData BitmapData { get; set; }
         protected int Stride => BitmapData.Stride;
         protected int Size => Height * Stride;
-        protected IntPtr Scan0 => BitmapData.Scan0;
+        protected byte[] data;
 
         public Bitmap Bitmap { get; protected set; }
-        public int Width => Bitmap.Width;
-        public int Height => Bitmap.Height;
+        public int Width => BitmapData.Width;
+        public int Height => BitmapData.Height;
         public int BytesPerPixel => Depth / 8;
 
         public abstract int Depth { get; }
@@ -41,24 +44,24 @@ namespace Monk.Imaging
 
         public virtual void LockBits()
         {
-            Rectangle rect = new Rectangle(0, 0, Width, Height);
+            Rectangle rect = new Rectangle(0, 0, Bitmap.Width, Bitmap.Height);
             BitmapData = Bitmap.LockBits(rect, ImageLockMode.ReadWrite, Bitmap.PixelFormat);
+            data = new byte[BitmapData.Height * BitmapData.Stride];
+            Reload();
         }
 
         public virtual void UnlockBits()
         {
+            Commit();
             Bitmap.UnlockBits(BitmapData);
             BitmapData = null;
+            data = null;
         }
 
         public abstract Color GetPixel(int x, int y);
 
         public virtual byte GetPixelColor(int x, int y, PixelColor color)
         {
-            if (!Locked) throw new InvalidOperationException();
-            if (x >= Width || x < 0) throw new ArgumentOutOfRangeException(nameof(x));
-            if (y >= Height || y < 0) throw new ArgumentOutOfRangeException(nameof(y));
-
             Color pixel = GetPixel(x, y);
             if (color == PixelColor.Blue) {
                 return pixel.B;
@@ -79,13 +82,36 @@ namespace Monk.Imaging
 
         public abstract void SetPixel(int x, int y, Color color);
 
-        public abstract void SetPixelColor(int x, int y, byte value, PixelColor color);
-
-        public virtual void CopyTo(byte[] buffer, int startIndex, int count)
+        public virtual void SetPixelColor(int x, int y, byte value, PixelColor color)
         {
-            if (count >= Size)
-                throw new ArgumentOutOfRangeException(nameof(count));
-            Marshal.Copy(Scan0, buffer, startIndex, count);
+            Color c = GetPixel(x, y);
+            switch(color) {
+                case PixelColor.Alpha:
+                    c = Color.FromArgb(value, c.A, c.G, c.B);
+                    break;
+                case PixelColor.Red:
+                    c = Color.FromArgb(c.A, value, c.G, c.B);
+                    break;
+                case PixelColor.Green:
+                    c = Color.FromArgb(c.A, c.R, value, c.B);
+                    break;
+                case PixelColor.Blue:
+                    c = Color.FromArgb(c.A, c.R, c.G, value);
+                    break;
+            }
+            SetPixel(x, y, c);
+        }
+
+        public virtual void Commit()
+        {
+            EnsureState();
+            Marshal.Copy(data, 0, BitmapData.Scan0, data.Length);
+        }
+
+        public virtual void Reload()
+        {
+            EnsureState();
+            Marshal.Copy(BitmapData.Scan0, data, 0, data.Length);
         }
 
         public virtual Color[,] ToColorMatrix()
@@ -101,6 +127,9 @@ namespace Monk.Imaging
 
         protected int PointToOffset(int x, int y)
         {
+            EnsureState();
+            if (x >= Width || x < 0) throw new ArgumentOutOfRangeException(nameof(x));
+            if (y >= Height || y < 0) throw new ArgumentOutOfRangeException(nameof(y));
             return (y * Stride) + (x * BytesPerPixel);
         }
 
@@ -120,6 +149,11 @@ namespace Monk.Imaging
             }
         }
 
+        protected void EnsureState()
+        {
+            if (!Locked) throw new InvalidOperationException();
+        }
+
         public static LockedBitmap CreateLockedBitmap(Bitmap bitmap)
         {
             int depth = Image.GetPixelFormatSize(bitmap.PixelFormat);
@@ -137,6 +171,34 @@ namespace Monk.Imaging
             }
         }
 
+#if DEBUG
+        internal virtual void Dump(Stream stream, PixelColor pixelColor)
+        {
+            using (StreamWriter sw = new StreamWriter(stream)) {
+                Color[,] colors = ToColorMatrix();
+                sw.WriteLine("width: {0}", colors.GetUpperBound(1) + 1);
+                sw.WriteLine("height: {0}", colors.GetUpperBound(0) + 1);
+                sw.WriteLine("depth: {0}bpp", Depth);
+                sw.WriteLine("matrix:");
+                for (int y = 0; y <= colors.GetUpperBound(0); ++y) {
+                    for (int x = 0; x <= colors.GetUpperBound(1); ++x) {
+                        Color color = colors[y, x];
+                        byte value = 0;
+                        switch(pixelColor) {
+                            case PixelColor.Alpha: value = color.A; break;
+                            case PixelColor.Red: value = color.R; break;
+                            case PixelColor.Green: value = color.G; break;
+                            case PixelColor.Blue: value = color.B; break;
+                        }
+                        sw.Write(Convert.ToString(value, 2).PadLeft(8, '0'));
+                        sw.Write(' ');
+                    }
+                    sw.WriteLine();
+                }
+            }
+        }
+#endif
+
         private class LockedBitmap32bpp : LockedBitmap
         {
             public override int Depth => 32;
@@ -148,68 +210,23 @@ namespace Monk.Imaging
 
             public override Color GetPixel(int x, int y)
             {
-                if (!Locked) throw new InvalidOperationException();
-                if (x >= Width || x < 0) throw new ArgumentOutOfRangeException(nameof(x));
-                if (y >= Height || y < 0) throw new ArgumentOutOfRangeException(nameof(y));
-
-                unsafe {
-                    int stride = Stride;
-                    byte* lpRaw = (byte*)Scan0.ToPointer();
-                    int* lpValues = (int*)&lpRaw[stride * y];
-                    return Color.FromArgb(lpValues[x]);
-                }
+                int offset = PointToOffset(x, y);
+                return Color.FromArgb(data[offset + 3], data[offset + 2], data[offset + 1], data[offset]);
             }
 
             public override void SetPixel(int x, int y, Color color)
             {
-                if (!Locked) throw new InvalidOperationException();
-                if (x >= Width || x < 0) throw new ArgumentOutOfRangeException(nameof(x));
-                if (y >= Height || y < 0) throw new ArgumentOutOfRangeException(nameof(y));
-
-                unsafe {
-                    int stride = Stride;
-                    byte* lpRaw = (byte*)Scan0.ToPointer();
-                    int* lpValues = (int*)&lpRaw[stride * y];
-                    lpValues[x] = color.ToArgb();
-                }
+                int offset = PointToOffset(x, y);
+                data[offset + 0] = color.B;
+                data[offset + 1] = color.G;
+                data[offset + 2] = color.R;
+                data[offset + 3] = color.A;
             }
 
             public override void SetPixelColor(int x, int y, byte value, PixelColor color)
             {
                 int offset = PointToOffset(x, y);
-                if (color == PixelColor.Green) {
-                    offset += 1;
-                }
-                else if (color == PixelColor.Red) {
-                    offset += 2;
-                }
-                else if (color == PixelColor.Alpha) {
-                    offset += 3;
-                }
-                else if (color != PixelColor.Blue) {
-                    throw new ArgumentException(nameof(color));
-                }
-                unsafe {
-                    byte* lpPixel = (byte*)Scan0.ToPointer();
-                    lpPixel[offset] = value;
-                }
-            }
-
-            public override Color[,] ToColorMatrix()
-            {
-                if (!Locked) throw new InvalidOperationException();
-                int h = Height, w = Width, stride = Stride;
-                Color[,] colors = new Color[h, w];
-                unsafe {
-                    int* lpScan0 = (int*)Scan0.ToPointer();
-                    for (int y = 0; y < h; ++y) {
-                        int* lpRow = &lpScan0[y * (stride / sizeof(int))];
-                        for(int x = 0; x < w; ++x) {
-                            colors[y, x] = Color.FromArgb(lpRow[x]);
-                        }
-                    }
-                }
-                return colors;
+                data[offset + (3 - (int)color)] = value;
             }
         }
 
@@ -225,73 +242,26 @@ namespace Monk.Imaging
             public override Color GetPixel(int x, int y)
             {
                 int offset = PointToOffset(x, y);
-                unsafe {
-                    byte* lpPixel = (byte*)Scan0.ToPointer() + offset;
-                    return Color.FromArgb(lpPixel[2], lpPixel[1], lpPixel[0]);
-                }
-            }
-
-            public override byte GetPixelColor(int x, int y, PixelColor color)
-            {
-                Color c = GetPixel(x, y);
-                if (color == PixelColor.Blue) {
-                    return c.B;
-                }
-                else if (color == PixelColor.Green) {
-                    return c.G;
-                }
-                else if (color == PixelColor.Red) {
-                    return c.R;
-                }
-                else {
-                    throw new ArgumentException(nameof(color));
-                }
+                return Color.FromArgb(data[offset + 2], data[offset + 1], data[offset]);
             }
 
             public override void SetPixel(int x, int y, Color color)
             {
                 int offset = PointToOffset(x, y);
-                unsafe {
-                    byte* lpPixel = (byte*)Scan0.ToPointer();
-                    lpPixel[offset] = color.B;
-                    lpPixel[offset + 1] = color.G;
-                    lpPixel[offset + 2] = color.R;
-                }
+                data[offset + 0] = color.B;
+                data[offset + 1] = color.G;
+                data[offset + 2] = color.R;
             }
 
             public override void SetPixelColor(int x, int y, byte value, PixelColor color)
             {
                 int offset = PointToOffset(x, y);
-                if (color == PixelColor.Green) {
-                    offset = offset + 1;
+                switch(color) {
+                    case PixelColor.Blue: data[offset] = value; break;
+                    case PixelColor.Green: data[offset + 1] = value; break;
+                    case PixelColor.Red: data[offset + 2] = value; break;
+                    default: throw new ArgumentException(nameof(color));
                 }
-                else if (color == PixelColor.Red) {
-                    offset = offset + 2;
-                }
-                else if (color != PixelColor.Blue) {
-                    throw new ArgumentException(nameof(color));
-                }
-                unsafe {
-                    byte* lpPixel = (byte*)Scan0.ToPointer();
-                    lpPixel[offset] = value;
-                }
-            }
-
-            public override Color[,] ToColorMatrix()
-            {
-                if (!Locked) throw new InvalidOperationException();
-                int h = Height, w = Width, stride = Stride;
-                Color[,] colors = new Color[h, w];
-                unsafe {
-                    byte* scan0 = (byte*)Scan0.ToPointer();
-                    for (int y = 0; y < h; ++y) {
-                        for (int x = 0; x < w; ++x) {
-                            byte* lpPixelStart = &scan0[(y * stride) + x];
-                            colors[y, x] = Color.FromArgb(lpPixelStart[2], lpPixelStart[1], lpPixelStart[0]);
-                        }
-                    }
-                }
-                return colors;
             }
         }
 
@@ -306,35 +276,19 @@ namespace Monk.Imaging
 
             public override Color GetPixel(int x, int y)
             {
-                return Color.FromArgb(GetPixelColor(x, y, PixelColor.Blue));
-            }
-
-            public override byte GetPixelColor(int x, int y, PixelColor color)
-            {
                 int offset = PointToOffset(x, y);
-                unsafe {
-                    byte* lpPixel = (byte*)Scan0.ToPointer();
-                    return lpPixel[offset];
-                }
+                return Color.FromArgb(data[offset]);
             }
 
             public override void SetPixel(int x, int y, Color color)
             {
-                byte value = (byte)color.ToArgb();
-                int offset = PointToOffset(x, y);
-                unsafe {
-                    byte* lpPixel = (byte*)Scan0.ToPointer();
-                    lpPixel[offset] = value;
-                }
+                SetPixelColor(x, y, (byte)color.ToArgb(), PixelColor.Blue);
             }
 
             public override void SetPixelColor(int x, int y, byte value, PixelColor color)
             {
                 int offset = PointToOffset(x, y);
-                unsafe {
-                    byte* lpPixel = (byte*)Scan0.ToPointer();
-                    lpPixel[offset] = value;
-                }
+                data[offset] = value;
             }
         }
     }
