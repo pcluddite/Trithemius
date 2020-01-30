@@ -28,11 +28,28 @@ namespace Monk.Bittwiddling
     /// </summary>
     public class BinaryList : IList<bool>
     {
-        private BitArray bits;
+        private const int DEFAULT_CAPACITY = sizeof(int) * BinaryOctet.OCTET;
+        private readonly BitArray bits;
+
+        public bool this[int index]
+        {
+            get => bits[index];
+            set => bits[index] = value;
+        }
+
+        public int Count { get; private set; }
+
+        public int ByteCount => Count / BinaryOctet.OCTET + (IsValidBytes() ? 0 : 1);
 
         public BinaryList()
         {
             bits = new BitArray(0);
+            Count = 0;
+        }
+
+        public BinaryList(int capacity)
+        {
+            bits = new BitArray(capacity);
             Count = 0;
         }
 
@@ -44,17 +61,15 @@ namespace Monk.Bittwiddling
 
         public BinaryList(IEnumerable<byte> data)
         {
-            bits = new BitArray(10);
+            bits = new BitArray(DEFAULT_CAPACITY);
             AddRange(data);
         }
 
-        public bool this[int index]
+        public BinaryList(byte[] data, int capacity)
+            : this(capacity)
         {
-            get => bits[index];
-            set => bits[index] = value;
+            AddRange(data);
         }
-
-        public int Count { get; private set; }
 
         public void Add(bool item)
         {
@@ -83,6 +98,35 @@ namespace Monk.Bittwiddling
             }
         }
 
+        public void AddRange(bool[] bits)
+        {
+            EnsureCapacity(bits.Length);
+            for (int i = 0; i < bits.Length; ++i) {
+                this.bits[Count++] = bits[i];
+            }
+        }
+
+        public void AddRange(byte[] data)
+        {
+            EnsureCapacity(data.Length * BinaryOctet.OCTET);
+            for(int i = 0; i < data.Length; ++i) {
+                BinaryOctet octet = data[i];
+                for(int j = 0; j < BinaryOctet.OCTET; ++j) {
+                    bits[Count++] = octet.GetBit(i);
+                }
+            }
+        }
+
+        public void AddRange(BinaryOctet[] data)
+        {
+            EnsureCapacity(data.Length * BinaryOctet.OCTET);
+            for (int i = 0; i < data.Length; ++i) {
+                for (int j = 0; j < BinaryOctet.OCTET; ++j) {
+                    bits[Count++] = data[i].GetBit(j);
+                }
+            }
+        }
+
         public void AddRange(byte b)
         {
             AddRange((BinaryOctet)b);
@@ -90,8 +134,9 @@ namespace Monk.Bittwiddling
 
         public void AddRange(BinaryOctet octet)
         {
-            foreach (bool bit in octet) {
-                Add(bit);
+            EnsureCapacity(BinaryOctet.OCTET);
+            for (int i = 0; i < BinaryOctet.OCTET; ++i) {
+                bits[Count++] = octet[i];
             }
         }
 
@@ -189,11 +234,19 @@ namespace Monk.Bittwiddling
 
         private void EnsureCapacity()
         {
+            EnsureCapacity(1);
+        }
+
+        private void EnsureCapacity(int bitsNeeded)
+        {
             if (bits.Count == 0) {
-                bits.Length = 10;
+                bits.Length = Math.Max(bitsNeeded, DEFAULT_CAPACITY);
             }
-            else if (bits.Count <= Count + 1) {
-                bits.Length *= 2;
+            else {
+                int size = bits.Count;
+                while (size <= Count + bitsNeeded)
+                    size *= 2;
+                bits.Length = size;
             }
         }
 
