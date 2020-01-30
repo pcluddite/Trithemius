@@ -18,7 +18,6 @@
 **/
 using System;
 using System.Drawing;
-using System.Drawing.Imaging;
 using System.Collections.Generic;
 using System.Linq;
 using Monk.Bittwiddling;
@@ -70,56 +69,50 @@ namespace Monk.Imaging
             return GetRequiredSize(message) < GetMaximumSize();
         }
 
-        public IEnumerable<ImageChange> Encode(byte[] message)
+        public void Encode(byte[] message)
         {
             if (!MessageFitsImage(message)) {
                 throw new ArgumentException("Message is too big to encode in the image.");
             }
 
-            BinaryList bits = new BinaryList(BitConverter.GetBytes(message.Length));
+            BinaryList bits = CreateBinaryList(message);
 
+            int lsb = LeastSignificantBits;
+            int bytesNeeded = (int)Math.Ceiling((double)bits.ByteCount / lsb);
+            int bitIndex = 0;
+
+            using (BitmapStream stream = new BitmapStream(lockedBitmap, Seed, Color, bytesNeeded)) {
+                while(bitIndex < bits.Count) {
+                    BinaryOctet b = stream.Peek();
+                    for (int currBit = 0; currBit < lsb; ++currBit)
+                        b = b.SetBit(currBit, bits[bitIndex++]);
+                    stream.WriteByte(b);
+                }
+            }
+        }
+
+        private BinaryList CreateBinaryList(byte[] data)
+        {
+            BinaryList bits = new BinaryList(BitConverter.GetBytes(data.Length), data.Length + sizeof(int));
             if (InvertDataBits && InvertPrefixBits) {
-                bits.AddRange(message);
+                bits.AddRange(data);
                 bits.Invert();
             }
             else {
                 if (InvertPrefixBits) {
                     bits.Invert();
-                    bits.AddRange(message);
+                    bits.AddRange(data);
                 }
                 else if (InvertDataBits) {
-                    BinaryList databin = new BinaryList(message);
+                    BinaryList databin = new BinaryList(data);
                     databin.Invert();
                     bits.AddRange(databin);
                 }
                 else {
-                    bits.AddRange(message);
+                    bits.AddRange(data);
                 }
             }
-
-            lockedBitmap.LockBits();
-
-            IList<ImageChange> changes = new List<ImageChange>();
-
-            int bitIndex = 0;
-            for (int pixelIndex = Seed[0]; pixelIndex <= Image.Height * Image.Width && bitIndex < bits.Count; pixelIndex += Seed[bitIndex % Seed.Count] + 1) {
-                int x = pixelIndex % lockedBitmap.Width;
-                int y = (pixelIndex - x) / lockedBitmap.Width;
-                BinaryOctet oldval = lockedBitmap.GetPixelColor(x, y, Color);
-                BinaryOctet newval = oldval;
-                for (int currBit = 0; currBit < lsb; ++currBit)
-                    newval = newval.SetBit(currBit, bits[bitIndex++]);
-
-                if (newval != oldval) {
-                    changes.Add(new ImageChange(x, y, oldval, newval));
-                }
-
-                lockedBitmap.SetPixelColor(x, y, newval, Color);
-            }
-
-            lockedBitmap.UnlockBits();
-
-            return changes;
+            return bits;
         }
 
         public int CheckSize()
@@ -148,22 +141,21 @@ namespace Monk.Imaging
         }
 
         private IEnumerable<byte> ReadBits(int byteCount, bool invert)
-        {
-            BinaryList data = new BinaryList();
-
-            lockedBitmap.LockBits();
-
+        {            
+            int lsb = LeastSignificantBits;
             int bitIndex = 0;
-            for (int pixelIndex = Seed[0]; bitIndex < byteCount * 8; pixelIndex += Seed[bitIndex % Seed.Count] + 1) {
-                int x = pixelIndex % lockedBitmap.Width;
-                int y = (pixelIndex - x) / lockedBitmap.Width;
-                BinaryOctet octet = lockedBitmap.GetPixelColor(x, y, Color);
+            int bitsToRead = byteCount * BinaryOctet.OCTET;
+            int bytesNeeded = (int)Math.Ceiling(bitsToRead / (double)lsb);
 
-                for (byte currBit = 0; currBit < lsb; ++currBit, ++bitIndex)
-                    data.Add(octet[currBit]);
+            BinaryList data = new BinaryList(byteCount * BinaryOctet.OCTET);
+            using (BitmapStream stream = new BitmapStream(lockedBitmap, Seed, Color, bytesNeeded)) {
+                BinaryOctet pixel = stream.ReadNext();
+                while (bitIndex < bitsToRead) {
+                    for (int currBit = 0; currBit < lsb; ++currBit, ++bitIndex) {
+                        data.Add(pixel[currBit]);
+                    }
+                }
             }
-
-            lockedBitmap.UnlockBits();
 
             if (invert) {
                 data.Invert();

@@ -231,6 +231,26 @@ namespace Monk.Bittwiddling
             return !right.Equals(left);
         }
 
+        public static bool operator <(BinaryOctet left, BinaryOctet right)
+        {
+            return left.CompareTo(right) < 0;
+        }
+
+        public static bool operator <=(BinaryOctet left, BinaryOctet right)
+        {
+            return left.CompareTo(right) <= 0;
+        }
+
+        public static bool operator >(BinaryOctet left, BinaryOctet right)
+        {
+            return left.CompareTo(right) > 0;
+        }
+
+        public static bool operator >=(BinaryOctet left, BinaryOctet right)
+        {
+            return left.CompareTo(right) >= 0;
+        }
+
         #endregion
 
         #region IConvertable

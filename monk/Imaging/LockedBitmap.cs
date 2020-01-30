@@ -19,19 +19,18 @@
 using System;
 using System.Drawing;
 using System.Drawing.Imaging;
-using System.Runtime.InteropServices;
+using System.Collections.Generic;
 #if DEBUG
 using System.IO;
 #endif
 
 namespace Monk.Imaging
 {
-    public abstract class LockedBitmap : IDisposable
+    public abstract unsafe class LockedBitmap : IDisposable
     {
         protected BitmapData BitmapData { get; set; }
         protected int Stride => BitmapData.Stride;
         protected int Size => Height * Stride;
-        protected byte[] data;
 
         public Bitmap Bitmap { get; protected set; }
         public int Width => BitmapData.Width;
@@ -39,23 +38,23 @@ namespace Monk.Imaging
         public int BytesPerPixel => Depth / 8;
 
         public abstract int Depth { get; }
+        public abstract IEnumerable<PixelColor> SuportedColors { get; }
 
         public virtual bool Locked => BitmapData != null;
+
+        protected internal byte* lpScan0;
 
         public virtual void LockBits()
         {
             Rectangle rect = new Rectangle(0, 0, Bitmap.Width, Bitmap.Height);
             BitmapData = Bitmap.LockBits(rect, ImageLockMode.ReadWrite, Bitmap.PixelFormat);
-            data = new byte[Size];
-            Reload();
+            lpScan0 = (byte*)BitmapData.Scan0.ToPointer();
         }
 
         public virtual void UnlockBits()
         {
-            Commit();
             Bitmap.UnlockBits(BitmapData);
             BitmapData = null;
-            data = null;
         }
 
         public abstract Color GetPixel(int x, int y);
@@ -102,18 +101,6 @@ namespace Monk.Imaging
             SetPixel(x, y, c);
         }
 
-        public virtual void Commit()
-        {
-            EnsureState();
-            Marshal.Copy(data, 0, BitmapData.Scan0, data.Length);
-        }
-
-        public virtual void Reload()
-        {
-            EnsureState();
-            Marshal.Copy(BitmapData.Scan0, data, 0, data.Length);
-        }
-
         public virtual Color[,] ToColorMatrix()
         {
             Color[,] colors = new Color[Height, Width];
@@ -131,6 +118,21 @@ namespace Monk.Imaging
             if (x >= Width || x < 0) throw new ArgumentOutOfRangeException(nameof(x));
             if (y >= Height || y < 0) throw new ArgumentOutOfRangeException(nameof(y));
             return (y * Stride) + (x * BytesPerPixel);
+        }
+
+        protected internal byte* PtrAt(int x, int y)
+        {
+            int offset = PointToOffset(x, y);
+            return lpScan0 + offset;
+        }
+
+        protected abstract int GetColorOffset(PixelColor color);
+
+        internal IntPtr GetPointerToColor(int x, int y, PixelColor color)
+        {
+            byte* lpPxl = PtrAt(x, y);
+            int nOffset = GetColorOffset(color);
+            return new IntPtr(&lpPxl[nOffset]);
         }
 
         public void Dispose()
@@ -163,7 +165,6 @@ namespace Monk.Imaging
 
         public virtual void Save(Stream stream)
         {
-            if (Locked) Commit();
             Bitmap.Save(stream, ImageFormat.Png);
         }
 
@@ -215,6 +216,7 @@ namespace Monk.Imaging
         private class LockedBitmap32bpp : LockedBitmap
         {
             public override int Depth => 32;
+            public override IEnumerable<PixelColor> SuportedColors => new PixelColor[] { PixelColor.Alpha, PixelColor.Red, PixelColor.Green, PixelColor.Blue };
 
             public LockedBitmap32bpp(Bitmap bitmap)
             {
@@ -223,29 +225,41 @@ namespace Monk.Imaging
 
             public override Color GetPixel(int x, int y)
             {
-                int offset = PointToOffset(x, y);
-                return Color.FromArgb(data[offset + 3], data[offset + 2], data[offset + 1], data[offset]);
+                byte* lpPxl = PtrAt(x, y);
+                return Color.FromArgb(lpPxl[3], lpPxl[2], lpPxl[1], lpPxl[0]);
             }
 
             public override void SetPixel(int x, int y, Color color)
             {
-                int offset = PointToOffset(x, y);
-                data[offset + 0] = color.B;
-                data[offset + 1] = color.G;
-                data[offset + 2] = color.R;
-                data[offset + 3] = color.A;
+                byte* lpPxl = PtrAt(x, y);
+                lpPxl[0] = color.B;
+                lpPxl[1] = color.G;
+                lpPxl[2] = color.R;
+                lpPxl[3] = color.A;
             }
 
             public override void SetPixelColor(int x, int y, byte value, PixelColor color)
             {
-                int offset = PointToOffset(x, y);
-                data[offset + (3 - (int)color)] = value;
+                byte* lpPxl = PtrAt(x, y);
+                lpPxl[3 - (int)color] = value;
+            }
+
+            protected override int GetColorOffset(PixelColor color)
+            {
+                switch(color) {
+                    case PixelColor.Blue: return 0;
+                    case PixelColor.Green: return 1;
+                    case PixelColor.Red: return 2;
+                    case PixelColor.Alpha: return 3;
+                }
+                return 0;
             }
         }
 
         private class LockedBitmap24bpp : LockedBitmap
         {
             public override int Depth => 24;
+            public override IEnumerable<PixelColor> SuportedColors => new PixelColor[] { PixelColor.Red, PixelColor.Green, PixelColor.Blue };
 
             public LockedBitmap24bpp(Bitmap bitmap)
             {
@@ -254,33 +268,46 @@ namespace Monk.Imaging
 
             public override Color GetPixel(int x, int y)
             {
-                int offset = PointToOffset(x, y);
-                return Color.FromArgb(data[offset + 2], data[offset + 1], data[offset]);
+                byte* lpPxl = PtrAt(x, y);
+                return Color.FromArgb(lpPxl[2], lpPxl[1], lpPxl[0]);
             }
 
             public override void SetPixel(int x, int y, Color color)
             {
-                int offset = PointToOffset(x, y);
-                data[offset + 0] = color.B;
-                data[offset + 1] = color.G;
-                data[offset + 2] = color.R;
+                byte* lpPxl = PtrAt(x, y);
+                lpPxl[0] = color.B;
+                lpPxl[1] = color.G;
+                lpPxl[2] = color.R;
             }
 
             public override void SetPixelColor(int x, int y, byte value, PixelColor color)
             {
-                int offset = PointToOffset(x, y);
+                int nColorOffset;
                 switch(color) {
-                    case PixelColor.Blue: data[offset] = value; break;
-                    case PixelColor.Green: data[offset + 1] = value; break;
-                    case PixelColor.Red: data[offset + 2] = value; break;
+                    case PixelColor.Blue: nColorOffset = 0; break;
+                    case PixelColor.Green: nColorOffset = 1; break;
+                    case PixelColor.Red: nColorOffset = 2; break;
                     default: throw new ArgumentException(nameof(color));
                 }
+                byte* lpPxl = PtrAt(x, y);
+                lpPxl[nColorOffset] = value;
+            }
+
+            protected override int GetColorOffset(PixelColor color)
+            {
+                switch (color) {
+                    case PixelColor.Blue: return 0;
+                    case PixelColor.Green: return 1;
+                    case PixelColor.Red: return 2;
+                }
+                return 0;
             }
         }
 
         private class LockedBitmap8bpp : LockedBitmap
         {
             public override int Depth => 8;
+            public override IEnumerable<PixelColor> SuportedColors => new PixelColor[] { PixelColor.Blue };
 
             public LockedBitmap8bpp(Bitmap bitmap)
             {
@@ -289,8 +316,8 @@ namespace Monk.Imaging
 
             public override Color GetPixel(int x, int y)
             {
-                int offset = PointToOffset(x, y);
-                return Color.FromArgb(data[offset]);
+                byte* lpPtr = PtrAt(x, y);
+                return Color.FromArgb(*lpPtr);
             }
 
             public override void SetPixel(int x, int y, Color color)
@@ -300,8 +327,13 @@ namespace Monk.Imaging
 
             public override void SetPixelColor(int x, int y, byte value, PixelColor color)
             {
-                int offset = PointToOffset(x, y);
-                data[offset] = value;
+                byte* lpPtr = PtrAt(x, y);
+                *lpPtr = value;
+            }
+
+            protected override int GetColorOffset(PixelColor color)
+            {
+                return 0;
             }
         }
     }

@@ -37,6 +37,7 @@
     <Compile Include="Bittwiddling\BinaryOctet.cs" />
     <Compile Include="Encryption\AESThenHMAC.cs" />
     <Compile Include="Bittwiddling\EndianMode.cs" />
+    <Compile Include="Imaging\BitmapStream.cs" />
     <Compile Include="Imaging\ImageChange.cs" />
     <Compile Include="Imaging\LockedBitmap.cs" />
     <Compile Include="Imaging\PixelColor.cs" />
