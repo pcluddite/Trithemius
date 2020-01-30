@@ -78,7 +78,7 @@ namespace Monk.Imaging
             int w = bitmap.Width, h = bitmap.Height;
             int imageArea = w * h;
             int bitIndex = 0;
-            int bits = length * BinaryOctet.OCTET;
+            int bits = length * Twiddler.CHAR_BIT;
             cachedData = new byte[Math.Min(bits, imageArea * colors.Count())];
             cachedPtrs = new IntPtr[cachedData.Length];
             for (int pixelIndex = seed[0]; pixelIndex < imageArea && bitIndex < bits; pixelIndex += seed[bitIndex % seed.Count] + 1) {

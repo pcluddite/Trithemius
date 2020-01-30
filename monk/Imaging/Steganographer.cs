@@ -69,13 +69,13 @@ namespace Monk.Imaging
             return GetRequiredSize(message) < GetMaximumSize();
         }
 
-        public void Encode(byte[] message)
+        public void Encode(byte[] data)
         {
-            if (!MessageFitsImage(message)) {
+            if (!MessageFitsImage(data)) {
                 throw new ArgumentException("Message is too big to encode in the image.");
             }
 
-            BinaryList bits = CreateBinaryList(message);
+            BinaryList bits = CreateBinaryList(data);
 
             int lsb = LeastSignificantBits;
             int bytesNeeded = (int)Math.Ceiling((double)bits.ByteCount / lsb);
@@ -83,9 +83,9 @@ namespace Monk.Imaging
 
             using (BitmapStream stream = new BitmapStream(lockedBitmap, Seed, Color, bytesNeeded)) {
                 while(bitIndex < bits.Count) {
-                    BinaryOctet b = stream.Peek();
+                    byte b = stream.Peek();
                     for (int currBit = 0; currBit < lsb; ++currBit)
-                        b = b.SetBit(currBit, bits[bitIndex++]);
+                        b = Twiddler.SetBit(b, currBit, bits[bitIndex++]);
                     stream.WriteByte(b);
                 }
             }
@@ -93,25 +93,24 @@ namespace Monk.Imaging
 
         private BinaryList CreateBinaryList(byte[] data)
         {
-            BinaryList bits = new BinaryList(BitConverter.GetBytes(data.Length), data.Length + sizeof(int));
-            if (InvertDataBits && InvertPrefixBits) {
+            int bitCount = (sizeof(int) + data.Length) * Twiddler.CHAR_BIT;
+            EndianMode dataEndianMode = Endianness;
+            BinaryList bits = new BinaryList(BitConverter.GetBytes(data.Length), bitCount, EndianMode.LittleEndian);
+            if (InvertPrefixBits) {
+                bits.Not();
+            }
+            if (InvertDataBits) {
+                BinaryList dataBits = new BinaryList(data, dataEndianMode);
+                dataBits.Not();
+                bits.AddRange(dataBits);
+            }
+            else if (bits.Endianness == dataEndianMode) {
                 bits.AddRange(data);
-                bits.Invert();
             }
             else {
-                if (InvertPrefixBits) {
-                    bits.Invert();
-                    bits.AddRange(data);
-                }
-                else if (InvertDataBits) {
-                    BinaryList databin = new BinaryList(data);
-                    databin.Invert();
-                    bits.AddRange(databin);
-                }
-                else {
-                    bits.AddRange(data);
-                }
+                bits.AddRange(new BinaryList(data, dataEndianMode));
             }
+
             return bits;
         }
 
@@ -144,21 +143,21 @@ namespace Monk.Imaging
         {            
             int lsb = LeastSignificantBits;
             int bitIndex = 0;
-            int bitsToRead = byteCount * BinaryOctet.OCTET;
+            int bitsToRead = byteCount * Twiddler.CHAR_BIT;
             int bytesNeeded = (int)Math.Ceiling(bitsToRead / (double)lsb);
 
-            BinaryList data = new BinaryList(byteCount * BinaryOctet.OCTET);
+            BinaryList data = new BinaryList(byteCount * Twiddler.CHAR_BIT);
             using (BitmapStream stream = new BitmapStream(lockedBitmap, Seed, Color, bytesNeeded)) {
-                BinaryOctet pixel = stream.ReadNext();
+                byte pixelByte = stream.ReadNext();
                 while (bitIndex < bitsToRead) {
                     for (int currBit = 0; currBit < lsb; ++currBit, ++bitIndex) {
-                        data.Add(pixel[currBit]);
+                        data.Add(Twiddler.GetBit(pixelByte, currBit));
                     }
                 }
             }
 
             if (invert) {
-                data.Invert();
+                data.Not();
             }
             return data.ToBytes(Endianness);
         }
