@@ -31,26 +31,23 @@ namespace Monk.Imaging
         private int lsb = 1;
         public int LeastSignificantBits
         {
-            get {
-                return lsb;
-            }
+            get => lsb;
             set {
-                if (lsb < 1 || lsb > 4) {
-                    throw new ArgumentException("Least significant bits must be between 1 and 4");
-                }
+                if (lsb < 1 || lsb > 4) throw new ArgumentException("Least significant bits must be between 1 and 4");
                 lsb = value;
             }
         }
 
         private LockedBitmap lockedBitmap;
 
+        public int Depth => lockedBitmap.Depth;
         public Bitmap Image => lockedBitmap.Bitmap;
         public PixelColor Color { get; set; }
 
         public bool InvertPrefixBits { get; set; } = false;
         public bool InvertDataBits { get; set; } = false;
         public bool ZeroBasedSize { get; set; } = false;
-        public EndianMode Endianness { get; set; } = EndianMode.BigEndian;
+        public EndianMode Endianness { get; set; } = EndianMode.LittleEndian;
 
         public bool Disposed { get; private set; }
 
@@ -116,7 +113,7 @@ namespace Monk.Imaging
 
         public int CheckSize()
         {
-            int size = BitConverter.ToInt32(ReadBits(sizeof(int), InvertPrefixBits).ToArray(), 0);
+            int size = BitConverter.ToInt32(ReadBits(sizeof(int), InvertPrefixBits, EndianMode.LittleEndian).ToArray(), 0);
 
             if (size <= 0 || size > GetMaximumSize())
                 return -1; // size was invalid, there probably isn't a message
@@ -135,31 +132,30 @@ namespace Monk.Imaging
                 size += 1;
             }
 
-            IEnumerable<byte> data = ReadBits(sizeof(int) + size, InvertDataBits);
+            IEnumerable<byte> data = ReadBits(sizeof(int) + size, InvertDataBits, Endianness);
             return data.Skip(sizeof(int)).ToArray();
         }
 
-        private IEnumerable<byte> ReadBits(int byteCount, bool invert)
+        private IEnumerable<byte> ReadBits(int byteCount, bool invert, EndianMode endianness)
         {            
             int lsb = LeastSignificantBits;
             int bitIndex = 0;
             int bitsToRead = byteCount * Twiddler.CHAR_BIT;
-            int bytesNeeded = (int)Math.Ceiling(bitsToRead / (double)lsb);
+            int bytesNeeded = bitsToRead / lsb + Math.Min(1, bitsToRead % lsb);
 
             BinaryList data = new BinaryList(byteCount * Twiddler.CHAR_BIT);
             using (BitmapStream stream = new BitmapStream(lockedBitmap, Seed, Color, bytesNeeded)) {
-                byte pixelByte = stream.ReadNext();
                 while (bitIndex < bitsToRead) {
                     for (int currBit = 0; currBit < lsb; ++currBit, ++bitIndex) {
+                        byte pixelByte = stream.ReadNext();
                         data.Add(Twiddler.GetBit(pixelByte, currBit));
                     }
                 }
             }
 
-            if (invert) {
-                data.Not();
-            }
-            return data.ToBytes(Endianness);
+            if (invert) data.Not();
+
+            return data.ToBytes(endianness);
         }
 
         public int GetRequiredSize(ICollection<byte> message)
@@ -174,12 +170,12 @@ namespace Monk.Imaging
 
         public int GetMaximumSize()
         {
-            return (Image.Width * Image.Height * LeastSignificantBits) / 8;
+            return (Image.Width * Image.Height * LeastSignificantBits) / Twiddler.CHAR_BIT;
         }
 
         public void SetLegacyOptions()
         {
-            Endianness = EndianMode.LittleEndian;
+            Endianness = EndianMode.BigEndian;
             ZeroBasedSize = true;
             LeastSignificantBits = 1;
         }

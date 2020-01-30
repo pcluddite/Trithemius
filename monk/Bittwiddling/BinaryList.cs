@@ -36,9 +36,10 @@ namespace Monk.Bittwiddling
         private int[] array;
 
         /// <summary>
-        /// This determines the order the bits are read from a byte. By default, the least significant bit is stored first (LittleEndian)
+        /// This determines the order the bits are read from a byte. The default is technically platform specific
+        /// but is universally LittleEndian in practice
         /// </summary>
-        public EndianMode Endianness { get; } = EndianMode.LittleEndian;
+        public EndianMode Endianness { get; } = Twiddler.ImplementationEndianness;
 
         public bool this[int index]
         {
@@ -53,8 +54,8 @@ namespace Monk.Bittwiddling
         }
 
         public int Count { get; private set; }
-        public int Capacity => array.Length * CHAR_BIT;
-        public int ByteCount => ArrayLength(Count);
+        public int Capacity => array.Length * ELEMENT_BITS;
+        public int ByteCount => Count / CHAR_BIT + Math.Min(1, Count % CHAR_BIT);
 
         public BinaryList()
         {
@@ -168,21 +169,30 @@ namespace Monk.Bittwiddling
             EnsureCapacity(data.Length * CHAR_BIT);
             int offset = IndexAtBit(Count);
             int len = data.Length;
-            unsafe {
-                fixed (byte* lpSrc = data)
-                fixed (int* lpIntArray = array) {
-                    byte* lpDst = (byte*)&lpIntArray[offset];
-                    if (Endianness == Twiddler.ImplementationEndianness) {
-                        AppendBytes(lpDst, lpSrc, len);
-                    }
-                    else {
-                        for(int idx = 0; idx < len; ++idx) {
-                            lpDst[idx] = Twiddler.FlipBits(lpSrc[idx]);
+            if (IsValidBytes()) {
+                unsafe {
+                    fixed (byte* lpSrc = data)
+                    fixed (int* lpIntArray = array) {
+                        byte* lpDst = (byte*)&lpIntArray[offset];
+                        if (Endianness == Twiddler.ImplementationEndianness) {
+                            AppendBytes(lpDst, lpSrc, len);
+                        }
+                        else {
+                            for (int idx = 0; idx < len; ++idx) {
+                                lpDst[idx] = Twiddler.FlipBits(lpSrc[idx]);
+                            }
                         }
                     }
                 }
+                Count += len;
             }
-
+            else {
+                for (int byteIdx = 0; byteIdx < len; ++byteIdx) {
+                    for (int bitIdx = 0; bitIdx < CHAR_BIT; ++bitIdx) {
+                        Set(Count++, Twiddler.GetBit(data[byteIdx], bitIdx, Endianness));
+                    }
+                }
+            }
         }
 
         public void AddRange(byte b)
@@ -285,7 +295,7 @@ namespace Monk.Bittwiddling
                 if (idx > 0 && idx % CHAR_BIT == 0) { // add space every 8 characters
                     sb.Append(' ');
                 }
-                sb.Append(Get(idx));
+                sb.Append(Get(idx) ? '1' : '0');
             }
             return sb.ToString();
         }
@@ -306,12 +316,12 @@ namespace Monk.Bittwiddling
 
         private void EnsureCapacity(int bitsNeeded)
         {
-            if (Capacity == 0) {
+            int capacity = Capacity;
+            if (capacity == 0) {
                 int len = ArrayLength(Math.Max(bitsNeeded, DEFAULT_CAPACITY));
                 array = new int[len];
             }
-            else {
-                int capacity = Capacity;
+            else if (capacity <= Count + bitsNeeded) {
                 int count = Count;
                 while (capacity <= count + bitsNeeded)
                     capacity = checked(capacity * 2);

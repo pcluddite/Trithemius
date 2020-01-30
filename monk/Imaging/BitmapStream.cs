@@ -26,8 +26,7 @@ namespace Monk.Imaging
 {
     internal class BitmapStream : Stream
     {
-        private IntPtr[] cachedPtrs;
-        private byte[] cachedData;
+        private CachedPixel[] cachedPixels;
 
         public LockedBitmap Bitmap { get; }
         public override bool CanRead => true;
@@ -53,16 +52,16 @@ namespace Monk.Imaging
             }
         }
 
-        public int IntLength => cachedData.Length;
+        public int IntLength => cachedPixels.Length;
         public override long Length => IntLength;
 
-        public BitmapStream(LockedBitmap bitmap, Seed seed, int dataLength)
-            : this(bitmap, seed, bitmap.SuportedColors, dataLength)
+        public BitmapStream(LockedBitmap bitmap, Seed seed, int sizeInBytes)
+            : this(bitmap, seed, bitmap.SuportedColors, sizeInBytes)
         {
         }
 
-        public BitmapStream(LockedBitmap bitmap, Seed seed, PixelColor color, int dataLength)
-            : this(bitmap, seed, new PixelColor[] { color }, dataLength)
+        public BitmapStream(LockedBitmap bitmap, Seed seed, PixelColor color, int sizeInBytes)
+            : this(bitmap, seed, new PixelColor[] { color }, sizeInBytes)
         {
         }
 
@@ -77,36 +76,27 @@ namespace Monk.Imaging
         {
             int w = bitmap.Width, h = bitmap.Height;
             int imageArea = w * h;
-            int bitIndex = 0;
-            int bits = length * Twiddler.CHAR_BIT;
-            cachedData = new byte[Math.Min(bits, imageArea * colors.Count())];
-            cachedPtrs = new IntPtr[cachedData.Length];
-            for (int pixelIndex = seed[0]; pixelIndex < imageArea && bitIndex < bits; pixelIndex += seed[bitIndex % seed.Count] + 1) {
+            int byteIndex = 0;
+            cachedPixels = new CachedPixel[Math.Min(length, imageArea * colors.Count())];
+            for (int pixelIndex = seed[0]; pixelIndex < imageArea && byteIndex < length; pixelIndex += seed[byteIndex % seed.Count] + 1) {
                 int x = pixelIndex % w;
                 int y = (pixelIndex - x) / w;
                 foreach (PixelColor color in colors) {
-                    cachedPtrs[bitIndex++] = bitmap.GetPointerToColor(x, y, color);
-                }
-            }
-
-            unsafe {
-                int len = cachedData.Length;
-                fixed (byte* lpBytes = cachedData)
-                fixed (IntPtr* lpPtrs = cachedPtrs) {
-                    for (int idx = 0; idx < len; ++idx) {
-                        lpBytes[idx] = *(byte*)lpPtrs[idx];
-                    }
+                    byte value = bitmap.GetPixelColor(x, y, color);
+                    cachedPixels[byteIndex++] = new CachedPixel(x, y, value, color);
                 }
             }
         }
 
-        public unsafe override void Flush()
+        public override void Flush()
         {
-            int len = cachedData.Length;
-            fixed (byte* lpBytes = cachedData)
-            fixed (IntPtr* lpPtrs = cachedPtrs) {
-                for (int idx = 0; idx < len; ++idx) {
-                    *(byte*)lpPtrs[idx] = lpBytes[idx];
+            if (cachedPixels != null) {
+                LockedBitmap bitmap = Bitmap;
+                for (int nIdx = 0; nIdx < cachedPixels.Length; ++nIdx) {
+                    CachedPixel pxl = cachedPixels[nIdx];
+                    if (pxl.Changed) {
+                        bitmap.SetPixelColor(pxl.X, pxl.Y, pxl.Value, pxl.Color);
+                    }
                 }
             }
         }
@@ -114,27 +104,28 @@ namespace Monk.Imaging
         public byte Peek()
         {
             if (streamPos >= IntLength) throw new EndOfStreamException();
-            return cachedData[streamPos];
+            return cachedPixels[streamPos].Value;
         }
 
         public override int ReadByte()
         {
             if (streamPos >= IntLength) return -1;
-            return cachedData[streamPos++];
+            return cachedPixels[streamPos++].Value;
         }
 
         public byte ReadNext()
         {
             if (streamPos >= IntLength) throw new EndOfStreamException();
-            return cachedData[streamPos++];
+            return cachedPixels[streamPos++].Value;
         }
 
         public override int Read(byte[] buffer, int offset, int count)
         {
             if (streamPos >= IntLength) return -1;
             count = Math.Min(count, IntLength - streamPos);
-            Array.Copy(cachedData, streamPos, buffer, offset, count);
-            streamPos += count;
+            for (int i = 0; i < count; ++i) {
+                buffer[i] = cachedPixels[streamPos++].Value;
+            }
             return count;
         }
 
@@ -161,15 +152,16 @@ namespace Monk.Imaging
         public override void WriteByte(byte value)
         {
             if (streamPos >= IntLength) throw new EndOfStreamException();
-            cachedData[streamPos++] = value;
+            cachedPixels[streamPos++].Value = value;
         }
 
         public override void Write(byte[] buffer, int offset, int count)
         {
             if (count + streamPos > IntLength) throw new EndOfStreamException();
             count = Math.Min(count, IntLength - streamPos);
-            Array.Copy(buffer, offset, cachedData, streamPos, count);
-            streamPos += count;
+            for (int i = 0; i < count; ++i) {
+                cachedPixels[streamPos++].Value = buffer[i];
+            }
         }
 
         protected override void Dispose(bool disposing)
@@ -177,8 +169,7 @@ namespace Monk.Imaging
             if (disposing && Bitmap.Locked) {
                 Flush();
                 Bitmap.UnlockBits();
-                cachedData = null;
-                cachedPtrs = null;
+                cachedPixels = null;
             }
             base.Dispose(disposing);
         }

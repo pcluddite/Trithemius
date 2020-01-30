@@ -38,6 +38,7 @@
     <Compile Include="Bittwiddling\EndianMode.cs" />
     <Compile Include="Imaging\BitmapStream.cs" />
     <Compile Include="Bittwiddling\Twiddler.cs" />
+    <Compile Include="Imaging\CachedPixel.cs" />
     <Compile Include="Imaging\ImageChange.cs" />
     <Compile Include="Imaging\LockedBitmap.cs" />
     <Compile Include="Imaging\PixelColor.cs" />

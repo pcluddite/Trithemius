@@ -190,6 +190,9 @@ namespace Trithemius.Windows
             }
             catch (Exception ex) {
                 e.Result = new object[] { false, ex.Message };
+#if DEBUG
+                throw;
+#endif
             }
             finally {
                 t.Dispose();
