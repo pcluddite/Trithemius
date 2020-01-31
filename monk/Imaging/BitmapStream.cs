@@ -77,11 +77,12 @@ namespace Monk.Imaging
             int w = bitmap.Width, h = bitmap.Height;
             int imageArea = w * h;
             int byteIndex = 0;
-            cachedPixels = new CachedPixel[Math.Min(length, imageArea * colors.Count())];
+            ISet<PixelColor> pixelColors = new HashSet<PixelColor>(colors);
+            cachedPixels = new CachedPixel[Math.Min(length, imageArea * pixelColors.Count)];
             for (int pixelIndex = seed[0]; pixelIndex < imageArea && byteIndex < length; pixelIndex += seed[byteIndex % seed.Count] + 1) {
                 int x = pixelIndex % w;
                 int y = (pixelIndex - x) / w;
-                foreach (PixelColor color in colors) {
+                foreach (PixelColor color in pixelColors) {
                     byte value = bitmap.GetPixelColor(x, y, color);
                     cachedPixels[byteIndex++] = new CachedPixel(x, y, value, color);
                 }

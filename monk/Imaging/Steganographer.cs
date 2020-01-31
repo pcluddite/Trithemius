@@ -75,7 +75,7 @@ namespace Monk.Imaging
             BinaryList bits = CreateBinaryList(data);
 
             int lsb = LeastSignificantBits;
-            int bytesNeeded = (int)Math.Ceiling((double)bits.ByteCount / lsb);
+            int bytesNeeded = MathUtil.DivideUp(bits.ByteCount, lsb);
             int bitIndex = 0;
 
             using (BitmapStream stream = new BitmapStream(lockedBitmap, Seed, Color, bytesNeeded)) {
@@ -141,7 +141,7 @@ namespace Monk.Imaging
             int lsb = LeastSignificantBits;
             int bitIndex = 0;
             int bitsToRead = byteCount * Twiddler.CHAR_BIT;
-            int bytesNeeded = bitsToRead / lsb + Math.Min(1, bitsToRead % lsb);
+            int bytesNeeded = MathUtil.DivideUp(bitsToRead, lsb);
 
             BinaryList data = new BinaryList(byteCount * Twiddler.CHAR_BIT);
             using (BitmapStream stream = new BitmapStream(lockedBitmap, Seed, Color, bytesNeeded)) {

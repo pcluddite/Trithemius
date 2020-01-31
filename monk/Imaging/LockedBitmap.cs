@@ -20,7 +20,6 @@ using System;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Collections.Generic;
-using System.Runtime.InteropServices;
 #if DEBUG
 using System.IO;
 #endif
@@ -32,6 +31,7 @@ namespace Monk.Imaging
         protected BitmapData BitmapData { get; set; }
         protected int Stride => BitmapData.Stride;
         protected int Size => Height * Stride;
+        protected IntPtr Scan0 => BitmapData.Scan0;
 
         public Bitmap Bitmap { get; protected set; }
         public int Width => BitmapData.Width;
@@ -42,8 +42,6 @@ namespace Monk.Imaging
         public abstract IEnumerable<PixelColor> SuportedColors { get; }
 
         public virtual bool Locked => BitmapData != null;
-
-        protected IntPtr Scan0 => BitmapData.Scan0;
         
         public virtual void LockBits()
         {

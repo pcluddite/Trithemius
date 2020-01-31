@@ -55,7 +55,7 @@ namespace Monk.Bittwiddling
 
         public int Count { get; private set; }
         public int Capacity => array.Length * ELEMENT_BITS;
-        public int ByteCount => Count / CHAR_BIT + Math.Min(1, Count % CHAR_BIT);
+        public int ByteCount => MathUtil.DivideUp(Count, CHAR_BIT);
 
         public BinaryList()
         {
@@ -169,7 +169,7 @@ namespace Monk.Bittwiddling
             EnsureCapacity(data.Length * CHAR_BIT);
             int offset = IndexAtBit(Count);
             int len = data.Length;
-            if (IsValidBytes()) {
+            if (Count % CHAR_BIT == 0) {
                 unsafe {
                     fixed (byte* lpSrc = data)
                     fixed (int* lpIntArray = array) {
@@ -331,7 +331,7 @@ namespace Monk.Bittwiddling
 
         private int ArrayLength(int bitCount)
         {
-            return IndexAtBit(bitCount) + Math.Min(1, bitCount % ELEMENT_BITS);
+            return MathUtil.DivideUp(IndexAtBit(bitCount), ELEMENT_BITS);
         }
 
         private int IndexAtBit(int bitIndex)
