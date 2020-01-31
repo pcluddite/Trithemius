@@ -125,7 +125,8 @@ namespace Trithemius.Windows
                 }
             }
             try {
-                decodeWorker.RunWorkerAsync(new object[] { false, MakeTrithemius(), passwordBox.Text });
+                object arg = (CheckSize: false, Trithemius: MakeTrithemius(), Key: passwordBox.Text, EnableLegacy: legacyCheck.Checked);
+                decodeWorker.RunWorkerAsync(arg);
             }
             catch (FileNotFoundException ex) {
                 UnlockWindow();
@@ -159,10 +160,12 @@ namespace Trithemius.Windows
 
         private void decodeWorker_DoWork(object sender, DoWorkEventArgs e)
         {
-            object[] args = (object[])e.Argument;
-            bool checkSize = (bool)args[0];
-            Steganographer t = (Steganographer)args[1];
-            string pass = (string)args[2];
+#pragma warning disable CS0618 // Type or member is obsolete
+            var arg = (ValueTuple<bool, Steganographer, string, bool>)e.Argument;
+            bool checkSize = arg.Item1;
+            Steganographer t = arg.Item2;
+            string pass = arg.Item3;
+            bool legacyCheck = arg.Item4;
 
             try {
                 byte[] msg = t.Decode();
@@ -173,7 +176,12 @@ namespace Trithemius.Windows
                 }
 
                 if (!string.IsNullOrEmpty(pass)) {
-                    msg = AESThenHMAC.SimpleDecryptWithPassword(msg, pass);
+                    if (legacyCheck) {
+                        msg = LegacyEncryption.DecryptStringAES(msg, pass);
+                    }
+                    else {
+                        msg = AESThenHMAC.SimpleDecryptWithPassword(msg, pass);
+                    }
                     if (msg == null) {
                         e.Result = new object[] { false, "The encryption key was invalid." };
                         return;
@@ -190,13 +198,11 @@ namespace Trithemius.Windows
             }
             catch (Exception ex) {
                 e.Result = new object[] { false, ex.Message };
-#if DEBUG
-                throw;
-#endif
             }
             finally {
                 t.Dispose();
             }
+#pragma warning restore CS0618 // Type or member is obsolete
         }
 
         private void decodeWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
