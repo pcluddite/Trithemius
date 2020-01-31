@@ -321,9 +321,9 @@ namespace Monk.Bittwiddling
                 int len = ArrayLength(Math.Max(bitsNeeded, DEFAULT_CAPACITY));
                 array = new int[len];
             }
-            else if (capacity <= Count + bitsNeeded) {
+            else if (capacity < Count + bitsNeeded) {
                 int count = Count;
-                while (capacity <= count + bitsNeeded)
+                while (capacity < count + bitsNeeded)
                     capacity = checked(capacity * 2);
                 Array.Resize(ref array, ArrayLength(capacity));
             }
@@ -331,7 +331,7 @@ namespace Monk.Bittwiddling
 
         private int ArrayLength(int bitCount)
         {
-            return MathUtil.DivideUp(IndexAtBit(bitCount), ELEMENT_BITS);
+            return MathUtil.DivideUp(bitCount, ELEMENT_BITS);
         }
 
         private int IndexAtBit(int bitIndex)

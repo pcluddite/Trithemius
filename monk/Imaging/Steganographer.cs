@@ -113,7 +113,7 @@ namespace Monk.Imaging
 
         public int CheckSize()
         {
-            int size = BitConverter.ToInt32(ReadBits(sizeof(int), InvertPrefixBits, EndianMode.LittleEndian).ToArray(), 0);
+            int size = BitConverter.ToInt32(ReadBits(sizeof(int), InvertPrefixBits, Endianness).ToArray(), 0);
 
             if (size <= 0 || size > GetMaximumSize())
                 return -1; // size was invalid, there probably isn't a message
@@ -143,7 +143,7 @@ namespace Monk.Imaging
             int bitsToRead = byteCount * Twiddler.CHAR_BIT;
             int bytesNeeded = MathUtil.DivideUp(bitsToRead, lsb);
 
-            BinaryList data = new BinaryList(byteCount * Twiddler.CHAR_BIT);
+            BinaryList data = new BinaryList(bitsToRead);
             using (BitmapStream stream = new BitmapStream(lockedBitmap, Seed, Color, bytesNeeded)) {
                 while (bitIndex < bitsToRead) {
                     for (int currBit = 0; currBit < lsb; ++currBit, ++bitIndex) {
