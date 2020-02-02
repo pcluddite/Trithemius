@@ -39,7 +39,7 @@ namespace Monk.Bittwiddling
         /// This determines the order the bits are read from a byte. The default is technically platform specific
         /// but is universally LittleEndian in practice
         /// </summary>
-        public EndianMode Endianness { get; } = Twiddler.ImplementationEndianness;
+        public EndianMode Endianness { get; }
 
         public bool this[int index]
         {
@@ -53,47 +53,55 @@ namespace Monk.Bittwiddling
             }
         }
 
-        public int Count { get; private set; }
+        public int Count { get; private set; } = 0;
         public int Capacity => array.Length * ELEMENT_BITS;
         public int ByteCount => MathUtil.DivideUp(Count, CHAR_BIT);
 
         public BinaryList()
+            : this(Twiddler.ImplementationEndianness)
         {
-            array = new int[0];
-            Count = 0;
         }
 
         public BinaryList(int capacity)
+            : this(capacity, Twiddler.ImplementationEndianness)
         {
-            array = new int[ArrayLength(capacity)];
-            Count = 0;
-        }
-
-        public BinaryList(int capacity, EndianMode endianness)
-            : this(capacity)
-        {
-            Endianness = endianness;
         }
 
         public BinaryList(byte[] data)
+            : this(data, Twiddler.ImplementationEndianness)
         {
-            AddRange(data);
-        }
-
-        public BinaryList(byte[] data, EndianMode endianness)
-            : this(data)
-        {
-            Endianness = endianness;
         }
 
         public BinaryList(IEnumerable<byte> data)
-            : this(DEFAULT_CAPACITY)
+            : this(data, Twiddler.ImplementationEndianness)
+        {
+        }
+
+        public BinaryList(byte[] data, int capacity)
+            : this(data, capacity, Twiddler.ImplementationEndianness)
+        {
+        }
+
+        public BinaryList(EndianMode endianness)
+        {
+            array = new int[0];
+            Endianness = endianness;
+        }
+
+        public BinaryList(int capacity, EndianMode endianness)
+        {
+            array = new int[ArrayLength(capacity)];
+            Endianness = endianness;
+        }
+
+        public BinaryList(byte[] data, EndianMode endianness)
+            : this(data.Length * CHAR_BIT, endianness)
         {
             AddRange(data);
         }
 
-        public BinaryList(byte[] data, int capacity)
-            : this(capacity)
+        public BinaryList(IEnumerable<byte> data, EndianMode endianness)
+            : this(DEFAULT_CAPACITY, endianness)
         {
             AddRange(data);
         }
