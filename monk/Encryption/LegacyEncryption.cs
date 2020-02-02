@@ -4,7 +4,8 @@
  * or send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA.
  *
  * Originally posted on StackOverflow (https://stackoverflow.com/a/2791259/4367864)
- * Retrived on Sep 10, 2013. Modified by Timothy Baxendale. Modifications licensed under CC BY-AS 3.0 as well
+ * Retrived on Sep 10, 2013. Modified by Timothy Baxendale.
+ * Modifications are distributed under the same License.
  */
 using System;
 using System.IO;
@@ -14,7 +15,7 @@ using System.Text;
 namespace Monk.Encryption
 {
     /// <summary>
-    /// Do not use this class! This class is includded only to for compatibility.
+    /// Do not use this class! This class is included only for compatibility.
     /// </summary>
     [Obsolete("AESThenHMAC class is currently suggested as the more secure alternative")]
     public static class LegacyEncryption
