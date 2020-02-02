@@ -33,7 +33,7 @@ namespace Monk.Imaging
         {
             get => lsb;
             set {
-                if (lsb < 1 || lsb > 4) throw new ArgumentException("Least significant bits must be between 1 and 4");
+                if (value < 1 || value > 4) throw new ArgumentOutOfRangeException("Least significant bits must be between 1 and 4");
                 lsb = value;
             }
         }
