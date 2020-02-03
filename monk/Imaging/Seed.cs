@@ -20,109 +20,86 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Text;
+using Monk.Bittwiddling;
 
 namespace Monk.Imaging
 {
-    public struct Seed : IList<byte>
+    public struct Seed : IList<int>
     {
-        private byte[] seed;
+        public static readonly long MaxValue = (long)Math.Pow(10, 10) - 1;
+        public static readonly long MinValue = 1;
 
-        public int Count
+        private static readonly Random random = new Random();
+
+        public long Value { get; }
+        public int Count { get; }
+
+        public bool IsReadOnly => true;
+
+        public int this[int index]
         {
             get {
-                ConstructSeedIfNull();
-                return seed.Length;
+                if (index < 0 || index >= Count) throw new ArgumentOutOfRangeException(nameof(index));
+                return (int)(Value / Math.Pow(10, Count - index - 1)) % 10;
+            }
+            set => throw new InvalidOperationException();
+        }
+
+        public Seed(string str)
+        {
+            if (str == null) throw new ArgumentNullException(nameof(str));
+            if (str.Length > 10) throw new ArgumentException("seed is too long", nameof(str));
+            Count = Math.Max(str.Length, 1);
+            Value = 0;
+            for(int idx = 0; idx < str.Length; ++idx) {
+                char c = str[idx];
+                if (!char.IsDigit(c)) throw new ArgumentException("input string should only contain numbers and must be 10 digits or less");
+                Value += (c - '0') * (long)Math.Pow(10, idx);
             }
         }
 
-        public bool IsReadOnly
+        public Seed(long seed)
         {
-            get {
-                return true;
+            if (seed < MinValue || seed > MaxValue) throw new ArgumentException("seed is too long", nameof(seed));
+            Count = MathUtil.CountDigits(seed);
+            Value = seed;
+        }
+
+        private Seed(long seed, int size)
+        {
+            Count = size;
+            Value = seed;
+        }
+
+        public int IndexOf(int item)
+        {
+            long pow = (long)Math.Pow(10, Count - 1);
+            for (int index = 0; index < Count; ++index) {
+                if (Value / pow % 10 == item) return index;
+                pow /= 10;
+            }
+            return -1;
+        }
+
+        public bool Contains(int item)
+        {
+            return IndexOf(item) > -1;
+        }
+
+        public void CopyTo(int[] array, int arrayIndex)
+        {
+            for(int i = 0; arrayIndex < Count; ++arrayIndex, ++i) {
+                array[arrayIndex] = this[i];
             }
         }
 
-        public byte this[int index]
+        public IEnumerator<int> GetEnumerator()
         {
-            get {
-                ConstructSeedIfNull();
-                return seed[index];
+            long pow = (long)Math.Pow(10, Count - 1);
+            for (int index = 0; index < Count; ++index) {
+                yield return (int)(Value / pow % 10);
+                pow /= 10;
             }
-
-            set {
-                ConstructSeedIfNull();
-                seed[index] = value;
-            }
-        }
-
-        private static void ThrowIfBad(byte[] _seed)
-        {
-            if (_seed.Length > 10) {
-                throw new ArgumentException("Seed cannot be greater than 10 integers");
-            }
-            foreach (int i in _seed) {
-                if (i < 0 || i > 9) {
-                    throw new ArgumentException("Integers in the seed must be between 0 and 10");
-                }
-            }
-        }
-
-        public Seed(ICollection<byte> _seed)
-        {
-            seed = new byte[_seed.Count];
-            int i = 0;
-            foreach (byte b in _seed) {
-                seed[i++] = b;
-            }
-            ThrowIfBad(seed);
-        }
-
-        public Seed(string _seed)
-        {
-            seed = new byte[_seed.Length];
-            int i = 0;
-            foreach (char c in _seed) {
-                seed[i++] = (byte)(c - '0');
-            }
-            ThrowIfBad(seed);
-        }
-
-        public static Seed RandomSeed(int size)
-        {
-            if (size > 10 || size < 1)
-                throw new ArgumentOutOfRangeException("size");
-
-            Random rand = new Random();
-            byte[] seed = new byte[size];
-
-            for (int i = 0; i < seed.Length; ++i)
-                seed[i] = (byte)rand.Next(10);
-
-            return new Seed(seed);
-        }
-
-        public int IndexOf(byte item)
-        {
-            ConstructSeedIfNull();
-            return ((IList<byte>)seed).IndexOf(item);
-        }
-
-        public bool Contains(byte item)
-        {
-            ConstructSeedIfNull();
-            return ((IList<byte>)seed).Contains(item);
-        }
-
-        public void CopyTo(byte[] array, int arrayIndex)
-        {
-            ConstructSeedIfNull();
-            seed.CopyTo(array, arrayIndex);
-        }
-
-        public IEnumerator<byte> GetEnumerator()
-        {
-            ConstructSeedIfNull();
-            return ((IList<byte>)seed).GetEnumerator();
         }
 
         IEnumerator IEnumerable.GetEnumerator()
@@ -130,52 +107,76 @@ namespace Monk.Imaging
             return GetEnumerator();
         }
 
-        private void ConstructSeedIfNull()
-        {
-            if (seed == null)
-                seed = new byte[1];
-        }
-
         public override string ToString()
         {
-            StringBuilder sb = new StringBuilder();
-            foreach (byte b in seed)
-                sb.Append(b);
-            return sb.ToString();
+            int n = MathUtil.CountDigits(Value);
+            if (Count > n) {
+                StringBuilder sb = new StringBuilder(Count);
+                sb.Append('0', Count - n);
+                return sb.Append(Value).ToString();
+            }
+            else {
+                return Value.ToString();
+            }
         }
 
-        public static Seed FromString(string _seed)
+        public static Seed Random(int size)
         {
-            return new Seed(_seed);
+            if (size > 10 || size < 1) throw new ArgumentOutOfRangeException(nameof(size));
+            long min = (long)Math.Pow(10, size - 1);
+            long max = (long)Math.Pow(10, size);
+            return new Seed((long)(random.NextDouble() * (max - min) + min), size);
         }
 
-        #region unimplemented
+        public override bool Equals(object obj)
+        {
+            if (obj is Seed s) return Equals(s);
+            return false;
+        }
 
-        void IList<byte>.Insert(int index, byte item)
+        public bool Equals(Seed other)
+        {
+            return other.Value == Value && other.Count == Count;
+        }
+
+        public override int GetHashCode()
+        {
+            return Value.GetHashCode();
+        }
+
+        public static bool operator ==(Seed left, Seed right)
+        {
+            return left.Equals(right);
+        }
+
+        public static bool operator !=(Seed left, Seed right)
+        {
+            return !(left == right);
+        }
+
+        void IList<int>.Insert(int index, int item)
         {
             throw new NotImplementedException();
         }
 
-        void IList<byte>.RemoveAt(int index)
+        void IList<int>.RemoveAt(int index)
         {
             throw new NotImplementedException();
         }
 
-        void ICollection<byte>.Add(byte item)
+        void ICollection<int>.Add(int item)
         {
             throw new NotImplementedException();
         }
 
-        void ICollection<byte>.Clear()
+        void ICollection<int>.Clear()
         {
             throw new NotImplementedException();
         }
 
-        bool ICollection<byte>.Remove(byte item)
+        bool ICollection<int>.Remove(int item)
         {
             throw new NotImplementedException();
         }
-
-        #endregion
     }
 }

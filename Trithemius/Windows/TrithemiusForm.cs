@@ -415,7 +415,7 @@ namespace Trithemius.Windows
             RandomSeed randForm = new RandomSeed(previous_rand);
             if (randForm.ShowDialog() == DialogResult.OK) {
                 previous_rand = randForm.Result;
-                seedBox.Text = Seed.RandomSeed(previous_rand).ToString();
+                seedBox.Text = Seed.Random(previous_rand).ToString();
             }
         }
 

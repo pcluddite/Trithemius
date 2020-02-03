@@ -29,5 +29,13 @@ namespace Monk.Bittwiddling
         {
             return dividend / divisor + Math.Min(1, dividend % divisor);
         }
+
+        /// <summary>
+        /// Count the number of digits in an integer
+        /// </summary>
+        public static int CountDigits(long value)
+        {
+            return (int)Math.Floor(Math.Log10(value) + 1);
+        }
     }
 }
