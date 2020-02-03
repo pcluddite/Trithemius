@@ -26,8 +26,6 @@ namespace Monk.Imaging
 {
     public class Steganographer : IDisposable
     {
-        public Seed Seed { get; set; }
-
         private int lsb = 1;
         public int LeastSignificantBits
         {
@@ -42,12 +40,13 @@ namespace Monk.Imaging
 
         public int Depth => lockedBitmap.Depth;
         public Bitmap Image => lockedBitmap.Bitmap;
-        public PixelColor Color { get; set; }
 
         public bool InvertPrefixBits { get; set; } = false;
         public bool InvertDataBits { get; set; } = false;
         public bool ZeroBasedSize { get; set; } = false;
         public EndianMode Endianness { get; set; } = EndianMode.LittleEndian;
+        public PixelColor Color { get; set; }
+        public Seed Seed { get; set; } = Seed.DefaultSeed;
 
         public bool Disposed { get; private set; }
 

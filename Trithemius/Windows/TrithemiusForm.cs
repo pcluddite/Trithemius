@@ -196,9 +196,9 @@ namespace Trithemius.Windows
                     e.Result = new object[] { true };
                 }
             }
-            catch (Exception ex) {
-                e.Result = new object[] { false, ex.Message };
-            }
+            //catch (Exception ex) {
+            //    e.Result = new object[] { false, ex.Message };
+            //}
             finally {
                 t.Dispose();
             }

@@ -26,6 +26,7 @@ namespace Monk.Imaging
 {
     public struct Seed : IList<int>
     {
+        public static readonly Seed DefaultSeed = new Seed(0);
         public static readonly long MaxValue = (long)Math.Pow(10, 10) - 1;
         public static readonly long MinValue = 1;
 

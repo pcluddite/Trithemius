@@ -35,6 +35,7 @@ namespace Monk.Bittwiddling
         /// </summary>
         public static int CountDigits(long value)
         {
+            if (value == 0) return 1;
             return (int)Math.Floor(Math.Log10(value) + 1);
         }
     }
