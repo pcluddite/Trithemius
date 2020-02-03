@@ -33,7 +33,7 @@ namespace Trithemius
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new TrithemiusForm());
+            Application.Run(new LegacyTrithemiusForm());
         }
 
         internal static Process TryStart(IWin32Window owner, ProcessStartInfo startInfo, bool displayErrors = true)
