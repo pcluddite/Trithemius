@@ -37,7 +37,7 @@ namespace Monk.Imaging
         public int BytesPerPixel => Depth / 8;
 
         public abstract int Depth { get; }
-        public abstract IEnumerable<PixelColor> SuportedColors { get; }
+        public abstract ISet<PixelColor> SuportedColors { get; }
 
         public virtual bool Locked => BitmapData != null;
         
@@ -53,48 +53,22 @@ namespace Monk.Imaging
             BitmapData = null;
         }
 
-        public abstract Color GetPixel(int x, int y);
+        public abstract int GetPixel(int x, int y);
 
         public virtual byte GetPixelColor(int x, int y, PixelColor color)
         {
-            Color pixel = GetPixel(x, y);
-            if (color == PixelColor.Blue) {
-                return pixel.B;
-            }
-            else if (color == PixelColor.Green) {
-                return pixel.G;
-            }
-            else if (color == PixelColor.Red) {
-                return pixel.R;
-            }
-            else if (color == PixelColor.Alpha) {
-                return pixel.A;
-            }
-            else {
-                throw new ArgumentException(nameof(color));
-            }
+            if (!SuportedColors.Contains(color)) throw new ArgumentException("unsupported color", nameof(color));
+            int value = GetPixel(x, y);
+            return (byte)((value >> (int)color) & 0xFF);
         }
 
-        public abstract void SetPixel(int x, int y, Color color);
+        public abstract void SetPixel(int x, int y, int argb);
 
         public virtual void SetPixelColor(int x, int y, byte value, PixelColor color)
         {
-            Color c = GetPixel(x, y);
-            switch (color) {
-                case PixelColor.Alpha:
-                    c = Color.FromArgb(value, c.A, c.G, c.B);
-                    break;
-                case PixelColor.Red:
-                    c = Color.FromArgb(c.A, value, c.G, c.B);
-                    break;
-                case PixelColor.Green:
-                    c = Color.FromArgb(c.A, c.R, value, c.B);
-                    break;
-                case PixelColor.Blue:
-                    c = Color.FromArgb(c.A, c.R, c.G, value);
-                    break;
-            }
-            SetPixel(x, y, c);
+            if (!SuportedColors.Contains(color)) throw new ArgumentException("unsupported color", nameof(color));
+            int argb = GetPixel(x, y) & ~(0xFF << (int)color);
+            SetPixel(x, y, argb | (value << (int)color));
         }
 
         public virtual Color[,] ToColorMatrix()
@@ -102,7 +76,7 @@ namespace Monk.Imaging
             Color[,] colors = new Color[Height, Width];
             for (int y = 0; y < Height; ++y) {
                 for (int x = 0; x < Width; ++x) {
-                    colors[y, x] = GetPixel(x, y);
+                    colors[y, x] = Color.FromArgb(GetPixel(x, y));
                 }
             }
             return colors;
@@ -121,8 +95,6 @@ namespace Monk.Imaging
             int offset = PointToOffset(x, y);
             return (byte*)Scan0.ToPointer() + offset;
         }
-
-        protected abstract int GetColorOffset(PixelColor color);
 
         public void Dispose()
         {
@@ -177,124 +149,83 @@ namespace Monk.Imaging
         private class LockedBitmap32bpp : LockedBitmap
         {
             public override int Depth => 32;
-            public override IEnumerable<PixelColor> SuportedColors => new PixelColor[] { PixelColor.Alpha, PixelColor.Red, PixelColor.Green, PixelColor.Blue };
+            public override ISet<PixelColor> SuportedColors { get; } = new HashSet<PixelColor>() { PixelColor.Alpha, PixelColor.Red, PixelColor.Green, PixelColor.Blue };
 
             public LockedBitmap32bpp(Bitmap bitmap)
             {
                 Bitmap = bitmap;
             }
 
-            public override unsafe Color GetPixel(int x, int y)
+            public override unsafe int GetPixel(int x, int y)
             {
                 byte* lpPxl = PtrAt(x, y);
-                return Color.FromArgb(lpPxl[3], lpPxl[2], lpPxl[1], lpPxl[0]);
+                return *(int*)lpPxl;
             }
 
-            public override unsafe void SetPixel(int x, int y, Color color)
+            public override unsafe void SetPixel(int x, int y, int argb)
             {
                 byte* lpPxl = PtrAt(x, y);
-                lpPxl[0] = color.B;
-                lpPxl[1] = color.G;
-                lpPxl[2] = color.R;
-                lpPxl[3] = color.A;
+                *(int*)lpPxl = argb;
             }
 
             public override unsafe void SetPixelColor(int x, int y, byte value, PixelColor color)
             {
                 byte* lpPxl = PtrAt(x, y);
-                lpPxl[3 - (int)color] = value;
-            }
-
-            protected override int GetColorOffset(PixelColor color)
-            {
-                switch(color) {
-                    case PixelColor.Blue: return 0;
-                    case PixelColor.Green: return 1;
-                    case PixelColor.Red: return 2;
-                    case PixelColor.Alpha: return 3;
-                }
-                return 0;
+                lpPxl[(int)color/8] = value;
             }
         }
 
         private class LockedBitmap24bpp : LockedBitmap
         {
             public override int Depth => 24;
-            public override IEnumerable<PixelColor> SuportedColors => new PixelColor[] { PixelColor.Red, PixelColor.Green, PixelColor.Blue };
+            public override ISet<PixelColor> SuportedColors { get; } = new HashSet<PixelColor>() { PixelColor.Red, PixelColor.Green, PixelColor.Blue };
 
             public LockedBitmap24bpp(Bitmap bitmap)
             {
                 Bitmap = bitmap;
             }
 
-            public override unsafe Color GetPixel(int x, int y)
+            public override unsafe int GetPixel(int x, int y)
             {
                 byte* lpPxl = PtrAt(x, y);
-                return Color.FromArgb(lpPxl[2], lpPxl[1], lpPxl[0]);
+                int value = 0xff << (int)PixelColor.Alpha;
+                value |= lpPxl[2] << (int)PixelColor.Red;
+                value |= lpPxl[1] << (int)PixelColor.Green;
+                value |= lpPxl[0] << (int)PixelColor.Blue;
+                return value;
             }
 
-            public override unsafe void SetPixel(int x, int y, Color color)
+            public override unsafe void SetPixel(int x, int y, int argb)
             {
                 byte* lpPxl = PtrAt(x, y);
-                lpPxl[0] = color.B;
-                lpPxl[1] = color.G;
-                lpPxl[2] = color.R;
-            }
-
-            public override unsafe void SetPixelColor(int x, int y, byte value, PixelColor color)
-            {
-                int nColorOffset;
-                switch(color) {
-                    case PixelColor.Blue: nColorOffset = 0; break;
-                    case PixelColor.Green: nColorOffset = 1; break;
-                    case PixelColor.Red: nColorOffset = 2; break;
-                    default: throw new ArgumentException(nameof(color));
+                byte* lpArgbBytes = (byte*)&argb;
+                for (int i = 0; i < BytesPerPixel; ++i) {
+                    lpPxl[i] = lpArgbBytes[i + 1];
                 }
-                byte* lpPxl = PtrAt(x, y);
-                lpPxl[nColorOffset] = value;
-            }
-
-            protected override int GetColorOffset(PixelColor color)
-            {
-                switch (color) {
-                    case PixelColor.Blue: return 0;
-                    case PixelColor.Green: return 1;
-                    case PixelColor.Red: return 2;
-                }
-                return 0;
             }
         }
 
         private class LockedBitmap8bpp : LockedBitmap
         {
             public override int Depth => 8;
-            public override IEnumerable<PixelColor> SuportedColors => new PixelColor[] { PixelColor.Blue };
+            public override ISet<PixelColor> SuportedColors { get; } = new HashSet<PixelColor>() { PixelColor.Blue };
 
             public LockedBitmap8bpp(Bitmap bitmap)
             {
                 Bitmap = bitmap;
             }
 
-            public override unsafe Color GetPixel(int x, int y)
+            public override unsafe int GetPixel(int x, int y)
             {
                 byte* lpPtr = PtrAt(x, y);
-                return Color.FromArgb(*lpPtr);
+                return *lpPtr;
             }
 
-            public override void SetPixel(int x, int y, Color color)
-            {
-                SetPixelColor(x, y, (byte)color.ToArgb(), PixelColor.Blue);
-            }
-
-            public override unsafe void SetPixelColor(int x, int y, byte value, PixelColor color)
+            public override unsafe void SetPixel(int x, int y, int argb)
             {
                 byte* lpPtr = PtrAt(x, y);
-                *lpPtr = value;
-            }
-
-            protected override int GetColorOffset(PixelColor color)
-            {
-                return 0;
+                int value = argb & 0xFF;
+                *lpPtr = (byte)value;
             }
         }
     }

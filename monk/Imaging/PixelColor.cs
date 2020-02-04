@@ -16,16 +16,13 @@
 *  with this program; if not, write to the Free Software Foundation, Inc.,
 *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 **/
-using System;
-
 namespace Monk.Imaging
 {
-    [Flags]
-    public enum PixelColor : ushort
+    public enum PixelColor : int
     {
-        Alpha   = 0x01,
-        Red     = 0x02,
-        Green   = 0x04,
-        Blue    = 0x08
+        Alpha   = 24,
+        Red     = 16,
+        Green   = 8,
+        Blue    = 0
     }
 }
