@@ -228,10 +228,12 @@ namespace Trithemius.Windows
 
         private Steganographer MakeTrithemius()
         {
-            Steganographer t = new Steganographer(OpenBitmap(pathTextbox.Text));
-            t.Color = (PixelColor)(pixelValueComboBox.SelectedIndex + 1);
-            t.InvertDataBits = invertBox.Checked;
-            t.InvertPrefixBits = invertBox.Checked;
+            Steganographer t = new Steganographer(OpenBitmap(pathTextbox.Text))
+            {
+                Color = (PixelColor)Enum.Parse(typeof(PixelColor), pixelValueComboBox.SelectedItem.ToString()),
+                InvertDataBits = invertBox.Checked,
+                InvertPrefixBits = invertBox.Checked
+            };
 
             if (!string.IsNullOrEmpty(seedBox.Text)) {
                 t.Seed = new Seed(seedBox.Text);

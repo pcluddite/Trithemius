@@ -60,12 +60,7 @@ namespace Abbot
                     data = AESThenHMAC.SimpleEncryptWithPassword(data, opts.Key);
                 }
 
-                var changes = trithemius.Encode(data);
-                if (opts.Verbose) {
-                    foreach (var diff in changes) {
-                        Console.WriteLine("({0}, {1}): {2} => {3}", diff.Point.X, diff.Point.Y, diff.OldColor, diff.NewColor);
-                    }
-                }
+                trithemius.Encode(data);
 
                 trithemius.Image.Save(opts.Output, ImageFormat.Png);
 
