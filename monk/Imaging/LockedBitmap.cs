@@ -20,9 +20,7 @@ using System;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Collections.Generic;
-#if DEBUG
 using System.IO;
-#endif
 
 namespace Monk.Imaging
 {
@@ -175,35 +173,7 @@ namespace Monk.Imaging
                 throw new ArgumentException($"Image format Bitmap-{depth}bpp is unsuported");
             }
         }
-
-#if DEBUG
-        internal virtual void Dump(Stream stream, PixelColor pixelColor)
-        {
-            using (StreamWriter sw = new StreamWriter(stream)) {
-                Color[,] colors = ToColorMatrix();
-                sw.WriteLine("width: {0}", colors.GetUpperBound(1) + 1);
-                sw.WriteLine("height: {0}", colors.GetUpperBound(0) + 1);
-                sw.WriteLine("depth: {0}bpp", Depth);
-                sw.WriteLine("matrix:");
-                for (int y = 0; y <= colors.GetUpperBound(0); ++y) {
-                    for (int x = 0; x <= colors.GetUpperBound(1); ++x) {
-                        Color color = colors[y, x];
-                        byte value = 0;
-                        switch(pixelColor) {
-                            case PixelColor.Alpha: value = color.A; break;
-                            case PixelColor.Red: value = color.R; break;
-                            case PixelColor.Green: value = color.G; break;
-                            case PixelColor.Blue: value = color.B; break;
-                        }
-                        sw.Write(Convert.ToString(value, 2).PadLeft(8, '0'));
-                        sw.Write(' ');
-                    }
-                    sw.WriteLine();
-                }
-            }
-        }
-#endif
-
+        
         private class LockedBitmap32bpp : LockedBitmap
         {
             public override int Depth => 32;
