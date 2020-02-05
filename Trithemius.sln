@@ -7,11 +7,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Trithemius", "Trithemius\Tr
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "monk", "monk\monk.csproj", "{A2194D53-72AB-4A3C-90FD-BA2B58A5F60E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "abbot", "abbot\abbot.csproj", "{569F20B7-067C-43AC-89CD-C21A65FE9B68}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "monkcore", "monkcore\monkcore.csproj", "{B06EEBBC-E441-45BD-8AB4-1AC9AB083096}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "abbotcore", "abbotcore\abbotcore.csproj", "{615A6A07-30A8-40A8-B963-A207DFF9312D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "abbot", "abbotcore\abbot.csproj", "{615A6A07-30A8-40A8-B963-A207DFF9312D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -27,10 +25,6 @@ Global
 		{A2194D53-72AB-4A3C-90FD-BA2B58A5F60E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A2194D53-72AB-4A3C-90FD-BA2B58A5F60E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A2194D53-72AB-4A3C-90FD-BA2B58A5F60E}.Release|Any CPU.Build.0 = Release|Any CPU
-		{569F20B7-067C-43AC-89CD-C21A65FE9B68}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{569F20B7-067C-43AC-89CD-C21A65FE9B68}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{569F20B7-067C-43AC-89CD-C21A65FE9B68}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{569F20B7-067C-43AC-89CD-C21A65FE9B68}.Release|Any CPU.Build.0 = Release|Any CPU
 		{B06EEBBC-E441-45BD-8AB4-1AC9AB083096}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{B06EEBBC-E441-45BD-8AB4-1AC9AB083096}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B06EEBBC-E441-45BD-8AB4-1AC9AB083096}.Release|Any CPU.ActiveCfg = Release|Any CPU

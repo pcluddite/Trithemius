@@ -5,7 +5,12 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <AssemblyName>abbot</AssemblyName>
     <RootNamespace>Abbot</RootNamespace>
-    <Authors>abbot</Authors>
+    <Authors>Timothy Baxendale</Authors>
+    <Product>abbot for monk</Product>
+    <Description>Command line utility to access monk library functions</Description>
+    <Copyright>Copyright (c) Timothy Baxendale</Copyright>
+    <PackageProjectUrl>https://github.com/pcluddite/trithemius</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/pcluddite/trithemius</RepositoryUrl>
   </PropertyGroup>
 
   <ItemGroup>
