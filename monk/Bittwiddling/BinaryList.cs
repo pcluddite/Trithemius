@@ -192,7 +192,7 @@ namespace Monk.Bittwiddling
                         }
                     }
                 }
-                Count += len;
+                Count += len * CHAR_BIT;
             }
             else {
                 for (int byteIdx = 0; byteIdx < len; ++byteIdx) {

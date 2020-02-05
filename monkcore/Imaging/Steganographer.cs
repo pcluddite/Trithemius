@@ -74,7 +74,7 @@ namespace Monk.Imaging
             BinaryList bits = CreateBinaryList(data);
 
             int lsb = LeastSignificantBits;
-            int bytesNeeded = MathUtil.DivideUp(bits.ByteCount, lsb);
+            int bytesNeeded = MathUtil.DivideUp(bits.Count, lsb);
             int bitIndex = 0;
 
             using (BitmapStream stream = new BitmapStream(lockedBitmap, Seed, Color, bytesNeeded)) {

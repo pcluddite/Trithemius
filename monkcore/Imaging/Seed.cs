@@ -55,7 +55,7 @@ namespace Monk.Imaging
             for(int idx = 0; idx < str.Length; ++idx) {
                 char c = str[idx];
                 if (!char.IsDigit(c)) throw new ArgumentException("input string should only contain numbers and must be 10 digits or less");
-                Value += (c - '0') * (long)Math.Pow(10, idx);
+                Value += (c - '0') * (long)Math.Pow(10, Count - idx - 1);
             }
         }
 
