@@ -9,7 +9,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "monk", "monk\monk.csproj", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "monkcore", "monkcore\monkcore.csproj", "{B06EEBBC-E441-45BD-8AB4-1AC9AB083096}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "abbot", "abbotcore\abbot.csproj", "{615A6A07-30A8-40A8-B963-A207DFF9312D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "abbot", "abbot\abbot.csproj", "{615A6A07-30A8-40A8-B963-A207DFF9312D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
