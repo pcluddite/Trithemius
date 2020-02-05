@@ -17,6 +17,7 @@
  *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 **/
 using Monk.Bittwiddling;
+using Monk.Memory;
 using System;
 using System.Collections.Generic;
 using System.IO;

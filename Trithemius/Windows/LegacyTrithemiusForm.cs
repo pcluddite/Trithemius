@@ -28,6 +28,7 @@ using System.Text;
 using System.Windows.Forms;
 using Monk.Encryption;
 using Monk.Imaging;
+using Monk.Memory;
 
 namespace Trithemius.Windows
 {

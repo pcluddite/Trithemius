@@ -22,7 +22,7 @@ using System.Collections.Generic;
 using System.Text;
 using Monk.Bittwiddling;
 
-namespace Monk.Imaging
+namespace Monk.Memory
 {
     public struct Seed : IList<int>
     {
@@ -52,7 +52,7 @@ namespace Monk.Imaging
             if (str.Length > 10) throw new ArgumentException("seed is too long", nameof(str));
             Count = Math.Max(str.Length, 1);
             Value = 0;
-            for(int idx = 0; idx < str.Length; ++idx) {
+            for (int idx = 0; idx < str.Length; ++idx) {
                 char c = str[idx];
                 if (!char.IsDigit(c)) throw new ArgumentException("input string should only contain numbers and must be 10 digits or less");
                 Value += (c - '0') * (long)Math.Pow(10, Count - idx - 1);
@@ -89,7 +89,7 @@ namespace Monk.Imaging
 
         public void CopyTo(int[] array, int arrayIndex)
         {
-            for(int i = 0; arrayIndex < Count; ++arrayIndex, ++i) {
+            for (int i = 0; arrayIndex < Count; ++arrayIndex, ++i) {
                 array[arrayIndex] = this[i];
             }
         }

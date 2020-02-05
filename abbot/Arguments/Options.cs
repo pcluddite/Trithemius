@@ -18,6 +18,7 @@
 **/
 using CommandLine;
 using Monk.Imaging;
+using Monk.Memory;
 
 namespace Abbot.Arguments
 {
