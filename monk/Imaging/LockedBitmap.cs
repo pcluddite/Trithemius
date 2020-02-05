@@ -27,6 +27,11 @@ namespace Monk.Imaging
 {
     public abstract class LockedBitmap : IDisposable
     {
+        internal const int ALPHA_SHIFT   = 0x18;
+        internal const int RED_SHIFT     = 0x10;
+        internal const int GREEN_SHIFT   = 0x08;
+        internal const int BLUE_SHIFT    = 0x00;
+
         protected BitmapData BitmapData { get; set; }
 
         public Bitmap Bitmap { get; protected set; }
@@ -61,18 +66,18 @@ namespace Monk.Imaging
 
         public virtual byte GetPixelColor(int x, int y, PixelColor color)
         {
-            if (!SuportedColors.Contains(color)) throw new ArgumentException("unsupported color", nameof(color));
+            if (!SuportedColors.Contains(color)) ThrowHelper.ColorUnsupported(nameof(color), color);
             int value = GetPixel(x, y);
-            return (byte)((value >> (int)color) & 0xFF);
+            return (byte)((value >> GetShift(color)) & 0xFF);
         }
 
         public abstract void SetPixel(int x, int y, int argb);
 
         public virtual void SetPixelColor(int x, int y, byte value, PixelColor color)
         {
-            if (!SuportedColors.Contains(color)) throw new ArgumentException("unsupported color", nameof(color));
-            int argb = GetPixel(x, y) & ~(0xFF << (int)color);
-            SetPixel(x, y, argb | (value << (int)color));
+            if (!SuportedColors.Contains(color)) ThrowHelper.ColorUnsupported(nameof(color), color);
+            int argb = GetPixel(x, y) & ~(0xFF << GetShift(color));
+            SetPixel(x, y, argb | (value << GetShift(color)));
         }
 
         public virtual Color[,] ToColorMatrix()
@@ -148,7 +153,19 @@ namespace Monk.Imaging
                 throw new ArgumentException($"Image format Bitmap-{depth}bpp is unsuported");
             }
         }
-        
+
+        private static int GetShift(PixelColor color)
+        {
+            return color switch
+            {
+                PixelColor.Alpha => ALPHA_SHIFT,
+                PixelColor.Red => RED_SHIFT,
+                PixelColor.Green => GREEN_SHIFT,
+                PixelColor.Blue => BLUE_SHIFT,
+                _ => throw new InvalidOperationException(),
+            };
+        }
+
         private class LockedBitmap32bpp : LockedBitmap
         {
             public override int Depth => 32;
@@ -189,19 +206,19 @@ namespace Monk.Imaging
             public override int GetPixel(int x, int y)
             {
                 Span<byte> pixel = PixelAt(x, y);
-                int value = 0xff << (int)PixelColor.Alpha;
-                value |= pixel[2] << (int)PixelColor.Red;
-                value |= pixel[1] << (int)PixelColor.Green;
-                value |= pixel[0] << (int)PixelColor.Blue;
+                int value = 0xff << ALPHA_SHIFT;
+                value |= pixel[2] << RED_SHIFT;
+                value |= pixel[1] << GREEN_SHIFT;
+                value |= pixel[0] << BLUE_SHIFT;
                 return value;
             }
 
             public override void SetPixel(int x, int y, int argb)
             {
                 Span<byte> pixel = PixelAt(x, y);
-                pixel[0] = (byte)((argb >> (int)PixelColor.Blue) & 0xff);
-                pixel[1] = (byte)((argb >> (int)PixelColor.Green) & 0xff);
-                pixel[2] = (byte)((argb >> (int)PixelColor.Red) & 0xff);
+                pixel[0] = (byte)((argb >> BLUE_SHIFT) & 0xff);
+                pixel[1] = (byte)((argb >> GREEN_SHIFT) & 0xff);
+                pixel[2] = (byte)((argb >> RED_SHIFT) & 0xff);
             }
         }
 
@@ -223,6 +240,14 @@ namespace Monk.Imaging
             public override void SetPixel(int x, int y, int argb)
             {
                 PixelAt(x, y)[0] = (byte)argb;
+            }
+        }
+
+        private static class ThrowHelper
+        {
+            public static void ColorUnsupported(string arg, PixelColor color)
+            {
+                throw new ArgumentException("unsupported color " + color.ToString(), arg);
             }
         }
     }

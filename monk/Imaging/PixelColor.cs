@@ -18,11 +18,8 @@
 **/
 namespace Monk.Imaging
 {
-    public enum PixelColor : int
+    public enum PixelColor
     {
-        Alpha   = 24,
-        Red     = 16,
-        Green   = 8,
-        Blue    = 0
+        Alpha, Red, Green, Blue
     }
 }
