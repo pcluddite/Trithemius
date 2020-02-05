@@ -22,7 +22,7 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Text;
 
-namespace Monk.Bittwiddling
+namespace Monk.Memory.Bittwiddling
 {
     /// <summary>
     /// A list of binary values 1 or 0, this class is designed to be slightly more flexible than BitArray
@@ -147,7 +147,7 @@ namespace Monk.Bittwiddling
                     Set(Count++, binaryList.Get(srcIndex));
                 }
             }
-            
+
         }
 
         public void AddRange(IEnumerable<bool> bits)
@@ -159,7 +159,7 @@ namespace Monk.Bittwiddling
 
         public void AddRange(IEnumerable<byte> data)
         {
-            foreach(byte b in data) {
+            foreach (byte b in data) {
                 AddRange(b);
             }
         }
@@ -224,14 +224,14 @@ namespace Monk.Bittwiddling
 
         public void CopyTo(bool[] array, int arrayIndex)
         {
-            for(int idx = 0; arrayIndex < Count; ++arrayIndex, ++idx) {
+            for (int idx = 0; arrayIndex < Count; ++arrayIndex, ++idx) {
                 array[arrayIndex] = this[idx];
             }
         }
 
         public IEnumerator<bool> GetEnumerator()
         {
-            for(int idx = 0; idx < Count; ++idx) {
+            for (int idx = 0; idx < Count; ++idx) {
                 yield return Get(idx);
             }
         }
@@ -256,7 +256,7 @@ namespace Monk.Bittwiddling
 
         public IEnumerable<byte> ToBytes(EndianMode endianness)
         {
-            foreach(byte b in ToBytes()) {
+            foreach (byte b in ToBytes()) {
                 if (endianness == Twiddler.ImplementationEndianness) {
                     yield return b;
                 }
@@ -274,8 +274,8 @@ namespace Monk.Bittwiddling
             if (array == null || array.Length == 0) return;
             int len = ByteCount;
 
-            fixed(int* lpArr = array) {
-                for(int i = 0; i < len; ++i) {
+            fixed (int* lpArr = array) {
+                for (int i = 0; i < len; ++i) {
                     lpArr[i] = ~lpArr[i];
                 }
             }
@@ -356,7 +356,7 @@ namespace Monk.Bittwiddling
 
         private static unsafe void AppendBytes(int* lpwDst, int nDstByteOffset, int* lpwSrc, int nSrcBytes)
         {
-            byte* lpDst = ((byte*)lpwDst) + nDstByteOffset;
+            byte* lpDst = (byte*)lpwDst + nDstByteOffset;
             byte* lpSrc = (byte*)lpwSrc;
             AppendBytes(lpDst, lpSrc, nSrcBytes);
         }
@@ -364,16 +364,16 @@ namespace Monk.Bittwiddling
         private void Set(int index, bool value)
         {
             if (value) {
-                array[IndexAtBit(index)] |= 1 << (index % ELEMENT_BITS);
+                array[IndexAtBit(index)] |= 1 << index % ELEMENT_BITS;
             }
             else {
-                array[IndexAtBit(index)] &= ~(1 << (index % ELEMENT_BITS));
+                array[IndexAtBit(index)] &= ~(1 << index % ELEMENT_BITS);
             }
         }
 
         private bool Get(int index)
         {
-            return (array[IndexAtBit(index)] & (1 << (index % ELEMENT_BITS))) != 0;
+            return (array[IndexAtBit(index)] & 1 << index % ELEMENT_BITS) != 0;
         }
 
         void IList<bool>.Insert(int index, bool item)

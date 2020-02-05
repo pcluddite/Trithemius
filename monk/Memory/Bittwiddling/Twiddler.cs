@@ -18,7 +18,7 @@
 **/
 using System;
 
-namespace Monk.Bittwiddling
+namespace Monk.Memory.Bittwiddling
 {
     public static class Twiddler
     {
