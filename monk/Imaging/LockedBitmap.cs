@@ -21,30 +21,34 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.Collections.Generic;
 using System.IO;
+using Monk.Memory;
 
 namespace Monk.Imaging
 {
     public abstract class LockedBitmap : IDisposable
     {
         protected BitmapData BitmapData { get; set; }
-        protected int Stride => BitmapData.Stride;
-        protected int Size => Height * Stride;
-        protected IntPtr Scan0 => BitmapData.Scan0;
 
         public Bitmap Bitmap { get; protected set; }
-        public int Width => BitmapData.Width;
-        public int Height => BitmapData.Height;
+        public int Width => Bitmap.Width;
+        public int Height => Bitmap.Height;
         public int BytesPerPixel => Depth / 8;
 
         public abstract int Depth { get; }
         public abstract ISet<PixelColor> SuportedColors { get; }
 
         public virtual bool Locked => BitmapData != null;
-        
+
+        protected int Stride => BitmapData.Stride;
+        protected int Size => BitmapData.Height * Stride;
+
+        internal UnmanagedBuffer RawData { get; set; }
+
         public virtual void LockBits()
         {
             Rectangle rect = new Rectangle(0, 0, Bitmap.Width, Bitmap.Height);
             BitmapData = Bitmap.LockBits(rect, ImageLockMode.ReadWrite, Bitmap.PixelFormat);
+            RawData = new UnmanagedBuffer(BitmapData.Scan0, Size);
         }
 
         public virtual void UnlockBits()
@@ -90,10 +94,9 @@ namespace Monk.Imaging
             return (y * Stride) + (x * BytesPerPixel);
         }
 
-        protected unsafe internal byte* PtrAt(int x, int y)
+        protected Span<byte> PixelAt(int x, int y)
         {
-            int offset = PointToOffset(x, y);
-            return (byte*)Scan0.ToPointer() + offset;
+            return RawData.Slice(PointToOffset(x, y), BytesPerPixel);
         }
 
         public void Dispose()
@@ -156,22 +159,20 @@ namespace Monk.Imaging
                 Bitmap = bitmap;
             }
 
-            public override unsafe int GetPixel(int x, int y)
+            public override int GetPixel(int x, int y)
             {
-                byte* lpPxl = PtrAt(x, y);
-                return *(int*)lpPxl;
+                return RawData.Read<int>(PointToOffset(x, y));
             }
 
             public override unsafe void SetPixel(int x, int y, int argb)
             {
-                byte* lpPxl = PtrAt(x, y);
-                *(int*)lpPxl = argb;
+                RawData.Write(PointToOffset(x, y), argb);
             }
 
-            public override unsafe void SetPixelColor(int x, int y, byte value, PixelColor color)
+            public override void SetPixelColor(int x, int y, byte value, PixelColor color)
             {
-                byte* lpPxl = PtrAt(x, y);
-                lpPxl[(int)color/8] = value;
+                Span<byte> pixel = PixelAt(x, y);
+                pixel[(int)color/8] = value;
             }
         }
 
@@ -185,23 +186,22 @@ namespace Monk.Imaging
                 Bitmap = bitmap;
             }
 
-            public override unsafe int GetPixel(int x, int y)
+            public override int GetPixel(int x, int y)
             {
-                byte* lpPxl = PtrAt(x, y);
+                Span<byte> pixel = PixelAt(x, y);
                 int value = 0xff << (int)PixelColor.Alpha;
-                value |= lpPxl[2] << (int)PixelColor.Red;
-                value |= lpPxl[1] << (int)PixelColor.Green;
-                value |= lpPxl[0] << (int)PixelColor.Blue;
+                value |= pixel[2] << (int)PixelColor.Red;
+                value |= pixel[1] << (int)PixelColor.Green;
+                value |= pixel[0] << (int)PixelColor.Blue;
                 return value;
             }
 
-            public override unsafe void SetPixel(int x, int y, int argb)
+            public override void SetPixel(int x, int y, int argb)
             {
-                byte* lpPxl = PtrAt(x, y);
-                byte* lpArgbBytes = (byte*)&argb;
-                for (int i = 0; i < BytesPerPixel; ++i) {
-                    lpPxl[i] = lpArgbBytes[i + 1];
-                }
+                Span<byte> pixel = PixelAt(x, y);
+                pixel[0] = (byte)((argb >> (int)PixelColor.Blue) & 0xff);
+                pixel[1] = (byte)((argb >> (int)PixelColor.Green) & 0xff);
+                pixel[2] = (byte)((argb >> (int)PixelColor.Red) & 0xff);
             }
         }
 
@@ -215,17 +215,14 @@ namespace Monk.Imaging
                 Bitmap = bitmap;
             }
 
-            public override unsafe int GetPixel(int x, int y)
+            public override int GetPixel(int x, int y)
             {
-                byte* lpPtr = PtrAt(x, y);
-                return *lpPtr;
+                return PixelAt(x, y)[0];
             }
 
-            public override unsafe void SetPixel(int x, int y, int argb)
+            public override void SetPixel(int x, int y, int argb)
             {
-                byte* lpPtr = PtrAt(x, y);
-                int value = argb & 0xFF;
-                *lpPtr = (byte)value;
+                PixelAt(x, y)[0] = (byte)argb;
             }
         }
     }
