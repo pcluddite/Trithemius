@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "abbotcore": {
+      "commandName": "Project",
+      "commandLineArgs": "encode --image \"D:\\MEGA\\OneDrive\\Pictures\\random_number.png\" -m \"Hello, world!\" --seed 123 --key loremipsum --out \"D:\\test.png\""
+    }
+  }
+}
