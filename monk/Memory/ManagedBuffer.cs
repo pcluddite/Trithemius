@@ -17,11 +17,13 @@
  *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 **/
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Runtime.InteropServices;
 
 namespace Monk.Memory
 {
-    internal unsafe class Buffer<T> where T : struct
+    internal class ManagedBuffer<T> : IList<T> where T : struct
     {
         private T[] buffer;
 
@@ -29,13 +31,16 @@ namespace Monk.Memory
         public Span<T> Span => new Span<T>(buffer);
         public Span<byte> ByteSpan => MemoryMarshal.AsBytes(Span);
 
+        int ICollection<T>.Count { get; }
+        bool ICollection<T>.IsReadOnly { get; }
+
         public T this[int index]
         {
             get => buffer[index];
             set => buffer[index] = value;
         }
 
-        public Buffer(int length)
+        public ManagedBuffer(int length)
         {
             buffer = new T[length];
         }
@@ -63,6 +68,58 @@ namespace Monk.Memory
         public void Resize(int newLength)
         {
             Array.Resize(ref buffer, newLength);
+        }
+
+        public void Clear()
+        {
+            Array.Clear(buffer, 0, Length);
+        }
+
+        public bool Contains(T item)
+        {
+            return IndexOf(item) >= 0;
+        }
+
+        public void CopyTo(T[] array, int arrayIndex)
+        {
+            Array.Copy(buffer, 0, array, arrayIndex, buffer.Length);
+        }
+
+        public IEnumerator<T> GetEnumerator()
+        {
+            for (int idx = 0; idx < Length; ++idx) {
+                yield return buffer[idx];
+            }
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
+        }
+
+        public int IndexOf(T item)
+        {
+            return Array.IndexOf(buffer, item);
+        }
+
+        void IList<T>.Insert(int index, T item)
+        {
+            throw new NotSupportedException();
+        }
+
+        void IList<T>.RemoveAt(int index)
+        {
+            throw new NotSupportedException();
+        }
+
+        void ICollection<T>.Add(T item)
+        {
+            throw new NotSupportedException();
+        }
+
+        bool ICollection<T>.Remove(T item)
+        {
+            throw new NotSupportedException();
         }
     }
 }

@@ -33,7 +33,7 @@ namespace Monk.Memory.Bittwiddling
         private const int ELEMENT_BITS = sizeof(int) * CHAR_BIT;
         private const int DEFAULT_CAPACITY = ELEMENT_BITS;
 
-        private Buffer<int> buffer;
+        private ManagedBuffer<int> buffer;
 
         /// <summary>
         /// This determines the order the bits are read from a byte. The default is technically platform specific
@@ -84,13 +84,13 @@ namespace Monk.Memory.Bittwiddling
 
         public BinaryList(EndianMode endianness)
         {
-            buffer = new Buffer<int>(0);
+            buffer = new ManagedBuffer<int>(0);
             Endianness = endianness;
         }
 
         public BinaryList(int capacity, EndianMode endianness)
         {
-            buffer = new Buffer<int>(ArrayLength(capacity));
+            buffer = new ManagedBuffer<int>(ArrayLength(capacity));
             Endianness = endianness;
         }
 
@@ -199,7 +199,7 @@ namespace Monk.Memory.Bittwiddling
 
         public void Clear()
         {
-            buffer = new Buffer<int>(0);
+            buffer = new ManagedBuffer<int>(0);
             Count = 0;
         }
 
