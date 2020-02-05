@@ -18,7 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\monkcore\monkcore.csproj" />
+    <ProjectReference Include="..\monk\monk.csproj" />
   </ItemGroup>
 
 </Project>

@@ -1,4 +1,4 @@
-﻿/**
+/**
  *  Trithemius
  *  Copyright (C) Timothy Baxendale
  *
@@ -31,6 +31,7 @@ namespace Trithemius
         [STAThread]
         public static void Main()
         {
+            Application.SetHighDpiMode(HighDpiMode.SystemAware);
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(new LegacyTrithemiusForm());
@@ -47,7 +48,7 @@ namespace Trithemius
             try {
                 return Process.Start(startInfo);
             }
-            catch(Exception ex) when (ex is InvalidOperationException || ex is IOException || ex is Win32Exception) {
+            catch (Exception ex) when (ex is InvalidOperationException || ex is IOException || ex is Win32Exception) {
                 if (displayErrors)
                     MessageBox.Show(owner, ex.Message, "Trithemius", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return null;
