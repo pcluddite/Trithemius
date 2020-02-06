@@ -16,37 +16,27 @@
  *  with this program; if not, write to the Free Software Foundation, Inc.,
  *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 **/
-using System.Collections;
-using System.Collections.Generic;
+using System;
 
 namespace Monk.Memory
 {
-    /// <summary>
-    /// Represents a sequence that theoretically has no limit
-    /// </summary>
-    public abstract class InfiniteSequence<T> : IEnumerable<T>
+    public class ArrayProgression<T> : InfiniteSequence<T>
     {
-        public virtual int Length { get; } = int.MaxValue;
-        public virtual int Position { get; set; }
+        private readonly T[] array;
 
-        public abstract T Peek();
-        public abstract T Next();
-
-        public virtual int Read(T[] buffer, int offset, int count)
+        public ArrayProgression(T[] array)
         {
-            for(; offset < count; ++offset)
-                buffer[offset] = Next();
-            return count;
+            this.array = array;
         }
 
-        public IEnumerator<T> GetEnumerator()
+        public override T Next()
         {
-            while(true) yield return Next();
+            return array[Position++ % array.Length];
         }
 
-        IEnumerator IEnumerable.GetEnumerator()
+        public override T Peek()
         {
-            return GetEnumerator();
+            return array[Position % array.Length];
         }
     }
 }

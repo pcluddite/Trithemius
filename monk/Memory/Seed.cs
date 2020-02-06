@@ -107,11 +107,9 @@ namespace Monk.Memory
             return GetEnumerator();
         }
 
-        public InfiniteStream<int> GetSequence()
+        public InfiniteSequence<int> GetSequence()
         {
-            int[] array = new int[Count];
-            CopyTo(array, 0);
-            return new InfiniteSequence<int>(array);
+            return new SeedSequence(this);
         }
 
         public override string ToString()
@@ -184,6 +182,26 @@ namespace Monk.Memory
         bool ICollection<int>.Remove(int item)
         {
             throw new NotImplementedException();
+        }
+
+        private class SeedSequence : InfiniteSequence<int>
+        {
+            private readonly Seed seed;
+
+            public SeedSequence(Seed seed)
+            {
+                this.seed = seed;
+            }
+
+            public override int Next()
+            {
+                return seed[Position++ % seed.Count];
+            }
+
+            public override int Peek()
+            {
+                return seed[(Position + 1) % seed.Count];
+            }
         }
     }
 }
