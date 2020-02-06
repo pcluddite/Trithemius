@@ -54,24 +54,24 @@ namespace Monk.Imaging
         public int IntLength => cachedPixels.Length;
         public override long Length => IntLength;
 
-        public BitmapStream(LockedBitmap bitmap, Seed seed, int sizeInBytes)
-            : this(bitmap, seed, bitmap.SuportedColors, sizeInBytes)
+        public BitmapStream(LockedBitmap bitmap, Seed seed, int startPixel, int sizeInBytes)
+            : this(bitmap, seed, bitmap.SuportedColors, startPixel, sizeInBytes)
         {
         }
 
-        public BitmapStream(LockedBitmap bitmap, Seed seed, PixelColor color, int sizeInBytes)
-            : this(bitmap, seed, new PixelColor[] { color }, sizeInBytes)
+        public BitmapStream(LockedBitmap bitmap, Seed seed, PixelColor color, int startPixel, int sizeInBytes)
+            : this(bitmap, seed, new PixelColor[] { color }, startPixel, sizeInBytes)
         {
         }
 
-        public BitmapStream(LockedBitmap bitmap, Seed seed, IEnumerable<PixelColor> colors, int sizeInBytes)
+        public BitmapStream(LockedBitmap bitmap, Seed seed, IEnumerable<PixelColor> colors, int startPixel, int sizeInBytes)
         {
             Bitmap = bitmap;
             bitmap.LockBits();
-            CachePixels(bitmap, seed, colors, sizeInBytes);
+            CachePixels(bitmap, seed, colors, startPixel, sizeInBytes);
         }
 
-        private void CachePixels(LockedBitmap bitmap, Seed seed, IEnumerable<PixelColor> colors, int length)
+        private void CachePixels(LockedBitmap bitmap, Seed seed, IEnumerable<PixelColor> colors, int startPixel, int length)
         {
             int w = bitmap.Width, h = bitmap.Height;
             int imageArea = w * h;
@@ -82,7 +82,7 @@ namespace Monk.Imaging
                 seed = Seed.DefaultSeed;
 
             cachedPixels = new CachedPixel[Math.Min(length, imageArea * pixelColors.Count)];
-            ArithmeticProgression pixelIndices = new ArithmeticProgression(0, seed);
+            ArithmeticProgression pixelIndices = new ArithmeticProgression(startPixel, seed);
             for (int pixelIndex = pixelIndices.Start; pixelIndex < imageArea && byteIndex < length; pixelIndex = pixelIndices.Next()) {
                 int x = pixelIndex % w;
                 int y = (pixelIndex - x) / w;

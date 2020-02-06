@@ -48,6 +48,7 @@ namespace Monk.Imaging
         public EndianMode Endianness { get; set; } = EndianMode.LittleEndian;
         public PixelColor Color { get; set; }
         public Seed Seed { get; set; } = Seed.DefaultSeed;
+        public int Offset { get; set; } = 0;
 
         public bool Disposed { get; private set; }
 
@@ -78,7 +79,7 @@ namespace Monk.Imaging
             int bytesNeeded = MathUtil.DivideUp(bits.Count, lsb);
             int bitIndex = 0;
 
-            using (BitmapStream stream = new BitmapStream(lockedBitmap, Seed, Color, bytesNeeded)) {
+            using (BitmapStream stream = new BitmapStream(lockedBitmap, Seed, Color, Offset, bytesNeeded)) {
                 while(bitIndex < bits.Count) {
                     byte b = stream.Peek();
                     for (int currBit = 0; currBit < lsb; ++currBit)
@@ -144,7 +145,7 @@ namespace Monk.Imaging
             int bytesNeeded = MathUtil.DivideUp(bitsToRead, lsb);
 
             BinaryList data = new BinaryList(bitsToRead);
-            using (BitmapStream stream = new BitmapStream(lockedBitmap, Seed, Color, bytesNeeded)) {
+            using (BitmapStream stream = new BitmapStream(lockedBitmap, Seed, Color, Offset, bytesNeeded)) {
                 while (bitIndex < bitsToRead) {
                     for (int currBit = 0; currBit < lsb; ++currBit, ++bitIndex) {
                         byte pixelByte = stream.ReadNext();
