@@ -51,6 +51,10 @@ namespace Monk.Memory
             throw new NotSupportedException();
         }
 
+        public override void Flush()
+        {
+        }
+
         public override long Seek(long offset, SeekOrigin origin)
         {
             throw new NotSupportedException();

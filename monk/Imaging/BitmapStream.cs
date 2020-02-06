@@ -78,12 +78,12 @@ namespace Monk.Imaging
             int byteIndex = 0;
             ISet<PixelColor> pixelColors = new HashSet<PixelColor>(colors);
 
-            if (seed.Count == 0) 
-                seed = Seed.DefaultSeed;
+            if (seed.Count == 0) seed = Seed.DefaultSeed;
+            InfiniteStream<int> sequence = seed.GetSequence();
 
             cachedPixels = new CachedPixel[Math.Min(length, imageArea * pixelColors.Count)];
 
-            for (int pixelIndex = seed[0]; pixelIndex < imageArea && byteIndex < length; pixelIndex += seed[byteIndex % seed.Count] + 1) {
+            for (int pixelIndex = seed[0]; pixelIndex < imageArea && byteIndex < length; pixelIndex += sequence.Next() + 1) {
                 int x = pixelIndex % w;
                 int y = (pixelIndex - x) / w;
                 foreach (PixelColor color in pixelColors) {

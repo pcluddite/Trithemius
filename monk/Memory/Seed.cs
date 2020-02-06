@@ -107,6 +107,13 @@ namespace Monk.Memory
             return GetEnumerator();
         }
 
+        public InfiniteStream<int> GetSequence()
+        {
+            int[] array = new int[Count];
+            CopyTo(array, 0);
+            return new InfiniteSequence<int>(array);
+        }
+
         public override string ToString()
         {
             int n = MathUtil.CountDigits(Value);
