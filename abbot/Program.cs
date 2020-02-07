@@ -83,7 +83,12 @@ namespace Abbot
                 trithemius = opts.BuildTrithemius();
                 byte[] data = trithemius.Decode();
                 if (!string.IsNullOrEmpty(opts.Key)) {
-                    data = AESThenHMAC.SimpleDecryptWithPassword(data, opts.Key);
+                    if (opts.Legacy) {
+                        data = LegacyEncryption.DecryptStringAES(data, opts.Key);
+                    }
+                    else {
+                        data = AESThenHMAC.SimpleDecryptWithPassword(data, opts.Key);
+                    }
                     if (data == null) {
                         throw new ArgumentException("The encryption key is incorrect");
                     }
