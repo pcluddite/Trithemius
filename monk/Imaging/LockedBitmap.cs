@@ -25,7 +25,7 @@ using Monk.Memory;
 
 namespace Monk.Imaging
 {
-    public abstract class LockedBitmap : IDisposable
+    public abstract partial class LockedBitmap : IDisposable
     {
         internal const int ALPHA_SHIFT   = 0x18;
         internal const int RED_SHIFT     = 0x10;
@@ -213,94 +213,6 @@ namespace Monk.Imaging
                 PixelColor.Blue => BLUE_SHIFT,
                 _ => throw new InvalidOperationException(),
             };
-        }
-
-        private class LockedBitmap32bpp : LockedBitmap
-        {
-            public override int Depth => 32;
-            public override ISet<PixelColor> SuportedColors { get; } = new HashSet<PixelColor>() { PixelColor.Alpha, PixelColor.Red, PixelColor.Green, PixelColor.Blue };
-
-            public LockedBitmap32bpp(Bitmap bitmap)
-            {
-                Bitmap = bitmap;
-            }
-
-            public override int GetPixel(int pixelOffset)
-            {
-                return RawData.Read<int>(PixelOffsetToByteOffset(pixelOffset));
-            }
-
-            public override void SetPixel(int pixelOffset, int argb)
-            {
-                RawData.Write(PixelOffsetToByteOffset(pixelOffset), argb);
-            }
-
-            internal override int GetBufferIndex(int pixelIndex, PixelColor color)
-            {
-                return PixelOffsetToByteOffset(pixelIndex) + GetShift(color) / 8;
-            }
-        }
-
-        private class LockedBitmap24bpp : LockedBitmap
-        {
-            public override int Depth => 24;
-            public override ISet<PixelColor> SuportedColors { get; } = new HashSet<PixelColor>() { PixelColor.Red, PixelColor.Green, PixelColor.Blue };
-
-            public LockedBitmap24bpp(Bitmap bitmap)
-            {
-                Bitmap = bitmap;
-            }
-
-            public override int GetPixel(int pixelOffset)
-            {
-                Span<byte> pixel = PixelAt(pixelOffset);
-                int value = 0xff << ALPHA_SHIFT;
-                value |= pixel[2] << RED_SHIFT;
-                value |= pixel[1] << GREEN_SHIFT;
-                value |= pixel[0] << BLUE_SHIFT;
-                return value;
-            }
-
-            public override void SetPixel(int pixelOffset, int argb)
-            {
-                Span<byte> pixel = PixelAt(pixelOffset);
-                pixel[0] = (byte)((argb >> BLUE_SHIFT) & 0xff);
-                pixel[1] = (byte)((argb >> GREEN_SHIFT) & 0xff);
-                pixel[2] = (byte)((argb >> RED_SHIFT) & 0xff);
-            }
-
-            internal override int GetBufferIndex(int pixelIndex, PixelColor color)
-            {
-                if (color == PixelColor.Alpha) ThrowHelper.ColorUnsupported(nameof(color), color);
-                return PixelOffsetToByteOffset(pixelIndex) + GetShift(color) / 8;
-            }
-        }
-
-        private class LockedBitmap8bpp : LockedBitmap
-        {
-            public override int Depth => 8;
-            public override ISet<PixelColor> SuportedColors { get; } = new HashSet<PixelColor>() { PixelColor.Blue };
-
-            public LockedBitmap8bpp(Bitmap bitmap)
-            {
-                Bitmap = bitmap;
-            }
-
-            public override int GetPixel(int pixelOffset)
-            {
-                return PixelAt(pixelOffset)[0];
-            }
-
-            public override void SetPixel(int pixelOffset, int argb)
-            {
-                PixelAt(pixelOffset)[0] = (byte)argb;
-            }
-
-            internal override int GetBufferIndex(int pixelIndex, PixelColor color)
-            {
-                if (color != PixelColor.Blue) ThrowHelper.ColorUnsupported(nameof(color), color);
-                return PixelOffsetToByteOffset(pixelIndex);
-            }
         }
 
         private static class ThrowHelper
