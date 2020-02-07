@@ -46,7 +46,7 @@ namespace Monk.Imaging
         public bool InvertDataBits { get; set; } = false;
         public bool ZeroBasedSize { get; set; } = false;
         public EndianMode Endianness { get; set; } = EndianMode.LittleEndian;
-        public PixelColor Color { get; set; }
+        public ISet<PixelColor> Colors { get; } = new HashSet<PixelColor>();
         public Seed Seed { get; set; } = Seed.DefaultSeed;
         public int Offset { get; set; } = 0;
 
@@ -69,6 +69,7 @@ namespace Monk.Imaging
 
         public void Encode(byte[] data)
         {
+            EnsureState();
             if (!MessageFitsImage(data)) {
                 throw new ArgumentException("Message is too big to encode in the image.");
             }
@@ -79,7 +80,7 @@ namespace Monk.Imaging
             int bytesNeeded = MathUtil.DivideUp(bits.Count, lsb);
             int bitIndex = 0;
 
-            using (BitmapStream stream = new BitmapStream(lockedBitmap, Seed, Color, Offset, bytesNeeded)) {
+            using (BitmapStream stream = new BitmapStream(lockedBitmap, Seed, Colors, Offset, bytesNeeded)) {
                 while(bitIndex < bits.Count) {
                     byte b = stream.Peek();
                     for (int currBit = 0; currBit < lsb; ++currBit)
@@ -114,7 +115,7 @@ namespace Monk.Imaging
 
         public int CheckSize()
         {
-            int size = BitConverter.ToInt32(ReadBits(sizeof(int), InvertPrefixBits, Endianness).ToArray(), 0);
+            int size = BitConverter.ToInt32(ReadBits(sizeof(int), InvertPrefixBits, Offset, Endianness).ToArray(), 0);
 
             if (size <= 0 || size > GetMaximumSize())
                 return -1; // size was invalid, there probably isn't a message
@@ -124,6 +125,7 @@ namespace Monk.Imaging
 
         public byte[] Decode()
         {
+            EnsureState();
             int size = CheckSize();
 
             if (size < 0)
@@ -133,11 +135,11 @@ namespace Monk.Imaging
                 size += 1;
             }
 
-            IEnumerable<byte> data = ReadBits(sizeof(int) + size, InvertDataBits, Endianness);
+            IEnumerable<byte> data = ReadBits(sizeof(int) + size, InvertDataBits, Offset, Endianness);
             return data.Skip(sizeof(int)).ToArray();
         }
 
-        private IEnumerable<byte> ReadBits(int byteCount, bool invert, EndianMode endianness)
+        private IEnumerable<byte> ReadBits(int byteCount, bool invert, int offset, EndianMode endianness)
         {            
             int lsb = LeastSignificantBits;
             int bitIndex = 0;
@@ -145,7 +147,7 @@ namespace Monk.Imaging
             int bytesNeeded = MathUtil.DivideUp(bitsToRead, lsb);
 
             BinaryList data = new BinaryList(bitsToRead);
-            using (BitmapStream stream = new BitmapStream(lockedBitmap, Seed, Color, Offset, bytesNeeded)) {
+            using (BitmapStream stream = new BitmapStream(lockedBitmap, Seed, Colors, offset, bytesNeeded)) {
                 while (bitIndex < bitsToRead) {
                     for (int currBit = 0; currBit < lsb; ++currBit, ++bitIndex) {
                         byte pixelByte = stream.ReadNext();
@@ -177,8 +179,11 @@ namespace Monk.Imaging
         public void SetLegacyOptions()
         {
             Endianness = EndianMode.BigEndian;
-            ZeroBasedSize = true;
             LeastSignificantBits = 1;
+            ZeroBasedSize = true;
+            InvertPrefixBits = false;
+            InvertDataBits = false;
+            Offset = 0;
         }
 
         public void Dispose()
@@ -196,6 +201,16 @@ namespace Monk.Imaging
                 }
                 Disposed = true;
             }
+        }
+
+        private void EnsureState()
+        {
+            if (Disposed) throw new ObjectDisposedException(nameof(Steganographer));
+            if (lockedBitmap == null || lockedBitmap.Bitmap == null) throw new InvalidOperationException("No Bitmap has been specified");
+            if (Seed.Count == 0) throw new InvalidOperationException("Seed cannot be 0 length");
+            if (Offset < 0 || Offset >= lockedBitmap.Height * lockedBitmap.Width) throw new InvalidOperationException("Offset cannot be less than 0 or greater than the image area");
+            if (Colors.Count == 0) throw new InvalidOperationException("At least one color must be specified");
+            if (!Colors.IsSubsetOf(lockedBitmap.SuportedColors)) throw new InvalidOperationException("One or more colors is not supported by the image format");
         }
     }
 }

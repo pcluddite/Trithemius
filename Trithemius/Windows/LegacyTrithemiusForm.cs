@@ -231,10 +231,11 @@ namespace Trithemius.Windows
         {
             Steganographer t = new Steganographer(OpenBitmap(pathTextbox.Text))
             {
-                Color = (PixelColor)Enum.Parse(typeof(PixelColor), pixelValueComboBox.SelectedItem.ToString()),
                 InvertDataBits = invertBox.Checked,
                 InvertPrefixBits = invertBox.Checked
             };
+
+            t.Colors.Add((PixelColor)Enum.Parse(typeof(PixelColor), pixelValueComboBox.SelectedItem.ToString()));
 
             if (!string.IsNullOrEmpty(seedBox.Text)) {
                 t.Seed = new Seed(seedBox.Text);

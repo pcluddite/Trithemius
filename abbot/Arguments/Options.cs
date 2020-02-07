@@ -18,7 +18,7 @@
 **/
 using CommandLine;
 using Monk.Imaging;
-using Monk.Memory;
+using Monk.Memory.Bittwiddling;
 
 namespace Abbot.Arguments
 {
@@ -33,8 +33,11 @@ namespace Abbot.Arguments
         [Option("key", Required = false, HelpText = "encryption key for message or file")]
         public string Key { get; set; } = string.Empty;
 
-        [Option('i', "invert", Required = false, HelpText = "invert bits", Default = false)]
+        [Option('i', "invert", Required = false, HelpText = "invert bits when being encoded", Default = false)]
         public bool Invert { get; set; } = false;
+
+        [Option('a', "alpha", Required = false, HelpText = "Use the alpha value of the pixels to encode/decode")]
+        public bool Alpha { get; set; }
 
         [Option('r', "red", Required = false, HelpText = "Use the red value of the pixels to encode/decode")]
         public bool Red { get; set; }
@@ -48,30 +51,30 @@ namespace Abbot.Arguments
         [Option('l', "lsb", Required = false, HelpText = "the least significant bits to use", Default = 1)]
         public int LeastSignificantBits { get; set; } = 1;
 
+        [Option("order", Required = false, HelpText = "the order the bits for each byte are encoded", Default = EndianMode.LittleEndian)]
+        public EndianMode Order { get; set; }
+
+        [Option("offset", Required = false, HelpText = "Start index of the pixel to begin reading or writing", Default = 0)]
+        public int Offset { get; set; }
+
         [Option('v', "verbose", Required = false, HelpText = "Show more detailed information", Default = false)]
         public bool Verbose { get; set; }
 
         public virtual Steganographer BuildTrithemius()
         {
-            Steganographer trithemius = new Steganographer(Path);
-            
-            if (Red) {
-                trithemius.Color = PixelColor.Red;
-            }
-            else if (Green) {
-                trithemius.Color = PixelColor.Green;
-            }
-            else if (Blue) {
-                trithemius.Color = PixelColor.Blue;
-            }
+            Steganographer trithemius = new Steganographer(Path)
+            {
+                LeastSignificantBits = LeastSignificantBits,
+                InvertDataBits = Invert,
+                InvertPrefixBits = Invert,
+                Endianness = Order,
+                Offset = Offset
+            };
 
-            if (Seed > 0) {
-                trithemius.Seed = new Seed(Seed.ToString());
-            }
-
-            trithemius.LeastSignificantBits = LeastSignificantBits;
-            trithemius.InvertDataBits = Invert;
-            trithemius.InvertPrefixBits = Invert;
+            if (Alpha) trithemius.Colors.Add(PixelColor.Alpha);
+            if (Red) trithemius.Colors.Add(PixelColor.Red);
+            if (Green) trithemius.Colors.Add(PixelColor.Green);
+            if (Blue) trithemius.Colors.Add(PixelColor.Blue);
 
             return trithemius;
         }
