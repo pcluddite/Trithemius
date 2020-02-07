@@ -85,7 +85,7 @@ namespace Monk.Imaging
             int bytesNeeded = MathUtil.DivideUp(bits.Count, lsb);
             int bitIndex = 0;
 
-            using (BitmapStream stream = new BitmapStream(lockedBitmap, Seed, Colors, Offset, bytesNeeded)) {
+            using (ByteStream stream = lockedBitmap.GetStream(Offset, Seed, Colors)) {
                 while(bitIndex < bits.Count) {
                     byte b = stream.Peek();
                     for (int currBit = 0; currBit < lsb; ++currBit)
@@ -160,7 +160,7 @@ namespace Monk.Imaging
             int bytesNeeded = MathUtil.DivideUp(bitsToRead, lsb);
 
             BinaryList data = new BinaryList(bitsToRead);
-            using (BitmapStream stream = new BitmapStream(lockedBitmap, Seed, Colors, offset, bytesNeeded)) {
+            using (ByteStream stream = lockedBitmap.GetStream(offset, Seed, Colors)) {
                 while (bitIndex < bitsToRead) {
                     for (int currBit = 0; currBit < lsb; ++currBit, ++bitIndex) {
                         byte pixelByte = stream.ReadNext();
@@ -223,7 +223,7 @@ namespace Monk.Imaging
             if (Seed.Count == 0) throw new InvalidOperationException("Seed cannot be 0 length");
             if (Offset < 0 || Offset >= lockedBitmap.Height * lockedBitmap.Width) throw new InvalidOperationException("Offset cannot be less than 0 or greater than the image area");
             if (Colors.Count == 0) throw new InvalidOperationException("At least one color must be specified");
-            if (!Colors.IsSubsetOf(lockedBitmap.SuportedColors)) throw new InvalidOperationException("One or more colors is not supported by the image format");
+            if (!Colors.IsSubsetOf(lockedBitmap.SupportedColors)) throw new InvalidOperationException("One or more colors is not supported by the image format");
         }
     }
 }

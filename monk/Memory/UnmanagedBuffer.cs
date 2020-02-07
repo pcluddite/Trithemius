@@ -19,6 +19,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Runtime.InteropServices;
 
 namespace Monk.Memory
@@ -174,6 +175,18 @@ namespace Monk.Memory
         bool ICollection<byte>.Remove(byte item)
         {
             throw new NotSupportedException();
+        }
+
+        public Stream GetStream()
+        {
+            return new UnmanagedMemoryStream((byte*)lpBlock, Length);
+        }
+
+        public Stream GetStream(int offset)
+        {
+            var stream = GetStream();
+            stream.Position = offset;
+            return stream;
         }
     }
 }

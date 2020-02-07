@@ -17,10 +17,12 @@
  *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 **/
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
-using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+
 using Monk.Memory;
 
 namespace Monk.Imaging
@@ -37,15 +39,15 @@ namespace Monk.Imaging
         public Bitmap Bitmap { get; protected set; }
         public int Width => Bitmap.Width;
         public int Height => Bitmap.Height;
+        public int Size => Height * Width;
         public int BytesPerPixel => Depth / 8;
 
         public abstract int Depth { get; }
-        public abstract ISet<PixelColor> SuportedColors { get; }
+        public abstract ISet<PixelColor> SupportedColors { get; }
 
         public virtual bool Locked => BitmapData != null;
 
         protected int Stride => BitmapData.Stride;
-        protected int Size => BitmapData.Height * Stride;
 
         internal UnmanagedBuffer RawData { get; set; }
 
@@ -53,7 +55,7 @@ namespace Monk.Imaging
         {
             Rectangle rect = new Rectangle(0, 0, Bitmap.Width, Bitmap.Height);
             BitmapData = Bitmap.LockBits(rect, ImageLockMode.ReadWrite, Bitmap.PixelFormat);
-            RawData = new UnmanagedBuffer(BitmapData.Scan0, Size);
+            RawData = new UnmanagedBuffer(BitmapData.Scan0, BitmapData.Stride * BitmapData.Height);
         }
 
         public virtual void UnlockBits()
@@ -71,7 +73,7 @@ namespace Monk.Imaging
 
         public virtual byte GetPixelColor(int pixelIndex, PixelColor color)
         {
-            if (!SuportedColors.Contains(color)) ThrowHelper.ColorUnsupported(nameof(color), color);
+            if (!SupportedColors.Contains(color)) ThrowHelper.ColorUnsupported(nameof(color), color);
             int value = GetPixel(pixelIndex);
             return (byte)((value >> GetShift(color)) & 0xFF);
         }
@@ -95,7 +97,7 @@ namespace Monk.Imaging
 
         public virtual void SetPixelColor(int pixelOffset, byte value, PixelColor color)
         {
-            if (!SuportedColors.Contains(color)) ThrowHelper.ColorUnsupported(nameof(color), color);
+            if (!SupportedColors.Contains(color)) ThrowHelper.ColorUnsupported(nameof(color), color);
             int argb = GetPixel(pixelOffset) & ~(0xFF << GetShift(color));
             SetPixel(pixelOffset, argb | (value << GetShift(color)));
         }
@@ -220,6 +222,13 @@ namespace Monk.Imaging
             public static void ColorUnsupported(string arg, PixelColor color)
             {
                 throw new ArgumentException("unsupported color " + color.ToString(), arg);
+            }
+
+            public static void ColorUnsupported(string arg, ISet<PixelColor> colors, ISet<PixelColor> supported)
+            {
+                ISet<PixelColor> unsupported = new HashSet<PixelColor>(supported);
+                unsupported.ExceptWith(colors);
+                throw new ArgumentException($"unsupported colors {string.Join(",", unsupported)}", arg);
             }
         }
     }
