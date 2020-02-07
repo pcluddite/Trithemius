@@ -27,16 +27,7 @@ namespace Monk.Memory
         public override bool CanSeek => true;
         public override bool CanWrite => true;
 
-        private int position = 0;
-
-        public int IntPosition
-        {
-            get => position;
-            set {
-                if (value < 0 || value >= IntLength) throw new ArgumentOutOfRangeException();
-                position = value;
-            }
-        }
+        public int IntPosition { get; set; } = 0;
 
         public override long Position
         {

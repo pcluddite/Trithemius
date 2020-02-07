@@ -38,10 +38,16 @@ namespace Monk.Imaging
 
         public ByteStream GetStream(int pixelIndex, Seed seed, ISet<PixelColor> colors)
         {
+            return GetStream(pixelIndex, Size - pixelIndex, seed, colors);
+        }
+
+        public ByteStream GetStream(int pixelIndex, int pixelCount, Seed seed, ISet<PixelColor> colors)
+        {
             if (pixelIndex < 0 || pixelIndex >= Size) throw new ArgumentOutOfRangeException(nameof(pixelIndex));
             if (!SupportedColors.IsSupersetOf(colors)) ThrowHelper.ColorUnsupported(nameof(colors), colors, SupportedColors);
             if (colors.Count == 0) throw new ArgumentException("you must specify at least one color", nameof(colors));
-            return new SeededBitmapStream(this, seed, colors, pixelIndex);
+            if (pixelCount < 1 || pixelIndex + pixelCount > Size) throw new ArgumentOutOfRangeException(nameof(pixelCount));
+            return new SeededBitmapStream(this, seed, colors, pixelIndex, pixelCount);
         }
 
         private sealed class SeededBitmapStream : ByteStream
@@ -52,30 +58,29 @@ namespace Monk.Imaging
 
             public override int IntLength => indices.Length;
 
-            public SeededBitmapStream(LockedBitmap bitmap, Seed seed, IEnumerable<PixelColor> colors, int pixelIndex)
+            public SeededBitmapStream(LockedBitmap bitmap, Seed seed, IEnumerable<PixelColor> colors, int pixelIndex, int pixelCount)
             {
                 Bitmap = bitmap;
                 bitmap.LockBits();
-                CachePixels(bitmap, seed, colors, pixelIndex);
+                CachePixels(bitmap, seed, colors, pixelIndex, pixelCount);
             }
 
-            private void CachePixels(LockedBitmap bitmap, Seed seed, IEnumerable<PixelColor> colors, int pixelIndex)
+            private void CachePixels(LockedBitmap bitmap, Seed seed, IEnumerable<PixelColor> colors, int pixelIndex, int pixelCount)
             {
                 int imageArea = bitmap.Size;
 
                 ISet<PixelColor> pixelColors = new HashSet<PixelColor>(colors);
-                List<int> indexList = new List<int>(imageArea * pixelColors.Count);
+                indices = new int[Math.Min(pixelCount, imageArea) * pixelColors.Count];
 
                 if (seed.Count == 0) seed = Seed.DefaultSeed;
                 ArithmeticProgression pixelIndices = new ArithmeticProgression(pixelIndex, seed);
 
-                for (int idx = pixelIndices.Start; idx < imageArea; idx = pixelIndices.Next()) {
+                for (int buffIdx = 0; pixelIndex < indices.Length; pixelIndex = pixelIndices.Next()) {
                     foreach (PixelColor color in pixelColors) {
-                        indexList.Add(bitmap.GetBufferIndex(idx, color));
+                        indices[buffIdx++] = bitmap.GetBufferIndex(pixelIndex, color);
+                        if (buffIdx >= indices.Length) break;
                     }
                 }
-
-                indices = indexList.ToArray();
             }
 
             public override byte Peek()
