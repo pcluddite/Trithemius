@@ -33,6 +33,8 @@ namespace Monk.Imaging
             public LockedBitmap32bpp(Bitmap bitmap)
             {
                 Bitmap = bitmap;
+                Width = bitmap.Width;
+                Height = bitmap.Height;
             }
 
             public override int GetPixel(int pixelOffset)
@@ -59,6 +61,8 @@ namespace Monk.Imaging
             public LockedBitmap24bpp(Bitmap bitmap)
             {
                 Bitmap = bitmap;
+                Width = bitmap.Width;
+                Height = bitmap.Height;
             }
 
             public override int GetPixel(int pixelOffset)
@@ -94,6 +98,8 @@ namespace Monk.Imaging
             public LockedBitmap8bpp(Bitmap bitmap)
             {
                 Bitmap = bitmap;
+                Width = bitmap.Width;
+                Height = bitmap.Height;
             }
 
             public override int GetPixel(int pixelOffset)

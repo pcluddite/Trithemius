@@ -34,20 +34,21 @@ namespace Monk.Imaging
         internal const int GREEN_SHIFT   = 0x08;
         internal const int BLUE_SHIFT    = 0x00;
 
-        protected BitmapData BitmapData { get; set; }
-
         public Bitmap Bitmap { get; protected set; }
-        public int Width => Bitmap.Width;
-        public int Height => Bitmap.Height;
-        public int Size => Height * Width;
+
+        public int Width { get; set; }
+        public int Height { get; set; }
+
         public int BytesPerPixel => Depth / 8;
+        public int Size => Height * Width;
 
         public abstract int Depth { get; }
         public abstract ISet<PixelColor> SupportedColors { get; }
 
         public virtual bool Locked => BitmapData != null;
 
-        protected int Stride => BitmapData.Stride;
+        protected BitmapData BitmapData { get; set; }
+        protected int Stride { get; set; }
 
         internal UnmanagedBuffer RawData { get; set; }
 
@@ -55,7 +56,8 @@ namespace Monk.Imaging
         {
             Rectangle rect = new Rectangle(0, 0, Bitmap.Width, Bitmap.Height);
             BitmapData = Bitmap.LockBits(rect, ImageLockMode.ReadWrite, Bitmap.PixelFormat);
-            RawData = new UnmanagedBuffer(BitmapData.Scan0, BitmapData.Stride * BitmapData.Height);
+            Stride = BitmapData.Stride;
+            RawData = new UnmanagedBuffer(BitmapData.Scan0, Stride * BitmapData.Height);
         }
 
         public virtual void UnlockBits()
