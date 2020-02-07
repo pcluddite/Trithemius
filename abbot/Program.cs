@@ -43,8 +43,9 @@ namespace Abbot
 
         private static int EncodeImage(EncodeOptions opts)
         {
+            Steganographer trithemius = null;
             try {
-                Steganographer trithemius = opts.BuildTrithemius();
+                trithemius = opts.BuildTrithemius();
                 byte[] data;
                 if (!string.IsNullOrEmpty(opts.Message)) {
                     data = Encoding.UTF8.GetBytes(opts.Message);
@@ -70,12 +71,16 @@ namespace Abbot
                 Console.Error.WriteLine(ex.Message);
                 return 1;
             }
+            finally {
+                if (trithemius != null) trithemius.Dispose();
+            }
         }
 
         private static int DecodeImage(DecodeOptions opts)
         {
+            Steganographer trithemius = null;
             try {
-                Steganographer trithemius = opts.BuildTrithemius();
+                trithemius = opts.BuildTrithemius();
                 byte[] data = trithemius.Decode();
                 if (!string.IsNullOrEmpty(opts.Key)) {
                     data = AESThenHMAC.SimpleDecryptWithPassword(data, opts.Key);
@@ -96,6 +101,9 @@ namespace Abbot
             catch (Exception ex) when (ex is ArgumentException || ex is IOException) {
                 Console.Error.WriteLine(ex.Message);
                 return 1;
+            }
+            finally {
+                if (trithemius != null) trithemius.Dispose();
             }
         }
 
