@@ -25,33 +25,31 @@ namespace Monk.Imaging
 {
     internal class BitmapStream : Stream
     {
-        private CachedPixel[] cachedPixels;
+        private int[] indices;
 
         public LockedBitmap Bitmap { get; }
+
         public override bool CanRead => true;
         public override bool CanSeek => true;
         public override bool CanWrite => true;
 
-        private int streamPos = 0;
+        private int position = 0;
 
         public int IntPosition {
-            get => streamPos;
+            get => position;
             set {
                 if (value < 0 || value >= IntLength) throw new IndexOutOfRangeException();
-                streamPos = value;
+                position = value;
             }
         }
 
         public override long Position {
             get => IntPosition;
-            set {
-                checked {
-                    IntPosition = (int)value;
-                }
-            }
+            set => IntPosition = checked((int)value);
+            
         }
 
-        public int IntLength => cachedPixels.Length;
+        public int IntLength => indices.Length;
         public override long Length => IntLength;
 
         public BitmapStream(LockedBitmap bitmap, Seed seed, int startPixel, int sizeInBytes)
@@ -75,97 +73,84 @@ namespace Monk.Imaging
         {
             int w = bitmap.Width, h = bitmap.Height;
             int imageArea = w * h;
-            int byteIndex = 0;
+            int position = 0;
             ISet<PixelColor> pixelColors = new HashSet<PixelColor>(colors);
 
-            if (seed.Count == 0) 
-                seed = Seed.DefaultSeed;
-
-            cachedPixels = new CachedPixel[Math.Min(length, imageArea * pixelColors.Count)];
+            indices = new int[Math.Min(length, imageArea * pixelColors.Count)];
+            
+            if (seed.Count == 0) seed = Seed.DefaultSeed;
             ArithmeticProgression pixelIndices = new ArithmeticProgression(startPixel, seed);
-            for (int pixelIndex = pixelIndices.Start; pixelIndex < imageArea && byteIndex < length; pixelIndex = pixelIndices.Next()) {
-                int x = pixelIndex % w;
-                int y = (pixelIndex - x) / w;
+
+            for (int pixelIndex = pixelIndices.Start; pixelIndex < imageArea && position < length; pixelIndex = pixelIndices.Next()) {
                 foreach (PixelColor color in pixelColors) {
-                    byte value = bitmap.GetPixelColor(x, y, color);
-                    cachedPixels[byteIndex++] = new CachedPixel(x, y, value, color);
+                    indices[position++] = bitmap.GetBufferIndex(pixelIndex, color);
                 }
             }
         }
 
         public override void Flush()
         {
-            if (cachedPixels != null) {
-                LockedBitmap bitmap = Bitmap;
-                for (int nIdx = 0; nIdx < cachedPixels.Length; ++nIdx) {
-                    CachedPixel pxl = cachedPixels[nIdx];
-                    if (pxl.Changed) {
-                        bitmap.SetPixelColor(pxl.X, pxl.Y, pxl.Value, pxl.Color);
-                    }
-                }
-            }
         }
 
         public byte Peek()
         {
-            if (streamPos >= IntLength) throw new EndOfStreamException();
-            return cachedPixels[streamPos].Value;
+            if (position >= IntLength) throw new EndOfStreamException();
+            return Bitmap.GetByteAt(indices[position]);
         }
 
         public override int ReadByte()
         {
-            if (streamPos >= IntLength) return -1;
-            return cachedPixels[streamPos++].Value;
+            if (position >= IntLength) return -1;
+            return Bitmap.GetByteAt(indices[position++]);
         }
 
         public byte ReadNext()
         {
-            if (streamPos >= IntLength) throw new EndOfStreamException();
-            return cachedPixels[streamPos++].Value;
+            if (position >= IntLength) throw new EndOfStreamException();
+            return Bitmap.GetByteAt(indices[position++]);
         }
 
         public override int Read(byte[] buffer, int offset, int count)
         {
-            if (streamPos >= IntLength) return -1;
-            count = Math.Min(count, IntLength - streamPos);
+            if (position >= IntLength) return -1;
+            count = Math.Min(count, IntLength - position);
             for (int i = 0; i < count; ++i) {
-                buffer[i] = cachedPixels[streamPos++].Value;
+                buffer[i] = Bitmap.GetByteAt(indices[position++]);
             }
             return count;
         }
 
         public override long Seek(long offset, SeekOrigin origin)
         {
-            int iOffset = checked((int)offset);
             if (origin == SeekOrigin.Begin) {
-                IntPosition = iOffset;
+                Position = offset;
             }
             else if (origin == SeekOrigin.Current) {
-                IntPosition += iOffset;
+                Position += offset;
             }
             else if (origin == SeekOrigin.End) {
-                IntPosition = checked(IntLength + iOffset);
+                Position = Length + offset;
             }
-            return IntPosition;
+            return Position;
         }
 
         public override void SetLength(long value)
         {
-            throw new InvalidOperationException();
+            throw new NotSupportedException();
         }
 
         public override void WriteByte(byte value)
         {
-            if (streamPos >= IntLength) throw new EndOfStreamException();
-            cachedPixels[streamPos++].Value = value;
+            if (position >= IntLength) throw new EndOfStreamException();
+            Bitmap.SetByteAt(indices[position++], value);
         }
 
         public override void Write(byte[] buffer, int offset, int count)
         {
-            if (count + streamPos > IntLength) throw new EndOfStreamException();
-            count = Math.Min(count, IntLength - streamPos);
+            if (count + position > IntLength) throw new EndOfStreamException();
+            count = Math.Min(count, IntLength - position);
             for (int i = 0; i < count; ++i) {
-                cachedPixels[streamPos++].Value = buffer[i];
+                Bitmap.SetByteAt(indices[position++], buffer[i]);
             }
         }
 
@@ -174,7 +159,7 @@ namespace Monk.Imaging
             if (disposing && Bitmap.Locked) {
                 Flush();
                 Bitmap.UnlockBits();
-                cachedPixels = null;
+                indices = null;
             }
             base.Dispose(disposing);
         }

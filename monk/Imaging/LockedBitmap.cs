@@ -62,22 +62,42 @@ namespace Monk.Imaging
             BitmapData = null;
         }
 
-        public abstract int GetPixel(int x, int y);
+        public abstract int GetPixel(int pixelIndex);
 
-        public virtual byte GetPixelColor(int x, int y, PixelColor color)
+        public virtual int GetPixel(int x, int y)
+        {
+            return GetPixel(PointToPixelOffset(x, y));
+        }
+
+        public virtual byte GetPixelColor(int pixelIndex, PixelColor color)
         {
             if (!SuportedColors.Contains(color)) ThrowHelper.ColorUnsupported(nameof(color), color);
-            int value = GetPixel(x, y);
+            int value = GetPixel(pixelIndex);
             return (byte)((value >> GetShift(color)) & 0xFF);
         }
 
-        public abstract void SetPixel(int x, int y, int argb);
+        public virtual byte GetPixelColor(int x, int y, PixelColor color)
+        {
+            return GetPixelColor(PointToPixelOffset(x, y), color);
+        }
+
+        public abstract void SetPixel(int pixelIndex, int argb);
+
+        public virtual void SetPixel(int x, int y, int argb)
+        {
+            SetPixel(PointToPixelOffset(x, y), argb);
+        }
 
         public virtual void SetPixelColor(int x, int y, byte value, PixelColor color)
         {
+            SetPixelColor(PointToPixelOffset(x, y), value, color);
+        }
+
+        public virtual void SetPixelColor(int pixelOffset, byte value, PixelColor color)
+        {
             if (!SuportedColors.Contains(color)) ThrowHelper.ColorUnsupported(nameof(color), color);
-            int argb = GetPixel(x, y) & ~(0xFF << GetShift(color));
-            SetPixel(x, y, argb | (value << GetShift(color)));
+            int argb = GetPixel(pixelOffset) & ~(0xFF << GetShift(color));
+            SetPixel(pixelOffset, argb | (value << GetShift(color)));
         }
 
         public virtual Color[,] ToColorMatrix()
@@ -91,7 +111,7 @@ namespace Monk.Imaging
             return colors;
         }
 
-        protected int PointToOffset(int x, int y)
+        protected int PointToByteOffset(int x, int y)
         {
             EnsureState();
             if (x >= Width || x < 0) throw new ArgumentOutOfRangeException(nameof(x));
@@ -99,9 +119,44 @@ namespace Monk.Imaging
             return (y * Stride) + (x * BytesPerPixel);
         }
 
+        protected int PointToPixelOffset(int x, int y)
+        {
+            EnsureState();
+            if (x >= Width || x < 0) throw new ArgumentOutOfRangeException(nameof(x));
+            if (y >= Height || y < 0) throw new ArgumentOutOfRangeException(nameof(y));
+            return (y * Width) + x;
+        }
+
+        protected int PixelOffsetToByteOffset(int pixelOffset)
+        {
+            int x = pixelOffset % Width;
+            int y = (pixelOffset - x) / Width;
+            return (y * Stride) + (x * BytesPerPixel);
+        }
+
+        protected Span<byte> PixelAt(int pixelOffset)
+        {
+            return RawData.Slice(PixelOffsetToByteOffset(pixelOffset), BytesPerPixel);
+        }
+
         protected Span<byte> PixelAt(int x, int y)
         {
-            return RawData.Slice(PointToOffset(x, y), BytesPerPixel);
+            return RawData.Slice(PointToByteOffset(x, y), BytesPerPixel);
+        }
+
+        internal virtual int GetBufferIndex(int pixelIndex, PixelColor color)
+        {
+            throw new NotSupportedException();
+        }
+
+        internal void SetByteAt(int byteIndex, byte value)
+        {
+            RawData[byteIndex] = value;
+        }
+
+        internal byte GetByteAt(int byteIndex)
+        {
+            return RawData[byteIndex];
         }
 
         public void Dispose()
@@ -139,19 +194,13 @@ namespace Monk.Imaging
 
         public static LockedBitmap CreateLockedBitmap(Bitmap bitmap)
         {
-            int depth = Image.GetPixelFormatSize(bitmap.PixelFormat);
-            if (depth == 32) {
-                return new LockedBitmap32bpp(bitmap);
-            }
-            else if (depth == 24) {
-                return new LockedBitmap24bpp(bitmap);
-            }
-            else if (depth == 8) {
-                return new LockedBitmap8bpp(bitmap);
-            }
-            else {
-                throw new ArgumentException($"Image format Bitmap-{depth}bpp is unsuported");
-            }
+            return bitmap.PixelFormat switch
+            {
+                PixelFormat.Format32bppArgb => new LockedBitmap32bpp(bitmap),
+                PixelFormat.Format24bppRgb => new LockedBitmap24bpp(bitmap),
+                PixelFormat.Format8bppIndexed => new LockedBitmap8bpp(bitmap),
+                _ => throw new ArgumentException($"{bitmap.PixelFormat} is not currently supported"),
+            };
         }
 
         private static int GetShift(PixelColor color)
@@ -176,20 +225,19 @@ namespace Monk.Imaging
                 Bitmap = bitmap;
             }
 
-            public override int GetPixel(int x, int y)
+            public override int GetPixel(int pixelOffset)
             {
-                return RawData.Read<int>(PointToOffset(x, y));
+                return RawData.Read<int>(PixelOffsetToByteOffset(pixelOffset));
             }
 
-            public override unsafe void SetPixel(int x, int y, int argb)
+            public override void SetPixel(int pixelOffset, int argb)
             {
-                RawData.Write(PointToOffset(x, y), argb);
+                RawData.Write(PixelOffsetToByteOffset(pixelOffset), argb);
             }
 
-            public override void SetPixelColor(int x, int y, byte value, PixelColor color)
+            internal override int GetBufferIndex(int pixelIndex, PixelColor color)
             {
-                Span<byte> pixel = PixelAt(x, y);
-                pixel[(int)color/8] = value;
+                return PixelOffsetToByteOffset(pixelIndex) + GetShift(color) / 8;
             }
         }
 
@@ -203,9 +251,9 @@ namespace Monk.Imaging
                 Bitmap = bitmap;
             }
 
-            public override int GetPixel(int x, int y)
+            public override int GetPixel(int pixelOffset)
             {
-                Span<byte> pixel = PixelAt(x, y);
+                Span<byte> pixel = PixelAt(pixelOffset);
                 int value = 0xff << ALPHA_SHIFT;
                 value |= pixel[2] << RED_SHIFT;
                 value |= pixel[1] << GREEN_SHIFT;
@@ -213,12 +261,18 @@ namespace Monk.Imaging
                 return value;
             }
 
-            public override void SetPixel(int x, int y, int argb)
+            public override void SetPixel(int pixelOffset, int argb)
             {
-                Span<byte> pixel = PixelAt(x, y);
+                Span<byte> pixel = PixelAt(pixelOffset);
                 pixel[0] = (byte)((argb >> BLUE_SHIFT) & 0xff);
                 pixel[1] = (byte)((argb >> GREEN_SHIFT) & 0xff);
                 pixel[2] = (byte)((argb >> RED_SHIFT) & 0xff);
+            }
+
+            internal override int GetBufferIndex(int pixelIndex, PixelColor color)
+            {
+                if (color == PixelColor.Alpha) ThrowHelper.ColorUnsupported(nameof(color), color);
+                return PixelOffsetToByteOffset(pixelIndex) + GetShift(color) / 8;
             }
         }
 
@@ -232,14 +286,20 @@ namespace Monk.Imaging
                 Bitmap = bitmap;
             }
 
-            public override int GetPixel(int x, int y)
+            public override int GetPixel(int pixelOffset)
             {
-                return PixelAt(x, y)[0];
+                return PixelAt(pixelOffset)[0];
             }
 
-            public override void SetPixel(int x, int y, int argb)
+            public override void SetPixel(int pixelOffset, int argb)
             {
-                PixelAt(x, y)[0] = (byte)argb;
+                PixelAt(pixelOffset)[0] = (byte)argb;
+            }
+
+            internal override int GetBufferIndex(int pixelIndex, PixelColor color)
+            {
+                if (color != PixelColor.Blue) ThrowHelper.ColorUnsupported(nameof(color), color);
+                return PixelOffsetToByteOffset(pixelIndex);
             }
         }
 
