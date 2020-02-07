@@ -84,6 +84,7 @@ namespace Monk.Imaging
             for (int pixelIndex = pixelIndices.Start; pixelIndex < imageArea && position < length; pixelIndex = pixelIndices.Next()) {
                 foreach (PixelColor color in pixelColors) {
                     indices[position++] = bitmap.GetBufferIndex(pixelIndex, color);
+                    if (position >= indices.Length) break;
                 }
             }
         }
