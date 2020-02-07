@@ -6,7 +6,7 @@
     },
     "abbot decode": {
       "commandName": "Project",
-      "commandLineArgs": "decode --image \"D:\\test.png\" --seed 12321 --key loremipsum"
+      "commandLineArgs": "decode --image \"D:\\Trithemius\\0Question.png\" --legacy -r"
     }
   }
 }
