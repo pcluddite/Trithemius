@@ -69,12 +69,17 @@ namespace Monk.Imaging
 
         public void Encode(byte[] data)
         {
+            Encode(data, prefixSize: true);
+        }
+
+        public void Encode(byte[] data, bool prefixSize)
+        {
             EnsureState();
             if (!MessageFitsImage(data)) {
                 throw new ArgumentException("Message is too big to encode in the image.");
             }
 
-            BinaryList bits = CreateBinaryList(data);
+            BinaryList bits = CreateBinaryList(data, prefixSize);
 
             int lsb = LeastSignificantBits;
             int bytesNeeded = MathUtil.DivideUp(bits.Count, lsb);
@@ -90,13 +95,19 @@ namespace Monk.Imaging
             }
         }
 
-        private BinaryList CreateBinaryList(byte[] data)
+        private BinaryList CreateBinaryList(byte[] data, bool prefixSize)
         {
-            int bitCount = (sizeof(int) + data.Length) * Twiddler.CHAR_BIT;
             EndianMode dataEndianMode = Endianness;
-            BinaryList bits = new BinaryList(BitConverter.GetBytes(data.Length), bitCount, EndianMode.LittleEndian);
-            if (InvertPrefixBits) {
-                bits.Not();
+            BinaryList bits;
+            if (prefixSize) {
+                int bitCount = (sizeof(int) + data.Length) * Twiddler.CHAR_BIT;
+                bits = new BinaryList(BitConverter.GetBytes(data.Length), bitCount, EndianMode.LittleEndian);
+                if (InvertPrefixBits) {
+                    bits.Not();
+                }
+            }
+            else {
+                bits = new BinaryList(data.Length * Twiddler.CHAR_BIT, dataEndianMode);
             }
             if (InvertDataBits) {
                 BinaryList dataBits = new BinaryList(data, dataEndianMode);
@@ -128,15 +139,17 @@ namespace Monk.Imaging
             EnsureState();
             int size = CheckSize();
 
-            if (size < 0)
-                return null; // no message
-
-            if (ZeroBasedSize) {
-                size += 1;
-            }
+            if (size < 0) return null; // no message
+            if (ZeroBasedSize) size += 1;
 
             IEnumerable<byte> data = ReadBits(sizeof(int) + size, InvertDataBits, Offset, Endianness);
             return data.Skip(sizeof(int)).ToArray();
+        }
+
+        public byte[] Decode(int size)
+        {
+            EnsureState();
+            return ReadBits(size, InvertDataBits, Offset, Endianness).ToArray();
         }
 
         private IEnumerable<byte> ReadBits(int byteCount, bool invert, int offset, EndianMode endianness)
