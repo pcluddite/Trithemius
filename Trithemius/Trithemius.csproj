@@ -44,6 +44,18 @@
     <Compile Update="Windows\Text.Designer.cs">
       <DependentUpon>Text.cs</DependentUpon>
     </Compile>
+    <Compile Update="Windows\TrithemiusForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="Windows\TrithemiusForm.Designer.cs">
+      <DependentUpon>TrithemiusForm.cs</DependentUpon>
+    </Compile>
+    <Compile Update="Windows\TrithemiusForm.Options.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="Windows\TrithemiusForm.Preview.cs">
+      <SubType>Form</SubType>
+    </Compile>
   </ItemGroup>
 
   <ItemGroup>
@@ -59,6 +71,9 @@
     </EmbeddedResource>
     <EmbeddedResource Update="Windows\Text.resx">
       <DependentUpon>Text.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Windows\TrithemiusForm.resx">
+      <DependentUpon>TrithemiusForm.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
 

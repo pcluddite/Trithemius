@@ -7,7 +7,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "monk", "monk\monk.csproj", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "abbot", "abbot\abbot.csproj", "{615A6A07-30A8-40A8-B963-A207DFF9312D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "trithemius", "trithemius\trithemius.csproj", "{E03FFF29-6045-485A-9FF1-D0E408009F57}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "trithemius", "trithemius\trithemius.csproj", "{E03FFF29-6045-485A-9FF1-D0E408009F57}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
