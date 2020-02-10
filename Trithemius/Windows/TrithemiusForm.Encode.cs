@@ -86,7 +86,7 @@ namespace Trithemius.Windows
                 }
                 e.Result = new EncodeResult();
             }
-            catch(Exception ex) when (ex is ArgumentException || ex is EncoderFallbackException || ex is IOException || ex is SecurityException || ex is InvalidOperationException) {
+            catch(Exception ex) when (ex is EncoderFallbackException || ex is IOException || ex is SecurityException || ex is InvalidOperationException) {
                 e.Result = new EncodeResult(ex.Message);
             }
         }

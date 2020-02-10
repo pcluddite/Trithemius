@@ -83,30 +83,31 @@ namespace Trithemius.Windows
                     if (msg == null) {
                         e.Result = new DecodeResult(false, "No decodable data was detected.");
                     }
+                    else {
+                        if (!string.IsNullOrEmpty(arg.Password)) {
+                            if (arg.Legacy) {
+                                msg = LegacyEncryption.DecryptStringAES(msg, arg.Password);
+                            }
+                            else {
+                                msg = AESThenHMAC.SimpleDecryptWithPassword(msg, arg.Password);
+                            }
+                            if (msg == null) {
+                                e.Result = new DecodeResult(false, "The encryption key was invalid.");
+                                return;
+                            }
+                        }
 
-                    if (!string.IsNullOrEmpty(arg.Password)) {
-                        if (arg.Legacy) {
-                            msg = LegacyEncryption.DecryptStringAES(msg, arg.Password);
+                        if (arg.OutputPath == null) {
+                            e.Result = new DecodeResult(true, Encoding.UTF8.GetString(msg));
                         }
                         else {
-                            msg = AESThenHMAC.SimpleDecryptWithPassword(msg, arg.Password);
+                            File.WriteAllBytes(arg.OutputPath, msg);
+                            e.Result = new DecodeResult(true, arg.OutputPath);
                         }
-                        if (msg == null) {
-                            e.Result = new DecodeResult(false, "The encryption key was invalid.");
-                            return;
-                        }
-                    }
-
-                    if (arg.OutputPath == null) {
-                        e.Result = new DecodeResult(true, Encoding.UTF8.GetString(msg));
-                    }
-                    else {
-                        File.WriteAllBytes(arg.OutputPath, msg);
-                        e.Result = new DecodeResult(true, arg.OutputPath);
                     }
                 }
             }
-            catch (Exception ex) when (ex is ArgumentException || ex is EncoderFallbackException || ex is IOException || ex is SecurityException || ex is InvalidOperationException) {
+            catch (Exception ex) when (ex is EncoderFallbackException || ex is IOException || ex is SecurityException || ex is InvalidOperationException) {
                 e.Result = new DecodeResult(false, ex.Message);
             }
         }
