@@ -311,6 +311,7 @@ namespace Trithemius.Windows
             this.checkBoxLegacy.TabIndex = 0;
             this.checkBoxLegacy.Text = "Legacy Mode";
             this.checkBoxLegacy.UseVisualStyleBackColor = true;
+            this.checkBoxLegacy.CheckedChanged += new System.EventHandler(this.checkBoxLegacy_CheckedChanged);
             // 
             // groupBoxPrefix
             // 
@@ -546,6 +547,7 @@ namespace Trithemius.Windows
             this.checkBlue.TabIndex = 3;
             this.checkBlue.Text = "Blue";
             this.checkBlue.UseVisualStyleBackColor = true;
+            this.checkBlue.CheckedChanged += new System.EventHandler(this.checkBlue_CheckedChanged);
             // 
             // checkGreen
             // 
@@ -558,6 +560,7 @@ namespace Trithemius.Windows
             this.checkGreen.TabIndex = 2;
             this.checkGreen.Text = "Green";
             this.checkGreen.UseVisualStyleBackColor = true;
+            this.checkGreen.CheckedChanged += new System.EventHandler(this.checkGreen_CheckedChanged);
             // 
             // checkRed
             // 
@@ -570,6 +573,7 @@ namespace Trithemius.Windows
             this.checkRed.TabIndex = 1;
             this.checkRed.Text = "Red";
             this.checkRed.UseVisualStyleBackColor = true;
+            this.checkRed.CheckedChanged += new System.EventHandler(this.checkRed_CheckedChanged);
             // 
             // checkAlpha
             // 
@@ -582,6 +586,7 @@ namespace Trithemius.Windows
             this.checkAlpha.TabIndex = 0;
             this.checkAlpha.Text = "Alpha";
             this.checkAlpha.UseVisualStyleBackColor = true;
+            this.checkAlpha.CheckedChanged += new System.EventHandler(this.checkAlpha_CheckedChanged);
             // 
             // buttonEncode
             // 

@@ -83,31 +83,48 @@ namespace Trithemius.Windows
             }
         }
 
-        private Steganographer CreateTrithemius()
+        private void checkBoxLegacy_CheckedChanged(object sender, EventArgs e)
         {
-            Steganographer trithemius = new Steganographer((Bitmap)CopyImage(pictureBox.Image))
-            {
-                Offset = (int)numericUpDownOffset.Value - 1,
-                LeastSignificantBits = (int)numericUpDownLsb.Value,
-                InvertDataBits = checkBoxInvertData.Checked,
-                InvertPrefixBits = checkBoxInvertPrefix.Checked,
-                Endianness = comboBoxEndian.SelectedIndex == 0 ? EndianMode.LittleEndian : EndianMode.BigEndian
-            };
-
-            if (!string.IsNullOrEmpty(textBoxSeed.Text)) {
-                trithemius.Seed = new Seed(textBoxSeed.Text);
+            buttonEncode.Enabled = groupBoxStartPixel.Enabled = groupBoxPrefix.Enabled = 
+                groupBoxInvert.Enabled = groupBoxEndian.Enabled = groupBoxLsb.Enabled = 
+                checkAlpha.Enabled = !checkBoxLegacy.Checked;
+            if (checkRed.Checked) {
+                checkAlpha.Checked = checkGreen.Checked = checkBlue.Checked = false;
             }
-
-            if (checkBoxLegacy.Checked) {
-                trithemius.SetLegacyOptions();
+            else if (checkGreen.Checked) {
+                checkAlpha.Checked = checkRed.Checked = checkBlue.Checked = false;
             }
+            else if (checkBlue.Checked) {
+                checkAlpha.Checked = checkRed.Checked = checkGreen.Checked = false;
+            }
+        }
 
-            if (checkAlpha.Checked && checkAlpha.Enabled) trithemius.Colors.Add(PixelColor.Alpha);
-            if (checkRed.Checked && checkRed.Enabled) trithemius.Colors.Add(PixelColor.Red);
-            if (checkGreen.Checked && checkGreen.Enabled) trithemius.Colors.Add(PixelColor.Green);
-            if (checkBlue.Checked && checkBlue.Enabled) trithemius.Colors.Add(PixelColor.Blue);
+        private void checkAlpha_CheckedChanged(object sender, EventArgs e)
+        {
+            if (checkBoxLegacy.Checked && checkAlpha.Checked) {
+                checkRed.Checked = checkGreen.Checked = checkBlue.Checked = false;
+            }
+        }
 
-            return trithemius;
+        private void checkRed_CheckedChanged(object sender, EventArgs e)
+        {
+            if (checkBoxLegacy.Checked && checkRed.Checked) {
+                checkAlpha.Checked = checkGreen.Checked = checkBlue.Checked = false;
+            }
+        }
+
+        private void checkGreen_CheckedChanged(object sender, EventArgs e)
+        {
+            if (checkBoxLegacy.Checked && checkGreen.Checked) {
+                checkAlpha.Checked = checkRed.Checked = checkBlue.Checked = false;
+            }
+        }
+
+        private void checkBlue_CheckedChanged(object sender, EventArgs e)
+        {
+            if (checkBoxLegacy.Checked && checkBlue.Checked) {
+                checkAlpha.Checked = checkRed.Checked = checkGreen.Checked = false;
+            }
         }
     }
 }

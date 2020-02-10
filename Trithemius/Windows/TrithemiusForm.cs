@@ -17,18 +17,15 @@
  *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 **/
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Data;
 using System.Diagnostics;
-using System.Diagnostics.Contracts;
 using System.Drawing;
-using System.Drawing.Imaging;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
+
+using Monk.Imaging;
+using Monk.Memory;
+using Monk.Memory.Bittwiddling;
 
 namespace Trithemius.Windows
 {
@@ -85,6 +82,33 @@ namespace Trithemius.Windows
         private void ShowInfo(string message)
         {
             MessageBox.Show(this, message, Text, MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+
+        private Steganographer CreateTrithemius()
+        {
+            Steganographer trithemius = new Steganographer((Bitmap)CopyImage(pictureBox.Image))
+            {
+                Offset = (int)numericUpDownOffset.Value - 1,
+                LeastSignificantBits = (int)numericUpDownLsb.Value,
+                InvertDataBits = checkBoxInvertData.Checked,
+                InvertPrefixBits = checkBoxInvertPrefix.Checked,
+                Endianness = comboBoxEndian.SelectedIndex == 0 ? EndianMode.LittleEndian : EndianMode.BigEndian
+            };
+
+            if (!string.IsNullOrEmpty(textBoxSeed.Text)) {
+                trithemius.Seed = new Seed(textBoxSeed.Text);
+            }
+
+            if (checkBoxLegacy.Checked) {
+                trithemius.SetLegacyOptions();
+            }
+
+            if (checkAlpha.Checked && checkAlpha.Enabled) trithemius.Colors.Add(PixelColor.Alpha);
+            if (checkRed.Checked && checkRed.Enabled) trithemius.Colors.Add(PixelColor.Red);
+            if (checkGreen.Checked && checkGreen.Enabled) trithemius.Colors.Add(PixelColor.Green);
+            if (checkBlue.Checked && checkBlue.Enabled) trithemius.Colors.Add(PixelColor.Blue);
+
+            return trithemius;
         }
     }
 }
