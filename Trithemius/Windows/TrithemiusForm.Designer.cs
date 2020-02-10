@@ -93,6 +93,8 @@ namespace Trithemius.Windows
             this.encodeWorker = new System.ComponentModel.BackgroundWorker();
             this.decodeWorker = new System.ComponentModel.BackgroundWorker();
             this.saveFileDialog = new System.Windows.Forms.SaveFileDialog();
+            this.msgOpenDialog = new System.Windows.Forms.OpenFileDialog();
+            this.msgSaveDialog = new System.Windows.Forms.SaveFileDialog();
             this.groupBoxImage.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox)).BeginInit();
             this.groupBoxPath.SuspendLayout();
@@ -621,6 +623,21 @@ namespace Trithemius.Windows
             this.decodeWorker.DoWork += new System.ComponentModel.DoWorkEventHandler(this.decodeWorker_DoWork);
             this.decodeWorker.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.decodeWorker_RunWorkerCompleted);
             // 
+            // saveFileDialog
+            // 
+            this.saveFileDialog.Filter = "PNG (*.png)|*.png|Bitmap (*.bmp)|*.bmp|GIF (*.gif)|*.gif|All Files (*.*)|*.*";
+            this.saveFileDialog.Title = "Save Image";
+            // 
+            // msgOpenDialog
+            // 
+            this.msgOpenDialog.Filter = "All Files (*.*)|*.*";
+            this.msgOpenDialog.Title = "Open";
+            // 
+            // msgSaveDialog
+            // 
+            this.msgSaveDialog.Filter = "All Files (*.*)|*.*";
+            this.msgSaveDialog.Title = "Save";
+            // 
             // TrithemiusForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -718,6 +735,8 @@ namespace Trithemius.Windows
         private System.ComponentModel.BackgroundWorker encodeWorker;
         private System.ComponentModel.BackgroundWorker decodeWorker;
         private System.Windows.Forms.SaveFileDialog saveFileDialog;
+        private System.Windows.Forms.OpenFileDialog msgOpenDialog;
+        private System.Windows.Forms.SaveFileDialog msgSaveDialog;
     }
 }
 

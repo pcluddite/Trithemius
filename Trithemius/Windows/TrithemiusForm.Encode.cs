@@ -21,6 +21,7 @@ using System.ComponentModel;
 using System.IO;
 using System.Security;
 using System.Text;
+using System.Windows.Forms;
 
 using Monk.Encryption;
 using Monk.Imaging;
@@ -60,9 +61,22 @@ namespace Trithemius.Windows
 
         private void buttonEncode_Click(object sender, EventArgs e)
         {
-            Steganographer trithemius = CreateTrithemius();
-            SetEnabled(false);
-            encodeWorker.RunWorkerAsync(new EncodeArgs(trithemius, Message, radioButtonText.Checked, textBoxKey.Text, saveFileDialog.FileName));
+            string message = null;
+            if (radioButtonFile.Checked) {
+                if (msgOpenDialog.ShowDialog(this) == DialogResult.OK) {
+                    message = msgOpenDialog.FileName;
+                }
+            }
+            else {
+                if (inputTextForm.ShowDialog(this) == DialogResult.OK) {
+                    message = inputTextForm.Result;
+                }
+            }
+            if (message != null && saveFileDialog.ShowDialog(this) == DialogResult.OK) {
+                Steganographer trithemius = CreateTrithemius();
+                SetEnabled(false);
+                encodeWorker.RunWorkerAsync(new EncodeArgs(trithemius, message, radioButtonText.Checked, textBoxKey.Text, saveFileDialog.FileName));
+            }
         }
 
         private void encodeWorker_DoWork(object sender, DoWorkEventArgs e)
@@ -73,14 +87,13 @@ namespace Trithemius.Windows
                     byte[] data;
                     if (args.IsText) {
                         data = Encoding.UTF8.GetBytes(args.Data);
-                    } else {
+                    }
+                    else {
                         data = File.ReadAllBytes(args.Data);
                     }
-
                     if (!string.IsNullOrEmpty(args.Password)) {
                         data = AESThenHMAC.SimpleEncryptWithPassword(data, args.Password);
                     }
-
                     trithemius.Encode(data);
                     trithemius.SaveImage(args.OutputPath);
                 }

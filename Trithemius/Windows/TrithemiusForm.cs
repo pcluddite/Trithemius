@@ -34,11 +34,12 @@ namespace Trithemius.Windows
 {
     public partial class TrithemiusForm : Form
     {
-        public string Message { get; set; }
+        private readonly Text inputTextForm;
 
         public TrithemiusForm()
         {
             InitializeComponent();
+            inputTextForm = new Text("");
         }
 
         private void TrithemiusForm_Load(object sender, EventArgs e)
