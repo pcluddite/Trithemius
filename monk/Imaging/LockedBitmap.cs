@@ -198,25 +198,23 @@ namespace Monk.Imaging
 
         public static LockedBitmap CreateLockedBitmap(Bitmap bitmap)
         {
-            return bitmap.PixelFormat switch
-            {
-                PixelFormat.Format32bppArgb => new LockedBitmap32bpp(bitmap),
-                PixelFormat.Format24bppRgb => new LockedBitmap24bpp(bitmap),
-                PixelFormat.Format8bppIndexed => new LockedBitmap8bpp(bitmap),
-                _ => throw new ArgumentException($"{bitmap.PixelFormat} is not currently supported"),
-            };
+            switch(bitmap.PixelFormat) {
+                case PixelFormat.Format32bppArgb: return new LockedBitmap32bpp(bitmap);
+                case PixelFormat.Format24bppRgb: return new LockedBitmap24bpp(bitmap);
+                case PixelFormat.Format8bppIndexed: return new LockedBitmap8bpp(bitmap);
+                default: throw new ArgumentException($"{bitmap.PixelFormat} is not currently supported");
+            }
         }
 
         private static int GetShift(PixelColor color)
         {
-            return color switch
-            {
-                PixelColor.Alpha => ALPHA_SHIFT,
-                PixelColor.Red => RED_SHIFT,
-                PixelColor.Green => GREEN_SHIFT,
-                PixelColor.Blue => BLUE_SHIFT,
-                _ => throw new InvalidOperationException(),
-            };
+            switch(color) { 
+                case PixelColor.Alpha: return ALPHA_SHIFT;
+                case PixelColor.Red: return RED_SHIFT;
+                case PixelColor.Green: return GREEN_SHIFT;
+                case PixelColor.Blue: return BLUE_SHIFT;
+                default: throw new InvalidOperationException();
+            }
         }
 
         private static class ThrowHelper
