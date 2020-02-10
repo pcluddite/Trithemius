@@ -22,6 +22,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Monk.Memory;
 using Monk.Memory.Bittwiddling;
+using System.IO;
 
 namespace Monk.Imaging
 {
@@ -197,6 +198,16 @@ namespace Monk.Imaging
             InvertPrefixBits = false;
             InvertDataBits = false;
             Offset = 0;
+        }
+
+        public void SaveImage(string filename)
+        {
+            lockedBitmap.Save(filename);
+        }
+
+        public void SaveImage(Stream stream)
+        {
+            lockedBitmap.Save(stream);
         }
 
         public void Dispose()
