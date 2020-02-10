@@ -50,12 +50,13 @@ namespace Trithemius.Windows
 
         private struct EncodeResult
         {
-            public bool Success => Message == null;
+            public bool Success { get; }
             public string Message { get; }
 
-            public EncodeResult(string errMsg)
+            public EncodeResult(bool success, string message)
             {
-                Message = errMsg;
+                Success = success;
+                Message = message;
             }
         }
 
@@ -96,11 +97,11 @@ namespace Trithemius.Windows
                     }
                     trithemius.Encode(data);
                     trithemius.SaveImage(args.OutputPath);
+                    e.Result = new EncodeResult(true, args.OutputPath);
                 }
-                e.Result = new EncodeResult();
             }
             catch(Exception ex) when (ex is EncoderFallbackException || ex is IOException || ex is SecurityException || ex is InvalidOperationException) {
-                e.Result = new EncodeResult(ex.Message);
+                e.Result = new EncodeResult(false, ex.Message);
             }
         }
 
@@ -110,6 +111,9 @@ namespace Trithemius.Windows
             EncodeResult result = (EncodeResult)e.Result;
             if (result.Success) {
                 ShowInfo("Encoding completed! You should spot no visible image differences.");
+                if (result.Message == ImagePath) {
+                    ReloadPreview(ImagePath);
+                }
             }
             else { 
                 ShowError(result.Message);
