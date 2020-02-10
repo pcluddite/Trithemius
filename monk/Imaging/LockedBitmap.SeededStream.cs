@@ -69,13 +69,13 @@ namespace Monk.Imaging
             {
                 int imageArea = bitmap.Size;
 
-                ISet<PixelColor> pixelColors = new HashSet<PixelColor>(colors);
+                ISet<PixelColor> pixelColors = new SortedSet<PixelColor>(colors);
                 indices = new int[Math.Min(pixelCount, imageArea) * pixelColors.Count];
 
                 if (seed.Count == 0) seed = Seed.DefaultSeed;
                 ArithmeticProgression pixelIndices = new ArithmeticProgression(pixelIndex, seed);
 
-                for (int buffIdx = 0; pixelIndex < indices.Length; pixelIndex = pixelIndices.Next()) {
+                for (int buffIdx = 0; pixelIndex < indices.Length && buffIdx < indices.Length; pixelIndex = pixelIndices.Next()) {
                     foreach (PixelColor color in pixelColors) {
                         indices[buffIdx++] = bitmap.GetBufferIndex(pixelIndex, color);
                         if (buffIdx >= indices.Length) break;

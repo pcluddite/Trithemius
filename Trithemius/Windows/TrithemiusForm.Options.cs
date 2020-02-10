@@ -87,7 +87,7 @@ namespace Trithemius.Windows
         {
             Steganographer trithemius = new Steganographer((Bitmap)CopyImage(pictureBox.Image))
             {
-                Offset = (int)numericUpDownOffset.Value,
+                Offset = (int)numericUpDownOffset.Value - 1,
                 LeastSignificantBits = (int)numericUpDownLsb.Value,
                 InvertDataBits = checkBoxInvertData.Checked,
                 InvertPrefixBits = checkBoxInvertPrefix.Checked,
