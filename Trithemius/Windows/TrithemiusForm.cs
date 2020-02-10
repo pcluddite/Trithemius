@@ -20,8 +20,11 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Diagnostics;
+using System.Diagnostics.Contracts;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -31,6 +34,8 @@ namespace Trithemius.Windows
 {
     public partial class TrithemiusForm : Form
     {
+        public string Message { get; set; }
+
         public TrithemiusForm()
         {
             InitializeComponent();
@@ -41,19 +46,44 @@ namespace Trithemius.Windows
             comboBoxEndian.SelectedIndex = 0;
         }
 
+        private void SetEnabled(bool enabled)
+        {
+            buttonEncode.Enabled = buttonDecode.Enabled = groupBoxPath.Enabled = 
+                groupBoxImage.Enabled = groupBoxEncode.Enabled = enabled;
+        }
+
+        private Process TryStart(ProcessStartInfo startInfo, bool displayErrors = true)
+        {
+            try {
+                return Process.Start(startInfo);
+            }
+            catch (Exception ex) when (ex is InvalidOperationException || ex is IOException || ex is Win32Exception) {
+                if (displayErrors) ShowError(ex.Message);
+                return null;
+            }
+        }
+
+        private static Image LoadImage(string filename)
+        {
+            Stream stream = new MemoryStream(File.ReadAllBytes(filename));
+            return Bitmap.FromStream(stream);
+        }
+
+        private static Image CopyImage(Image image)
+        {
+            Stream stream = new MemoryStream();
+            image.Save(stream, image.RawFormat);
+            return Bitmap.FromStream(stream);
+        }
+
         private void ShowError(string message)
         {
             MessageBox.Show(this, message, Text, MessageBoxButtons.OK, MessageBoxIcon.Warning);
         }
 
-        private void buttonEncode_Click(object sender, EventArgs e)
+        private void ShowInfo(string message)
         {
-
-        }
-
-        private void buttonDecode_Click(object sender, EventArgs e)
-        {
-
+            MessageBox.Show(this, message, Text, MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
     }
 }

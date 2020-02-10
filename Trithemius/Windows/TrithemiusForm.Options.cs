@@ -85,7 +85,7 @@ namespace Trithemius.Windows
 
         private Steganographer CreateTrithemius()
         {
-            Steganographer trithemius = new Steganographer(pathTextBox.Text)
+            Steganographer trithemius = new Steganographer((Bitmap)CopyImage(pictureBox.Image))
             {
                 Offset = (int)numericUpDownOffset.Value,
                 LeastSignificantBits = (int)numericUpDownLsb.Value,
@@ -102,10 +102,10 @@ namespace Trithemius.Windows
                 trithemius.SetLegacyOptions();
             }
 
-            if (checkAlpha.Checked) trithemius.Colors.Add(PixelColor.Alpha);
-            if (checkRed.Checked) trithemius.Colors.Add(PixelColor.Red);
-            if (checkGreen.Checked) trithemius.Colors.Add(PixelColor.Green);
-            if (checkBlue.Checked) trithemius.Colors.Add(PixelColor.Blue);
+            if (checkAlpha.Checked && checkAlpha.Enabled) trithemius.Colors.Add(PixelColor.Alpha);
+            if (checkRed.Checked && checkRed.Enabled) trithemius.Colors.Add(PixelColor.Red);
+            if (checkGreen.Checked && checkGreen.Enabled) trithemius.Colors.Add(PixelColor.Green);
+            if (checkBlue.Checked && checkBlue.Enabled) trithemius.Colors.Add(PixelColor.Blue);
 
             return trithemius;
         }

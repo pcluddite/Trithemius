@@ -105,11 +105,5 @@ namespace Trithemius.Windows
             int area = image.Width * image.Height;
             textBoxMaxSize.Text = (((Image.GetPixelFormatSize(image.PixelFormat) / 8) * area) * numericUpDownLsb.Value).ToString("#,##0");
         }
-
-        private static Image LoadImage(string filename)
-        {
-            MemoryStream stream = new MemoryStream(File.ReadAllBytes(filename));
-            return Image.FromStream(stream);
-        }
     }
 }

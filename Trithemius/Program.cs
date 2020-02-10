@@ -34,7 +34,7 @@ namespace Trithemius
             //Application.SetHighDpiMode(HighDpiMode.SystemAware);
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new LegacyTrithemiusForm());
+            Application.Run(new TrithemiusForm());
         }
 
         internal static Process TryStart(IWin32Window owner, ProcessStartInfo startInfo, bool displayErrors = true)

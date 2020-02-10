@@ -90,6 +90,9 @@ namespace Trithemius.Windows
             this.buttonEncode = new System.Windows.Forms.Button();
             this.buttonDecode = new System.Windows.Forms.Button();
             this.openFileDialog = new System.Windows.Forms.OpenFileDialog();
+            this.encodeWorker = new System.ComponentModel.BackgroundWorker();
+            this.decodeWorker = new System.ComponentModel.BackgroundWorker();
+            this.saveFileDialog = new System.Windows.Forms.SaveFileDialog();
             this.groupBoxImage.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox)).BeginInit();
             this.groupBoxPath.SuspendLayout();
@@ -608,6 +611,16 @@ namespace Trithemius.Windows
     ";*.tiff|All Files (*.*)|*.*";
             this.openFileDialog.Title = "Browse Image";
             // 
+            // encodeWorker
+            // 
+            this.encodeWorker.DoWork += new System.ComponentModel.DoWorkEventHandler(this.encodeWorker_DoWork);
+            this.encodeWorker.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.encodeWorker_RunWorkerCompleted);
+            // 
+            // decodeWorker
+            // 
+            this.decodeWorker.DoWork += new System.ComponentModel.DoWorkEventHandler(this.decodeWorker_DoWork);
+            this.decodeWorker.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.decodeWorker_RunWorkerCompleted);
+            // 
             // TrithemiusForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -702,6 +715,9 @@ namespace Trithemius.Windows
         private System.Windows.Forms.Button buttonDecode;
         private System.Windows.Forms.OpenFileDialog openFileDialog;
         private System.Windows.Forms.TextBox textBoxKey;
+        private System.ComponentModel.BackgroundWorker encodeWorker;
+        private System.ComponentModel.BackgroundWorker decodeWorker;
+        private System.Windows.Forms.SaveFileDialog saveFileDialog;
     }
 }
 
