@@ -45,5 +45,15 @@ namespace Trithemius.Windows
         {
             MessageBox.Show(this, message, Text, MessageBoxButtons.OK, MessageBoxIcon.Warning);
         }
+
+        private void buttonEncode_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void buttonDecode_Click(object sender, EventArgs e)
+        {
+
+        }
     }
 }

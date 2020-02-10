@@ -1,80 +1,138 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
-
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{B47D5AF1-885A-4250-8F9A-2A02243DE63B}</ProjectGuid>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
-    <UseWindowsForms>true</UseWindowsForms>
     <RootNamespace>Trithemius</RootNamespace>
     <AssemblyName>Trithemius</AssemblyName>
-    <Authors>Timothy Baxendale</Authors>
-    <Company>Timothy Baxendale</Company>
-    <Version>1.0.0</Version>
-    <Description>Use monk to encode and decode hidden messages in bitmaps</Description>
-    <AssemblyVersion>0.4.0.0</AssemblyVersion>
-    <FileVersion>0.4.0.0</FileVersion>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <Deterministic>true</Deterministic>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup>
     <ApplicationIcon>Icojam-Blue-Bits-Pictures.ico</ApplicationIcon>
   </PropertyGroup>
-
   <ItemGroup>
-    <ProjectReference Include="..\monk\monk.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Compile Update="Windows\Finished.cs">
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Windows\Finished.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Update="Windows\Finished.Designer.cs">
+    <Compile Include="Windows\Finished.Designer.cs">
       <DependentUpon>Finished.cs</DependentUpon>
     </Compile>
-    <Compile Update="Windows\LegacyTrithemiusForm.cs">
+    <Compile Include="Windows\LegacyTrithemiusForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Update="Windows\LegacyTrithemiusForm.Designer.cs">
+    <Compile Include="Windows\LegacyTrithemiusForm.Designer.cs">
       <DependentUpon>LegacyTrithemiusForm.cs</DependentUpon>
     </Compile>
-    <Compile Update="Windows\RandomSeed.cs">
+    <Compile Include="Windows\RandomSeed.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Update="Windows\RandomSeed.Designer.cs">
+    <Compile Include="Windows\RandomSeed.Designer.cs">
       <DependentUpon>RandomSeed.cs</DependentUpon>
     </Compile>
-    <Compile Update="Windows\Text.cs">
+    <Compile Include="Windows\Text.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Update="Windows\Text.Designer.cs">
+    <Compile Include="Windows\Text.Designer.cs">
       <DependentUpon>Text.cs</DependentUpon>
     </Compile>
-    <Compile Update="Windows\TrithemiusForm.cs">
+    <Compile Include="Windows\TrithemiusForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Update="Windows\TrithemiusForm.Designer.cs">
+    <Compile Include="Windows\TrithemiusForm.Designer.cs">
       <DependentUpon>TrithemiusForm.cs</DependentUpon>
     </Compile>
-    <Compile Update="Windows\TrithemiusForm.Options.cs">
+    <Compile Include="Windows\TrithemiusForm.Options.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Update="Windows\TrithemiusForm.Preview.cs">
+    <Compile Include="Windows\TrithemiusForm.Preview.cs">
       <SubType>Form</SubType>
     </Compile>
-  </ItemGroup>
-
-  <ItemGroup>
-    <EmbeddedResource Update="Windows\Finished.resx">
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
       <SubType>Designer</SubType>
-      <DependentUpon>Finished.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Update="Windows\LegacyTrithemiusForm.resx">
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <EmbeddedResource Include="Windows\Finished.resx">
+      <DependentUpon>Finished.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Windows\LegacyTrithemiusForm.resx">
       <DependentUpon>LegacyTrithemiusForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Update="Windows\RandomSeed.resx">
+    <EmbeddedResource Include="Windows\RandomSeed.resx">
       <DependentUpon>RandomSeed.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Update="Windows\Text.resx">
+    <EmbeddedResource Include="Windows\Text.resx">
       <DependentUpon>Text.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Update="Windows\TrithemiusForm.resx">
+    <EmbeddedResource Include="Windows\TrithemiusForm.resx">
       <DependentUpon>TrithemiusForm.cs</DependentUpon>
     </EmbeddedResource>
+    <None Include="packages.config" />
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+    </Compile>
   </ItemGroup>
-
+  <ItemGroup>
+    <Content Include="Icojam-Blue-Bits-Pictures.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\monk\monk.csproj">
+      <Project>{ef5cb0bd-70e3-4a48-a7e0-b1735d9a673d}</Project>
+      <Name>monk</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="Microsoft.CSharp">
+      <HintPath>C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.5.2\Microsoft.CSharp.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Drawing.Common, Version=4.0.0.1, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Drawing.Common.4.7.0\lib\net461\System.Drawing.Common.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Windows.Forms">
+      <HintPath>C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.5.2\System.Windows.Forms.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

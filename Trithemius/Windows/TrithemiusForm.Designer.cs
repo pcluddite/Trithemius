@@ -588,6 +588,7 @@ namespace Trithemius.Windows
             this.buttonEncode.TabIndex = 4;
             this.buttonEncode.Text = "Encode";
             this.buttonEncode.UseVisualStyleBackColor = true;
+            this.buttonEncode.Click += new System.EventHandler(this.buttonEncode_Click);
             // 
             // buttonDecode
             // 
@@ -599,6 +600,7 @@ namespace Trithemius.Windows
             this.buttonDecode.TabIndex = 3;
             this.buttonDecode.Text = "Decode";
             this.buttonDecode.UseVisualStyleBackColor = true;
+            this.buttonDecode.Click += new System.EventHandler(this.buttonDecode_Click);
             // 
             // openFileDialog
             // 
