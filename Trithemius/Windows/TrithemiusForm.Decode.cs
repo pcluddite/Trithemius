@@ -17,17 +17,15 @@
  *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 **/
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Windows.Forms;
-using System.Threading.Tasks;
-using Monk.Imaging;
 using System.ComponentModel;
-using Monk.Encryption;
+using System.Diagnostics;
 using System.IO;
 using System.Security;
-using System.Diagnostics;
+using System.Text;
+using System.Windows.Forms;
+
+using Monk.Encryption;
+using Monk.Imaging;
 
 namespace Trithemius.Windows
 {
@@ -66,7 +64,8 @@ namespace Trithemius.Windows
         {
             string filename = null;
             if (radioButtonFile.Checked) {
-                if (saveFileDialog.ShowDialog(this) != DialogResult.OK) return;
+                if (msgSaveDialog.ShowDialog(this) != DialogResult.OK) return;
+                filename = msgSaveDialog.FileName;
             }
             Steganographer trithemius = CreateTrithemius();
             SetEnabled(false);
