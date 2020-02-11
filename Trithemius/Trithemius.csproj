@@ -45,12 +45,6 @@
     <Compile Include="Windows\Finished.Designer.cs">
       <DependentUpon>Finished.cs</DependentUpon>
     </Compile>
-    <Compile Include="Windows\LegacyTrithemiusForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Windows\LegacyTrithemiusForm.Designer.cs">
-      <DependentUpon>LegacyTrithemiusForm.cs</DependentUpon>
-    </Compile>
     <Compile Include="Windows\RandomSeed.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -98,9 +92,6 @@
     <EmbeddedResource Include="Windows\Finished.resx">
       <DependentUpon>Finished.cs</DependentUpon>
       <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Windows\LegacyTrithemiusForm.resx">
-      <DependentUpon>LegacyTrithemiusForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Windows\RandomSeed.resx">
       <DependentUpon>RandomSeed.cs</DependentUpon>
