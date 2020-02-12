@@ -16,15 +16,18 @@
  *  with this program; if not, write to the Free Software Foundation, Inc.,
  *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 **/
-using Abbot.Arguments;
-using CommandLine;
-using Monk.Encryption;
-using Monk.Imaging;
 using System;
 using System.Collections.Generic;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Text;
+
+using Abbot.Arguments;
+
+using CommandLine;
+
+using Monk.Encryption;
+using Monk.Imaging;
 
 namespace Abbot
 {
