@@ -29,20 +29,24 @@ namespace Monk.Memory
     /// </summary>
     internal unsafe class UnmanagedBuffer : IDisposable, IList<byte>
     {
-        private void* lpBlock;
+        private byte* lpBlock;
 
         public bool Owned { get; }
 
         public int Length { get; }
         public IntPtr Pointer => new IntPtr(lpBlock);
         public bool Freed => lpBlock == null;
-        public Span<byte> Span => new Span<byte>(lpBlock, Length);
-        public ReadOnlySpan<byte> ReadOnlySpan => new ReadOnlySpan<byte>(lpBlock, Length);
 
         public byte this[int index]
         {
-            get => Span[index];
-            set => Span[index] = value;
+            get {
+                if ((uint)index >= (uint)Length) throw new ArgumentOutOfRangeException(nameof(index));
+                return lpBlock[index];
+            }
+            set {
+                if ((uint)index >= (uint)Length) throw new ArgumentOutOfRangeException(nameof(index));
+                lpBlock[index] = value;
+            }
         }
 
         public UnmanagedBuffer(int length)
@@ -50,7 +54,7 @@ namespace Monk.Memory
             if (length < 1) throw new ArgumentOutOfRangeException(nameof(length));
             Owned = true;
             Length = length;
-            lpBlock = Marshal.AllocHGlobal(Length).ToPointer();
+            lpBlock = (byte*)Marshal.AllocHGlobal(Length).ToPointer();
         }
 
         public UnmanagedBuffer(IntPtr ptr, int length)
@@ -63,41 +67,6 @@ namespace Monk.Memory
             Length = length;
             Owned = false;
             lpBlock = ptr;
-        }
-
-        public T Read<T>(int offset) where T : struct
-        {
-            return MemoryMarshal.Read<T>(ReadOnlySlice(offset, Marshal.SizeOf<T>()));
-        }
-
-        public ReadOnlySpan<T> CastAs<T>() where T : struct
-        {
-            return MemoryMarshal.Cast<byte, T>(ReadOnlySpan);
-        }
-
-        public void Write<T>(int index, T value) where T : struct
-        {
-            MemoryMarshal.Write(Slice(index), ref value);
-        }
-
-        public Span<byte> Slice(int start)
-        {
-            return Slice(start, Length - start);
-        }
-
-        public Span<byte> Slice(int start, int length)
-        {
-            return new Span<byte>((byte*)lpBlock + start, length);
-        }
-
-        public ReadOnlySpan<byte> ReadOnlySlice(int start)
-        {
-            return ReadOnlySlice(start, Length - start);
-        }
-
-        public ReadOnlySpan<byte> ReadOnlySlice(int start, int length)
-        {
-            return new ReadOnlySpan<byte>((byte*)lpBlock + start, length);
         }
 
         public void Dispose()
@@ -135,13 +104,20 @@ namespace Monk.Memory
 
         public void CopyTo(byte[] array, int arrayIndex)
         {
-            Span<byte> dest = new Span<byte>(array, arrayIndex, array.Length - arrayIndex);
-            ReadOnlySpan.CopyTo(dest);
+            if ((uint)arrayIndex >= (uint)array.Length) throw new ArgumentOutOfRangeException(nameof(arrayIndex));
+            if ((uint)(array.Length - arrayIndex) >= (uint)Length) throw new ArgumentException(nameof(array));
+            fixed (byte* lpArr = array) {
+                for (int i = 0, len = Length; i < len; ++i) {
+                    lpArr[arrayIndex + i] = lpArr[i];
+                }
+            }
         }
 
         public void Clear()
         {
-            Span.Fill(0);
+            for(int i = 0, len = Length; i < len; ++i) {
+                lpBlock[i] = 0;
+            }
         }
 
         public IEnumerator<byte> GetEnumerator()
@@ -187,6 +163,11 @@ namespace Monk.Memory
             var stream = GetStream();
             stream.Position = offset;
             return stream;
+        }
+
+        public byte* UnsafePtrAt(int index)
+        {
+            return &lpBlock[index];
         }
     }
 }

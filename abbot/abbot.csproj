@@ -17,8 +17,4 @@
     <PackageReference Include="CommandLineParser" Version="2.7.82" />
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\monk\monk.csproj" />
-  </ItemGroup>
-
 </Project>

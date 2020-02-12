@@ -18,8 +18,10 @@
 **/
 using System;
 using System.Drawing;
-using System.Collections.Immutable;
 using System.Collections.Generic;
+
+using Monk.Collections.Immutable;
+using System.Runtime.InteropServices;
 
 namespace Monk.Imaging
 {
@@ -37,14 +39,14 @@ namespace Monk.Imaging
                 Height = bitmap.Height;
             }
 
-            public override int GetPixel(int pixelOffset)
+            public override unsafe int GetPixel(int pixelOffset)
             {
-                return RawData.Read<int>(PixelOffsetToByteOffset(pixelOffset));
+                return Marshal.ReadInt32(new IntPtr(PixelAt(pixelOffset)));
             }
 
-            public override void SetPixel(int pixelOffset, int argb)
+            public override unsafe void SetPixel(int pixelOffset, int argb)
             {
-                RawData.Write(PixelOffsetToByteOffset(pixelOffset), argb);
+                Marshal.WriteInt32(new IntPtr(PixelAt(pixelOffset)), argb);
             }
 
             internal override int GetBufferIndex(int pixelIndex, PixelColor color)
@@ -65,9 +67,9 @@ namespace Monk.Imaging
                 Height = bitmap.Height;
             }
 
-            public override int GetPixel(int pixelOffset)
+            public override unsafe int GetPixel(int pixelOffset)
             {
-                Span<byte> pixel = PixelAt(pixelOffset);
+                byte* pixel = PixelAt(pixelOffset);
                 int value = 0xff << ALPHA_SHIFT;
                 value |= pixel[2] << RED_SHIFT;
                 value |= pixel[1] << GREEN_SHIFT;
@@ -75,9 +77,9 @@ namespace Monk.Imaging
                 return value;
             }
 
-            public override void SetPixel(int pixelOffset, int argb)
+            public override unsafe void SetPixel(int pixelOffset, int argb)
             {
-                Span<byte> pixel = PixelAt(pixelOffset);
+                byte* pixel = PixelAt(pixelOffset);
                 pixel[0] = (byte)((argb >> BLUE_SHIFT) & 0xff);
                 pixel[1] = (byte)((argb >> GREEN_SHIFT) & 0xff);
                 pixel[2] = (byte)((argb >> RED_SHIFT) & 0xff);
@@ -102,12 +104,12 @@ namespace Monk.Imaging
                 Height = bitmap.Height;
             }
 
-            public override int GetPixel(int pixelOffset)
+            public override unsafe int GetPixel(int pixelOffset)
             {
                 return PixelAt(pixelOffset)[0];
             }
 
-            public override void SetPixel(int pixelOffset, int argb)
+            public override unsafe void SetPixel(int pixelOffset, int argb)
             {
                 PixelAt(pixelOffset)[0] = (byte)argb;
             }

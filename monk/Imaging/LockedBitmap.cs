@@ -118,34 +118,35 @@ namespace Monk.Imaging
         protected int PointToByteOffset(int x, int y)
         {
             EnsureState();
-            if (x >= Width || x < 0) throw new ArgumentOutOfRangeException(nameof(x));
-            if (y >= Height || y < 0) throw new ArgumentOutOfRangeException(nameof(y));
+            if ((uint)x >= (uint)Width) throw new ArgumentOutOfRangeException(nameof(x));
+            if ((uint)y >= (uint)Height) throw new ArgumentOutOfRangeException(nameof(y));
             return (y * Stride) + (x * BytesPerPixel);
         }
 
         protected int PointToPixelOffset(int x, int y)
         {
             EnsureState();
-            if (x >= Width || x < 0) throw new ArgumentOutOfRangeException(nameof(x));
-            if (y >= Height || y < 0) throw new ArgumentOutOfRangeException(nameof(y));
+            if ((uint)x >= (uint)Width) throw new ArgumentOutOfRangeException(nameof(x));
+            if ((uint)y >= (uint)Height) throw new ArgumentOutOfRangeException(nameof(y));
             return (y * Width) + x;
         }
 
         protected int PixelOffsetToByteOffset(int pixelOffset)
         {
+            if ((uint)pixelOffset >= (uint)Size) throw new ArgumentOutOfRangeException(nameof(pixelOffset));
             int x = pixelOffset % Width;
             int y = (pixelOffset - x) / Width;
             return (y * Stride) + (x * BytesPerPixel);
         }
 
-        protected Span<byte> PixelAt(int pixelOffset)
+        protected unsafe byte* PixelAt(int pixelOffset)
         {
-            return RawData.Slice(PixelOffsetToByteOffset(pixelOffset), BytesPerPixel);
+            return RawData.UnsafePtrAt(PixelOffsetToByteOffset(pixelOffset));
         }
 
-        protected Span<byte> PixelAt(int x, int y)
+        protected unsafe byte* PixelAt(int x, int y)
         {
-            return RawData.Slice(PointToByteOffset(x, y), BytesPerPixel);
+            return RawData.UnsafePtrAt(PointToByteOffset(x, y));
         }
 
         internal virtual int GetBufferIndex(int pixelIndex, PixelColor color)

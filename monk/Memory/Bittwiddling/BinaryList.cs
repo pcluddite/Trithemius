@@ -33,7 +33,7 @@ namespace Monk.Memory.Bittwiddling
         private const int ELEMENT_BITS = sizeof(int) * CHAR_BIT;
         private const int DEFAULT_CAPACITY = ELEMENT_BITS;
 
-        private ManagedBuffer<int> buffer;
+        private int[] buffer;
 
         /// <summary>
         /// This determines the order the bits are read from a byte. The default is technically platform specific
@@ -84,13 +84,13 @@ namespace Monk.Memory.Bittwiddling
 
         public BinaryList(EndianMode endianness)
         {
-            buffer = new ManagedBuffer<int>(0);
+            buffer = new int[0];
             Endianness = endianness;
         }
 
         public BinaryList(int capacity, EndianMode endianness)
         {
-            buffer = new ManagedBuffer<int>(ArrayLength(capacity));
+            buffer = new int[ArrayLength(capacity)];
             Endianness = endianness;
         }
 
@@ -118,19 +118,29 @@ namespace Monk.Memory.Bittwiddling
             Set(Count++, item);
         }
 
-        public void AddRange(BinaryList binaryList)
+        public unsafe void AddRange(BinaryList binaryList)
         {
             EnsureCapacity(binaryList.Count);
             if (Count % ELEMENT_BITS == 0) {
-                Span<int> source = binaryList.buffer.Span;
-                Span<int> dest = buffer.GetSpan(Count / ELEMENT_BITS, source.Length);
-                source.CopyTo(dest);
-                Count += binaryList.Count;
+                int len = binaryList.Count;
+                fixed (int* source = binaryList.buffer)
+                fixed (int* dest = &buffer[Count / ELEMENT_BITS]) {
+                    for(int i = 0; i < len; ++i) {
+                        dest[i] = source[i];
+                    }
+                }
+                Count += len;
             }
             else if (Count % CHAR_BIT == 0) {
-                Span<byte> source = binaryList.buffer.ByteSpan;
-                Span<byte> dest = buffer.GetByteSpan(Count / CHAR_BIT, source.Length);
-                source.CopyTo(dest);
+                int len = binaryList.Count;
+                fixed (int* lpnsrc = binaryList.buffer)
+                fixed (int* lpndest = buffer) {
+                    byte* source = (byte*)lpnsrc;
+                    byte* dest = &((byte*)lpndest)[Count / CHAR_BIT];
+                    for (int i = 0; i < len; ++i) {
+                        dest[i] = source[i];
+                    }
+                }
                 Count += binaryList.Count;
             }
             else {
@@ -164,18 +174,23 @@ namespace Monk.Memory.Bittwiddling
             }
         }
 
-        public void AddRange(byte[] data)
+        public unsafe void AddRange(byte[] data)
         {
             EnsureCapacity(data.Length * CHAR_BIT);
             int len = data.Length;
             if (Count % CHAR_BIT == 0) {
-                int byteOffset = Count / CHAR_BIT;
-                Span<byte> source = new Span<byte>(data);
-                Span<byte> dest = buffer.GetByteSpan(byteOffset, len);
-                source.CopyTo(dest);
-                if (Endianness != Twiddler.ImplementationEndianness) {
-                    for (int idx = 0; idx < len; ++idx) {
-                        dest[idx] = Twiddler.FlipBits(dest[idx]);
+                fixed (byte* source = data)
+                fixed (int* lpndest = buffer) {
+                    byte* dest = &((byte*)lpndest)[Count / CHAR_BIT];
+                    if (Endianness == Twiddler.ImplementationEndianness) {
+                        for (int i = 0; i < len; ++i) {
+                            dest[i] = source[i];
+                        }
+                    }
+                    else { 
+                        for (int idx = 0; idx < len; ++idx) {
+                            dest[idx] = Twiddler.FlipBits(source[idx]);
+                        }
                     }
                 }
                 Count += len * CHAR_BIT;
@@ -199,7 +214,6 @@ namespace Monk.Memory.Bittwiddling
 
         public void Clear()
         {
-            buffer = new ManagedBuffer<int>(0);
             Count = 0;
         }
 
@@ -257,12 +271,13 @@ namespace Monk.Memory.Bittwiddling
         /// <summary>
         /// Sets each bit to the opposite of its current value
         /// </summary>
-        public void Not()
+        public unsafe void Not()
         {
             if (buffer == null || buffer.Length == 0) return;
-            Span<int> span = buffer.Span;
-            for (int i = 0, len = span.Length; i < len; ++i) {
-                span[i] = ~span[i];
+            fixed (int* lpBuff = buffer) {
+                for (int i = 0, len = ArrayLength(Count); i < len; ++i) {
+                    lpBuff[i] = ~lpBuff[i];
+                }
             }
         }
 
@@ -277,7 +292,7 @@ namespace Monk.Memory.Bittwiddling
 
         public void TrimExcess()
         {
-            buffer.Resize(ArrayLength(Count));
+            Array.Resize(ref buffer, ArrayLength(Count));
         }
 
         public override string ToString()
@@ -293,9 +308,13 @@ namespace Monk.Memory.Bittwiddling
             return sb.ToString();
         }
 
-        private byte[] CreateByteArray()
+        private unsafe byte[] CreateByteArray()
         {
-            return buffer.GetByteSpan(ByteCount).ToArray();
+            byte[] buffCopy = new byte[ByteCount];
+            fixed (int* lpSrc = buffer) {
+                Marshal.Copy(new IntPtr(lpSrc), buffCopy, 0, buffCopy.Length);
+            }
+            return buffCopy;
         }
 
         private void EnsureCapacity()
@@ -307,13 +326,13 @@ namespace Monk.Memory.Bittwiddling
         {
             int capacity = Capacity;
             if (capacity == 0) {
-                buffer.Resize(ArrayLength(Math.Max(bitsNeeded, DEFAULT_CAPACITY)));
+                Array.Resize(ref buffer, ArrayLength(Math.Max(bitsNeeded, DEFAULT_CAPACITY)));
             }
             else if (capacity < Count + bitsNeeded) {
                 int count = Count;
                 while (capacity < count + bitsNeeded)
                     capacity = checked(capacity * 2);
-                buffer.Resize(ArrayLength(capacity));
+                Array.Resize(ref buffer, ArrayLength(capacity));
             }
         }
 

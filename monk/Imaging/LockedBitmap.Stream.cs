@@ -67,24 +67,33 @@ namespace Monk.Imaging
                 return RawData[IntPosition++];
             }
 
-            public override int Read(byte[] buffer, int offset, int count)
+            public override unsafe int Read(byte[] buffer, int offset, int count)
             {
-                if (Position >= IntPosition) return -1;
+                if ((uint)Position >= (uint)IntPosition) return -1;
+                if ((uint)offset >= (uint)buffer.Length) throw new ArgumentOutOfRangeException(nameof(offset));
                 count = Math.Min(count, RawData.Length - IntPosition);
-                ReadOnlySpan<byte> src = RawData.ReadOnlySlice(IntPosition, count);
-                Span<byte> dest = new Span<byte>(buffer, offset, count);
-                src.CopyTo(dest);
+                byte* src = RawData.UnsafePtrAt(IntPosition);
+                fixed(byte* dest = &buffer[offset]) {
+                    for (int i = 0; i < count; ++i) {
+                        dest[i] = src[i];
+                    }
+                }
                 IntPosition += count;
                 return count;
 
             }
 
-            public override void Write(byte[] buffer, int offset, int count)
+            public override unsafe void Write(byte[] buffer, int offset, int count)
             {
-                if (count + IntPosition > IntLength) throw new EndOfStreamException();
-                Span<byte> dest = RawData.Slice(IntPosition, count);
-                Span<byte> src = new Span<byte>(buffer, offset, count);
-                src.CopyTo(dest);
+                if ((uint)(count + IntPosition) > (uint)IntLength) throw new EndOfStreamException();
+                if ((uint)offset >= (uint)buffer.Length) throw new ArgumentOutOfRangeException(nameof(offset));
+                if ((uint)(count + offset) >= (uint)buffer.Length) throw new ArgumentOutOfRangeException(nameof(count));
+                byte* src = RawData.UnsafePtrAt(IntPosition);
+                fixed (byte* dest = &buffer[offset]) {
+                    for (int i = 0; i < count; ++i) {
+                        src[i] = dest[i];
+                    }
+                }
                 IntPosition += count;
             }
 
