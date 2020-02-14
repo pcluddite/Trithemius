@@ -51,12 +51,10 @@
     <Compile Include="Imaging\PixelColor.cs" />
     <Compile Include="Imaging\Steganographer.cs" />
     <Compile Include="Memory\ArithmeticProgression.cs" />
-    <Compile Include="Memory\ArrayProgression.cs" />
     <Compile Include="Memory\Bittwiddling\BinaryList.cs" />
     <Compile Include="Memory\Bittwiddling\EndianMode.cs" />
     <Compile Include="Memory\Bittwiddling\Twiddler.cs" />
     <Compile Include="Memory\ByteStream.cs" />
-    <Compile Include="Memory\InfiniteSequence.cs" />
     <Compile Include="Memory\MathUtil.cs" />
     <Compile Include="Memory\Seed.cs" />
     <Compile Include="Memory\UnmanagedBuffer.cs" />

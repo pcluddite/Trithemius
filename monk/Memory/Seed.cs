@@ -107,11 +107,6 @@ namespace Monk.Memory
             return GetEnumerator();
         }
 
-        public InfiniteSequence<int> GetSequence()
-        {
-            return new SeedSequence(this);
-        }
-
         public override string ToString()
         {
             int n = MathUtil.CountDigits(Value);
@@ -182,26 +177,6 @@ namespace Monk.Memory
         bool ICollection<int>.Remove(int item)
         {
             throw new NotImplementedException();
-        }
-
-        private class SeedSequence : InfiniteSequence<int>
-        {
-            private readonly Seed seed;
-
-            public SeedSequence(Seed seed)
-            {
-                this.seed = seed;
-            }
-
-            public override int Next()
-            {
-                return seed[Position++ % seed.Count];
-            }
-
-            public override int Peek()
-            {
-                return seed[(Position + 1) % seed.Count];
-            }
         }
     }
 }
