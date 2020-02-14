@@ -16,27 +16,20 @@
  *  with this program; if not, write to the Free Software Foundation, Inc.,
  *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 **/
-using System;
+using System.Collections.Generic;
 
-namespace Monk.Memory
+namespace Monk.Collections.Immutable
 {
-    public class ArrayProgression<T> : InfiniteSequence<T>
+    public static class ImmutableHashSet
     {
-        private readonly T[] array;
-
-        public ArrayProgression(T[] array)
+        public static ImmutableHashSet<T> Create<T>(params T[] items)
         {
-            this.array = array;
+            return new ImmutableHashSet<T>(items);
         }
 
-        public override T Next()
+        public static ImmutableHashSet<T> Create<T>(IEnumerable<T> items)
         {
-            return array[Position++ % array.Length];
-        }
-
-        public override T Peek()
-        {
-            return array[Position % array.Length];
+            return new ImmutableHashSet<T>(items);
         }
     }
 }

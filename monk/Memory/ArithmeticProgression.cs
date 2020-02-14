@@ -22,23 +22,26 @@ using System.Linq;
 
 namespace Monk.Memory
 {
-    public class ArithmeticProgression : InfiniteSequence<int>
+    internal class ArithmeticProgression
     {
+        private int position;
+
         private readonly int[] diffs;
-        private readonly ArrayProgression<int> diffSequence;
         private int current;
-        private int v;
 
         public int Start { get; }
         public IEnumerable<int> Differences => diffs;
 
-        public override int Position { get => base.Position; set => throw new NotSupportedException(); }
+        public int Position
+        {
+            get => position;
+            set => throw new NotSupportedException();
+        }
 
         public ArithmeticProgression(int start, int diff)
         {
             Start = start;
             diffs = new int[] { diff };
-            diffSequence = new ArrayProgression<int>(diffs);
             current = Start;
         }
 
@@ -46,37 +49,26 @@ namespace Monk.Memory
         {
             Start = start;
             this.diffs = diffs.ToArray();
-            diffSequence = new ArrayProgression<int>(this.diffs);
             current = Start;
         }
 
         public ArithmeticProgression(int start, Seed seed)
-            : this(start, seed, 0)
-        {
-        }
-
-        public ArithmeticProgression(int start, Seed seed, int offset) 
         {
             Start = start;
             diffs = new int[seed.Count];
-            var seq = seed.GetSequence();
-            seq.Position = offset;
             for (int idx = 0; idx < seed.Count; ++idx)
-                diffs[idx] = seq.Next() + 1;
-            diffSequence = new ArrayProgression<int>(diffs);
+                diffs[idx] = seed[idx] + 1;
             current = Start;
         }
 
-        public override int Next()
+        public int Next()
         {
-            current += diffSequence.Next();
-            ++base.Position;
-            return current;
+            return current += diffs[position++ % diffs.Length];
         }
 
-        public override int Peek()
+        public int Peek()
         {
-            return current + diffSequence.Peek();
+            return current += diffs[(position + 1) % diffs.Length];
         }
     }
 }
