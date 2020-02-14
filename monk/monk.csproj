@@ -55,7 +55,7 @@
     <Compile Include="Memory\Bittwiddling\EndianMode.cs" />
     <Compile Include="Memory\Bittwiddling\Twiddler.cs" />
     <Compile Include="Memory\ByteStream.cs" />
-    <Compile Include="Memory\MathUtil.cs" />
+    <Compile Include="Memory\MathExtensions.cs" />
     <Compile Include="Memory\Seed.cs" />
     <Compile Include="Memory\UnmanagedBuffer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

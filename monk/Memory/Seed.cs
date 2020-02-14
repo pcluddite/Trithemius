@@ -61,7 +61,7 @@ namespace Monk.Memory
         public Seed(long seed)
         {
             if (seed < MinValue || seed > MaxValue) throw new ArgumentException("seed is too long", nameof(seed));
-            Count = MathUtil.CountDigits(seed);
+            Count = seed.CountDigits();
             Value = seed;
         }
 
@@ -109,7 +109,7 @@ namespace Monk.Memory
 
         public override string ToString()
         {
-            int n = MathUtil.CountDigits(Value);
+            int n = Value.CountDigits();
             if (Count > n) {
                 StringBuilder sb = new StringBuilder(Count);
                 sb.Append('0', Count - n);

@@ -55,7 +55,7 @@ namespace Monk.Memory.Bittwiddling
 
         public int Count { get; private set; } = 0;
         public int Capacity => buffer.Length * ELEMENT_BITS;
-        public int ByteCount => MathUtil.DivideUp(Count, CHAR_BIT);
+        public int ByteCount => Count.DivideUp(CHAR_BIT);
 
         public BinaryList()
             : this(Twiddler.ImplementationEndianness)
@@ -338,7 +338,7 @@ namespace Monk.Memory.Bittwiddling
 
         private int ArrayLength(int bitCount)
         {
-            return MathUtil.DivideUp(bitCount, ELEMENT_BITS);
+            return bitCount.DivideUp(ELEMENT_BITS);
         }
 
         private int IndexAtBit(int bitIndex)
