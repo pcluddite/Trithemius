@@ -50,14 +50,19 @@ namespace Trithemius.Windows
 
         private struct DecodeResult
         {
-            public bool Success { get; }
+            public DecodeStatus Status { get; }
             public string Message { get; }
 
-            public DecodeResult(bool success, string message)
+            public DecodeResult(DecodeStatus status, string message)
             {
-                Success = success;
+                Status = status;
                 Message = message;
             }
+        }
+
+        private enum DecodeStatus
+        {
+            OK, KeyError, GenericError, NoDataError
         }
 
         private void buttonDecode_Click(object sender, EventArgs e)
@@ -82,7 +87,7 @@ namespace Trithemius.Windows
                     byte[] msg = trithemius.Decode();
 
                     if (msg == null) {
-                        e.Result = new DecodeResult(false, "No decodable data was detected.");
+                        e.Result = new DecodeResult(DecodeStatus.NoDataError, "No decodable data was detected.");
                     }
                     else {
                         if (!string.IsNullOrEmpty(arg.Password)) {
@@ -93,23 +98,23 @@ namespace Trithemius.Windows
                                 msg = AESThenHMAC.SimpleDecryptWithPassword(msg, arg.Password);
                             }
                             if (msg == null) {
-                                e.Result = new DecodeResult(false, "The encryption key was invalid.");
+                                e.Result = new DecodeResult(DecodeStatus.KeyError, "The encryption key was invalid.");
                                 return;
                             }
                         }
 
                         if (arg.OutputPath == null) {
-                            e.Result = new DecodeResult(true, Encoding.UTF8.GetString(msg));
+                            e.Result = new DecodeResult(DecodeStatus.OK, Encoding.UTF8.GetString(msg));
                         }
                         else {
                             File.WriteAllBytes(arg.OutputPath, msg);
-                            e.Result = new DecodeResult(true, arg.OutputPath);
+                            e.Result = new DecodeResult(DecodeStatus.OK, arg.OutputPath);
                         }
                     }
                 }
             }
             catch (Exception ex) when (ex is EncoderFallbackException || ex is IOException || ex is SecurityException || ex is InvalidOperationException) {
-                e.Result = new DecodeResult(false, ex.Message);
+                e.Result = new DecodeResult(DecodeStatus.GenericError, ex.Message);
             }
         }
 
@@ -117,7 +122,7 @@ namespace Trithemius.Windows
         {
             SetEnabled(true);
             DecodeResult result = (DecodeResult)e.Result;
-            if (result.Success) {
+            if (result.Status == DecodeStatus.OK) {
                 if (radioButtonFile.Checked) {
                     if (MessageBox.Show(this, "Decoding complete. Would you like to open the file?", Text, MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes) {
                         TryStart(new ProcessStartInfo(result.Message));
@@ -130,6 +135,10 @@ namespace Trithemius.Windows
             }
             else {
                 ShowError(result.Message);
+                if (result.Status == DecodeStatus.KeyError) {
+                    textBoxKey.SelectAll();
+                    textBoxKey.Focus();
+                }
             }
         }
     }
