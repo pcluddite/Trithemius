@@ -74,7 +74,7 @@ namespace Monk.Memory
 
         public int Peek()
         {
-            return current += diffs[(position + 1) % diffs.Length];
+            return current += diffs[position % diffs.Length];
         }
     }
 }
