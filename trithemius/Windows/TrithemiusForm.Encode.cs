@@ -69,6 +69,7 @@ namespace Trithemius.Windows
                 }
             }
             else {
+                inputTextForm.CharacterLimit = Encoding.UTF8.GetMaxCharCount(AvailableBits / 8);
                 if (inputTextForm.ShowDialog(this) == DialogResult.OK) {
                     message = inputTextForm.Result;
                 }

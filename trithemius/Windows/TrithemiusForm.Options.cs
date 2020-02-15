@@ -50,7 +50,7 @@ namespace Trithemius.Windows
 
         private void numericUpDownLsb_ValueChanged(object sender, EventArgs e)
         {
-            ReloadMaxSize(pictureBox.Image);
+            textBoxMaxSize.Text = AvailableBits.ToString("#,##0");
         }
 
         private void RefreshColorOptions(PixelFormat format)

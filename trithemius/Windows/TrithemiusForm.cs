@@ -36,7 +36,7 @@ namespace Trithemius.Windows
         public TrithemiusForm()
         {
             InitializeComponent();
-            inputTextForm = new Text("");
+            inputTextForm = new Text();
         }
 
         private void TrithemiusForm_Load(object sender, EventArgs e)

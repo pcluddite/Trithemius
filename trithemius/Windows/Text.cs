@@ -23,19 +23,25 @@ namespace Trithemius.Windows
 {
     public partial class Text : Form
     {
-
         public string Result { get; private set; }
+        public int CharacterLimit
+        {
+            get => textBox.MaxLength;
+            set {
+                textBox.MaxLength = value;
+                lblCount.Text = $"{textBox.TextLength}/{value}";
+            }
+        }
 
-        public Text(string msg)
+        public Text()
         {
             InitializeComponent();
-            textBox1.Text = msg;
         }
 
         private void okButton_Click(object sender, EventArgs e)
         {
             DialogResult = DialogResult.OK;
-            Result = textBox1.Text;
+            Result = textBox.Text;
             Close();
         }
 
@@ -43,6 +49,11 @@ namespace Trithemius.Windows
         {
             DialogResult = DialogResult.Cancel;
             Close();
+        }
+
+        private void textBox_TextChanged(object sender, EventArgs e)
+        {
+            lblCount.Text = $"{textBox.TextLength}/{CharacterLimit}";
         }
     }
 }

@@ -47,27 +47,29 @@ namespace Trithemius.Windows
         private void InitializeComponent()
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Text));
-            this.textBox1 = new System.Windows.Forms.TextBox();
+            this.textBox = new System.Windows.Forms.TextBox();
             this.okButton = new System.Windows.Forms.Button();
             this.cancelButton = new System.Windows.Forms.Button();
+            this.lblCount = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
-            // textBox1
+            // textBox
             // 
-            this.textBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            this.textBox.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.textBox1.Location = new System.Drawing.Point(12, 12);
-            this.textBox1.Multiline = true;
-            this.textBox1.Name = "textBox1";
-            this.textBox1.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.textBox1.Size = new System.Drawing.Size(283, 208);
-            this.textBox1.TabIndex = 0;
+            this.textBox.Location = new System.Drawing.Point(12, 12);
+            this.textBox.Multiline = true;
+            this.textBox.Name = "textBox";
+            this.textBox.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
+            this.textBox.Size = new System.Drawing.Size(664, 302);
+            this.textBox.TabIndex = 0;
+            this.textBox.TextChanged += new System.EventHandler(this.textBox_TextChanged);
             // 
             // okButton
             // 
             this.okButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.okButton.Location = new System.Drawing.Point(220, 226);
+            this.okButton.Location = new System.Drawing.Point(601, 320);
             this.okButton.Name = "okButton";
             this.okButton.Size = new System.Drawing.Size(75, 23);
             this.okButton.TabIndex = 1;
@@ -78,7 +80,7 @@ namespace Trithemius.Windows
             // cancelButton
             // 
             this.cancelButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.cancelButton.Location = new System.Drawing.Point(139, 226);
+            this.cancelButton.Location = new System.Drawing.Point(520, 320);
             this.cancelButton.Name = "cancelButton";
             this.cancelButton.Size = new System.Drawing.Size(75, 23);
             this.cancelButton.TabIndex = 2;
@@ -86,15 +88,25 @@ namespace Trithemius.Windows
             this.cancelButton.UseVisualStyleBackColor = true;
             this.cancelButton.Click += new System.EventHandler(this.cancelButton_Click);
             // 
+            // lblCount
+            // 
+            this.lblCount.AutoSize = true;
+            this.lblCount.Location = new System.Drawing.Point(12, 320);
+            this.lblCount.Name = "lblCount";
+            this.lblCount.Size = new System.Drawing.Size(24, 13);
+            this.lblCount.TabIndex = 3;
+            this.lblCount.Text = "0/0";
+            // 
             // Text
             // 
             this.AcceptButton = this.okButton;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(307, 257);
+            this.ClientSize = new System.Drawing.Size(688, 351);
+            this.Controls.Add(this.lblCount);
             this.Controls.Add(this.cancelButton);
             this.Controls.Add(this.okButton);
-            this.Controls.Add(this.textBox1);
+            this.Controls.Add(this.textBox);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MinimumSize = new System.Drawing.Size(200, 150);
             this.Name = "Text";
@@ -109,7 +121,8 @@ namespace Trithemius.Windows
         #endregion
 
         private System.Windows.Forms.Button okButton;
-        private System.Windows.Forms.TextBox textBox1;
+        private System.Windows.Forms.TextBox textBox;
         private System.Windows.Forms.Button cancelButton;
+        private System.Windows.Forms.Label lblCount;
     }
 }

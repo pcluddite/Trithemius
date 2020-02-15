@@ -30,7 +30,12 @@ namespace Trithemius.Windows
 {
     partial class TrithemiusForm
     {
-        public string ImagePath { get; set; }
+        private string ImagePath { get; set; }
+        
+        private Image CurrentImage => pictureBox.Image;
+        private int ImageArea => CurrentImage == null ? 0 : CurrentImage.Width * CurrentImage.Height;
+        public int AvailableBytes => CurrentImage == null ? 0 : (Image.GetPixelFormatSize(CurrentImage.PixelFormat) / 8) * ImageArea;
+        public int AvailableBits => AvailableBytes * (int)numericUpDownLsb.Value;
 
         private void buttonBrowse_Click(object sender, EventArgs e)
         {
@@ -80,30 +85,27 @@ namespace Trithemius.Windows
 
         private void ReloadPreview(string path)
         {
-            Image image = LoadImage(path);
-            ReloadDetails(image);
-            pictureBox.Image = image;
+            Image newimage = LoadImage(path);
+            if (pictureBox.Image != null) {
+                Image oldimage = pictureBox.Image;
+                pictureBox.Image = null;
+                oldimage.Dispose();
+            }
+            pictureBox.Image = newimage;
+            ReloadDetails();
             RefreshOptions();
         }
 
-        private void ReloadDetails(Image image)
+        private void ReloadDetails()
         {
-            int area = image.Width * image.Height;
-            string format = image.PixelFormat.ToString();
+            string format = CurrentImage.PixelFormat.ToString();
             if (format.StartsWith("Format")) format = format.Substring("Format".Length);
-
             textBoxFormat.Text = format;
-            textBoxWidth.Text = $"{image.Width} px";
-            textBoxHeight.Text = $"{image.Height} px";
-            ReloadMaxSize(image);
-            numericUpDownOffset.Value = Math.Min(numericUpDownOffset.Value, area);
-            numericUpDownOffset.Maximum = area;
-        }
-
-        private void ReloadMaxSize(Image image)
-        {
-            int area = image.Width * image.Height;
-            textBoxMaxSize.Text = (((Image.GetPixelFormatSize(image.PixelFormat) / 8) * area) * numericUpDownLsb.Value).ToString("#,##0");
+            textBoxWidth.Text = $"{CurrentImage.Width} px";
+            textBoxHeight.Text = $"{CurrentImage.Height} px";
+            textBoxMaxSize.Text = AvailableBits.ToString("#,##0");
+            numericUpDownOffset.Value = Math.Min(numericUpDownOffset.Value, ImageArea);
+            numericUpDownOffset.Maximum = ImageArea;
         }
     }
 }
