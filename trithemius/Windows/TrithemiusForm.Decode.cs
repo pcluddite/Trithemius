@@ -68,8 +68,10 @@ namespace Trithemius.Windows
                 filename = msgSaveDialog.FileName;
             }
             Steganographer trithemius = CreateTrithemius();
-            SetEnabled(false);
-            decodeWorker.RunWorkerAsync(new DecodeArgs(trithemius, textBoxKey.Text, filename, checkBoxLegacy.Checked));
+            if (trithemius != null) {
+                SetEnabled(false);
+                decodeWorker.RunWorkerAsync(new DecodeArgs(trithemius, textBoxKey.Text, filename, checkBoxLegacy.Checked));
+            }
         }
 
         private void decodeWorker_DoWork(object sender, DoWorkEventArgs e)

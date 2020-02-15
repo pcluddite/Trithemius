@@ -75,8 +75,10 @@ namespace Trithemius.Windows
             }
             if (message != null && saveFileDialog.ShowDialog(this) == DialogResult.OK) {
                 Steganographer trithemius = CreateTrithemius();
-                SetEnabled(false);
-                encodeWorker.RunWorkerAsync(new EncodeArgs(trithemius, message, radioButtonText.Checked, textBoxKey.Text, saveFileDialog.FileName));
+                if (trithemius != null) {
+                    SetEnabled(false);
+                    encodeWorker.RunWorkerAsync(new EncodeArgs(trithemius, message, radioButtonText.Checked, textBoxKey.Text, saveFileDialog.FileName));
+                }
             }
         }
 

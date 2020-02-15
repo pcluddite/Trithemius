@@ -86,40 +86,48 @@ namespace Trithemius.Windows
 
         private Steganographer CreateTrithemius()
         {
-            Steganographer trithemius = new Steganographer((Bitmap)CopyImage(pictureBox.Image))
-            {
-                Offset = (int)numericUpDownOffset.Value - 1,
-                LeastSignificantBits = (int)numericUpDownLsb.Value,
-                InvertDataBits = checkBoxInvertData.Checked,
-                InvertPrefixBits = checkBoxInvertPrefix.Checked,
-                Endianness = comboBoxEndian.SelectedIndex == 0 ? EndianMode.LittleEndian : EndianMode.BigEndian
-            };
+            Steganographer trithemius = null;
+            try {
+                trithemius = new Steganographer((Bitmap)CopyImage(pictureBox.Image))
+                {
+                    Offset = (int)numericUpDownOffset.Value - 1,
+                    LeastSignificantBits = (int)numericUpDownLsb.Value,
+                    InvertDataBits = checkBoxInvertData.Checked,
+                    InvertPrefixBits = checkBoxInvertPrefix.Checked,
+                    Endianness = comboBoxEndian.SelectedIndex == 0 ? EndianMode.LittleEndian : EndianMode.BigEndian
+                };
 
-            if (!string.IsNullOrEmpty(textBoxSeed.Text)) {
-                string seedtext = textBoxSeed.Text;
-                ushort[] digits = new ushort[seedtext.Length];
-                for(int idx = 0; idx < seedtext.Length; ++idx) {
-                    char c = seedtext[idx];
-                    if (char.IsDigit(c)) {
-                        digits[idx] = (ushort)(c - '0');
+                if (!string.IsNullOrEmpty(textBoxSeed.Text)) {
+                    string seedtext = textBoxSeed.Text;
+                    ushort[] digits = new ushort[seedtext.Length];
+                    for (int idx = 0; idx < seedtext.Length; ++idx) {
+                        char c = seedtext[idx];
+                        if (char.IsDigit(c)) {
+                            digits[idx] = (ushort)(c - '0');
+                        }
+                        else {
+                            textBoxSeed.Select(idx, 1);
+                            textBoxSeed.Focus();
+                            throw new ArgumentException("All characters in a seed must be a number");
+                        }
                     }
-                    else {
-                        textBoxSeed.Select(idx, 1);
-                        throw new ArgumentException("All characters in a seed must be a number");
-                    }
+                    trithemius.Seed = digits;
                 }
-                trithemius.Seed = digits;
+
+                if (checkBoxLegacy.Checked) {
+                    trithemius.SetLegacyOptions();
+                }
+
+                if (checkAlpha.Checked && checkAlpha.Enabled) trithemius.Colors.Add(PixelColor.Alpha);
+                if (checkRed.Checked && checkRed.Enabled) trithemius.Colors.Add(PixelColor.Red);
+                if (checkGreen.Checked && checkGreen.Enabled) trithemius.Colors.Add(PixelColor.Green);
+                if (checkBlue.Checked && checkBlue.Enabled) trithemius.Colors.Add(PixelColor.Blue);
             }
-
-            if (checkBoxLegacy.Checked) {
-                trithemius.SetLegacyOptions();
+            catch (Exception ex) when (ex is ArgumentException) {
+                trithemius?.Dispose();
+                ShowError(ex.Message);
+                trithemius = null;
             }
-
-            if (checkAlpha.Checked && checkAlpha.Enabled) trithemius.Colors.Add(PixelColor.Alpha);
-            if (checkRed.Checked && checkRed.Enabled) trithemius.Colors.Add(PixelColor.Red);
-            if (checkGreen.Checked && checkGreen.Enabled) trithemius.Colors.Add(PixelColor.Green);
-            if (checkBlue.Checked && checkBlue.Enabled) trithemius.Colors.Add(PixelColor.Blue);
-
             return trithemius;
         }
     }
