@@ -74,7 +74,7 @@ namespace Monk.Imaging
 
                 ArithmeticProgression pixelIndices = new ArithmeticProgression(pixelIndex, seed);
 
-                for (int buffIdx = 0; pixelIndex < indices.Length && buffIdx < indices.Length; pixelIndex = pixelIndices.Next()) {
+                for (int buffIdx = 0; pixelIndex < imageArea && buffIdx < indices.Length; pixelIndex = pixelIndices.Next()) {
                     foreach (PixelColor color in pixelColors) {
                         indices[buffIdx++] = bitmap.GetBufferIndex(pixelIndex, color);
                         if (buffIdx >= indices.Length) break;
