@@ -48,7 +48,7 @@ namespace Monk.Imaging
         public bool ZeroBasedSize { get; set; } = false;
         public EndianMode Endianness { get; set; } = EndianMode.LittleEndian;
         public ISet<PixelColor> Colors { get; } = new HashSet<PixelColor>();
-        public Seed Seed { get; set; } = Seed.DefaultSeed;
+        public IList<ushort> Seed { get; set; } = new ushort[] { 0 };
         public int Offset { get; set; } = 0;
 
         public bool Disposed { get; private set; }

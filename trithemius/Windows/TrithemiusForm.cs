@@ -96,7 +96,19 @@ namespace Trithemius.Windows
             };
 
             if (!string.IsNullOrEmpty(textBoxSeed.Text)) {
-                trithemius.Seed = new Seed(textBoxSeed.Text);
+                string seedtext = textBoxSeed.Text;
+                ushort[] digits = new ushort[seedtext.Length];
+                for(int idx = 0; idx < seedtext.Length; ++idx) {
+                    char c = seedtext[idx];
+                    if (char.IsDigit(c)) {
+                        digits[idx] = (ushort)(c - '0');
+                    }
+                    else {
+                        textBoxSeed.Select(idx, 1);
+                        throw new ArgumentException("All characters in a seed must be a number");
+                    }
+                }
+                trithemius.Seed = digits;
             }
 
             if (checkBoxLegacy.Checked) {

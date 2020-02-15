@@ -26,22 +26,22 @@ namespace Monk.Imaging
 {
     public partial class LockedBitmap
     {
-        public ByteStream GetStream(int pixelIndex, Seed seed)
+        public ByteStream GetStream(int pixelIndex, IEnumerable<ushort> seed)
         {
             return GetStream(pixelIndex, seed, SupportedColors);
         }
 
         public ByteStream GetStream(int pixelIndex, ISet<PixelColor> colors)
         {
-            return GetStream(pixelIndex, Seed.DefaultSeed, colors);
+            return GetStream(pixelIndex, new ushort[] { 0 }, colors);
         }
 
-        public ByteStream GetStream(int pixelIndex, Seed seed, ISet<PixelColor> colors)
+        public ByteStream GetStream(int pixelIndex, IEnumerable<ushort> seed, ISet<PixelColor> colors)
         {
             return GetStream(pixelIndex, Size - pixelIndex, seed, colors);
         }
 
-        public ByteStream GetStream(int pixelIndex, int pixelCount, Seed seed, ISet<PixelColor> colors)
+        public ByteStream GetStream(int pixelIndex, int pixelCount, IEnumerable<ushort> seed, ISet<PixelColor> colors)
         {
             if (pixelIndex < 0 || pixelIndex >= Size) throw new ArgumentOutOfRangeException(nameof(pixelIndex));
             if (!SupportedColors.IsSupersetOf(colors)) ThrowHelper.ColorUnsupported(nameof(colors), colors, SupportedColors);
@@ -58,21 +58,20 @@ namespace Monk.Imaging
 
             public override int IntLength => indices.Length;
 
-            public SeededBitmapStream(LockedBitmap bitmap, Seed seed, IEnumerable<PixelColor> colors, int pixelIndex, int pixelCount)
+            public SeededBitmapStream(LockedBitmap bitmap, IEnumerable<ushort> seed, IEnumerable<PixelColor> colors, int pixelIndex, int pixelCount)
             {
                 Bitmap = bitmap;
                 bitmap.LockBits();
                 CachePixels(bitmap, seed, colors, pixelIndex, pixelCount);
             }
 
-            private void CachePixels(LockedBitmap bitmap, Seed seed, IEnumerable<PixelColor> colors, int pixelIndex, int pixelCount)
+            private void CachePixels(LockedBitmap bitmap, IEnumerable<ushort> seed, IEnumerable<PixelColor> colors, int pixelIndex, int pixelCount)
             {
                 int imageArea = bitmap.Size;
 
                 ISet<PixelColor> pixelColors = new SortedSet<PixelColor>(colors);
                 indices = new int[Math.Min(pixelCount, imageArea) * pixelColors.Count];
 
-                if (seed.Count == 0) seed = Seed.DefaultSeed;
                 ArithmeticProgression pixelIndices = new ArithmeticProgression(pixelIndex, seed);
 
                 for (int buffIdx = 0; pixelIndex < indices.Length && buffIdx < indices.Length; pixelIndex = pixelIndices.Next()) {

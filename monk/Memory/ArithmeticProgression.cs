@@ -52,12 +52,18 @@ namespace Monk.Memory
             current = Start;
         }
 
-        public ArithmeticProgression(int start, Seed seed)
+        public ArithmeticProgression(int start, IEnumerable<ushort> seed)
         {
             Start = start;
-            diffs = new int[seed.Count];
-            for (int idx = 0; idx < seed.Count; ++idx)
-                diffs[idx] = seed[idx] + 1;
+            List<ushort> seedlist = new List<ushort>(seed);
+            if (seedlist.Count == 0) {
+                diffs = new int[] { 0 };
+            }
+            else {
+                diffs = new int[seedlist.Count];
+                for (int idx = 0; idx < seedlist.Count; ++idx)
+                    diffs[idx] = seedlist[idx] + 1;
+            }
             current = Start;
         }
 

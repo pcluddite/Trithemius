@@ -33,7 +33,7 @@ namespace Monk.Imaging
         public ByteStream GetStream(int pixelOffset)
         {
             if (pixelOffset < 0 || pixelOffset >= Size) throw new ArgumentOutOfRangeException(nameof(pixelOffset));
-            return GetStream(pixelOffset, Seed.DefaultSeed, SupportedColors);
+            return new LockedBitmapStream(this, pixelOffset);
         }
 
         private sealed class LockedBitmapStream : ByteStream
