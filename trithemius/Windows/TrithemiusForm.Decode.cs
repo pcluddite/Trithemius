@@ -21,19 +21,21 @@ namespace Trithemius.Windows
         private struct DecodeArgs
         {
             public SteganographyInfo Info { get; }
-            public string Password { get; } 
+            public string Password { get; }
             public string OutputPath { get; }
             public bool IsText => OutputPath == null;
             public bool Legacy { get; }
             public string ImagePath { get; }
+            public int Size { get; }
 
-            public DecodeArgs(SteganographyInfo info, string imagePath, string pass, string outputPath, bool legacy)
+            public DecodeArgs(SteganographyInfo info, string imagePath, string pass, string outputPath, bool legacy, int size)
             {
                 ImagePath = imagePath;
                 Info = info;
                 Password = pass;
                 OutputPath = outputPath;
                 Legacy = legacy;
+                Size = size;
             }
         }
 
@@ -56,6 +58,15 @@ namespace Trithemius.Windows
 
         private void buttonDecode_Click(object sender, EventArgs e)
         {
+            int size = -1;
+            if (!checkBoxPrefixSize.Checked && !checkBoxLegacy.Checked) {
+                string answer = Dialog.PromptInput(this, "Please specify the number of bytes to decode", Text, InputDialog.InputType.Numeric);
+                if (answer == null) return;
+                if (!int.TryParse(answer, out size)) {
+                    ShowError(answer + " is not a valid number of bytes");
+                    return;
+                }
+            }
             string filename = null;
             if (radioButtonFile.Checked) {
                 if (msgSaveDialog.ShowDialog(this) != DialogResult.OK) return;
@@ -64,7 +75,7 @@ namespace Trithemius.Windows
             SteganographyInfo trithemius = CreateTrithemius();
             if (trithemius != null) {
                 SetEnabled(false);
-                decodeWorker.RunWorkerAsync(new DecodeArgs(trithemius, ImagePath, textBoxKey.Text, filename, checkBoxLegacy.Checked));
+                decodeWorker.RunWorkerAsync(new DecodeArgs(trithemius, ImagePath, textBoxKey.Text, filename, checkBoxLegacy.Checked, size));
             }
         }
 
@@ -73,17 +84,20 @@ namespace Trithemius.Windows
             DecodeArgs arg = (DecodeArgs)e.Argument;
             try {
                 using (Steganographer trithemius = new Steganographer(arg.ImagePath, arg.Info)) {
-                    byte[] msg = trithemius.Decode();
+                    byte[] msg;
+                    if (arg.Size < 0) {
+                        msg = trithemius.Decode();
+                    } else {
+                        msg = trithemius.Decode(arg.Size);
+                    }
 
                     if (msg == null) {
                         e.Result = new DecodeResult(DecodeStatus.NoDataError, "No decodable data was detected.");
-                    }
-                    else {
+                    } else {
                         if (!string.IsNullOrEmpty(arg.Password)) {
                             if (arg.Legacy) {
                                 msg = LegacyEncryption.DecryptStringAES(msg, arg.Password);
-                            }
-                            else {
+                            } else {
                                 msg = AESThenHMAC.SimpleDecryptWithPassword(msg, arg.Password);
                             }
                             if (msg == null) {
@@ -94,15 +108,14 @@ namespace Trithemius.Windows
 
                         if (arg.OutputPath == null) {
                             e.Result = new DecodeResult(DecodeStatus.OK, Encoding.UTF8.GetString(msg));
-                        }
-                        else {
+                        } else {
                             File.WriteAllBytes(arg.OutputPath, msg);
                             e.Result = new DecodeResult(DecodeStatus.OK, arg.OutputPath);
                         }
                     }
                 }
             }
-            catch(InvalidImageOptionException ex) {
+            catch (InvalidImageOptionException ex) {
                 e.Result = new DecodeResult(DecodeStatus.OptionError, ex.Message);
             }
             catch (Exception ex) when (ex is EncoderFallbackException || ex is IOException || ex is SecurityException) {
@@ -119,14 +132,12 @@ namespace Trithemius.Windows
                     if (ShowQuestion("Decoding complete. Would you like to open the file?") == DialogResult.Yes) {
                         TryStart(new ProcessStartInfo(result.Message));
                     }
-                }
-                else {
+                } else {
                     using (Finished finished = new Finished(result.Message)) {
                         finished.ShowDialog(this);
                     }
                 }
-            }
-            else {
+            } else {
                 ShowError(result.Message);
                 if (result.Status == DecodeStatus.KeyError) {
                     textBoxKey.SelectAll();

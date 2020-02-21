@@ -14,16 +14,35 @@ namespace Trithemius.Windows
     {
         private const int MAX_LINE_SIZE = 234;
 
+        [Flags]
+        public enum InputType
+        {
+            Alphabetic      = 0x01,
+            Numeric         = 0x02,
+            Symbols         = 0x04,
+            Whitespace      = 0x08,
+            AlphaNumeric    = Alphabetic | Numeric,
+            Any             = AlphaNumeric | Symbols | Whitespace
+        }
+
         public string InputText { get; private set; }
-        public IWin32Window Owner { get; }
+        public IWin32Window DialogOwner { get; }
+        public InputType AcceptedInput { get; }
+
 
         public InputDialog(IWin32Window owner, string text, string title)
+            : this(owner, text, title, InputType.Any)
+        {
+        }
+
+       public InputDialog(IWin32Window owner, string text, string title, InputType inputType)
         {
             if (text == null) throw new ArgumentNullException(nameof(text));
             if (title == null) throw new ArgumentNullException(nameof(title));
             InitializeComponent();
-            Owner = owner;
+            DialogOwner = owner;
             Text = title;
+            AcceptedInput = inputType;
             SetText(text);
         }
 
@@ -92,6 +111,26 @@ namespace Trithemius.Windows
         {
             InputText = answerBox.Text;
             base.OnFormClosing(e);
+        }
+
+        private void answerBox_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if (AcceptedInput != InputType.Any && !char.IsControl(e.KeyChar)) {
+                bool accepted = false;
+                if ((AcceptedInput & InputType.Alphabetic) == InputType.Alphabetic) {
+                    accepted |= char.IsLetter(e.KeyChar);
+                }
+                if ((AcceptedInput & InputType.Numeric) == InputType.Numeric) {
+                    accepted |= char.IsDigit(e.KeyChar);
+                }
+                if ((AcceptedInput & InputType.Symbols) == InputType.Symbols) {
+                    accepted |= char.IsSymbol(e.KeyChar);
+                }
+                if ((AcceptedInput & InputType.Whitespace) == InputType.Whitespace) {
+                    accepted |= char.IsWhiteSpace(e.KeyChar);
+                }
+                e.Handled = !accepted;
+            }
         }
     }
 }

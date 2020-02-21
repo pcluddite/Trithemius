@@ -54,6 +54,7 @@
             this.answerBox.Name = "answerBox";
             this.answerBox.Size = new System.Drawing.Size(1123, 20);
             this.answerBox.TabIndex = 1;
+            this.answerBox.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.answerBox_KeyPress);
             // 
             // btnOK
             // 
