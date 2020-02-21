@@ -25,8 +25,9 @@ namespace Trithemius.Windows
             public bool IsText { get; }
             public string OutputPath { get; }
             public string ImagePath { get; }
+            public bool PrefixSize { get; }
 
-            public EncodeArgs(SteganographyInfo info, string imagePath, string data, bool isText, string pass, string outputPath)
+            public EncodeArgs(SteganographyInfo info, string imagePath, string data, bool isText, string pass, string outputPath, bool prefixSize)
             {
                 ImagePath = imagePath;
                 SteganographyInfo = info;
@@ -34,6 +35,7 @@ namespace Trithemius.Windows
                 Data = data;
                 IsText = isText;
                 OutputPath = outputPath;
+                PrefixSize = prefixSize;
             }
         }
 
@@ -67,7 +69,8 @@ namespace Trithemius.Windows
                 SteganographyInfo trithemius = CreateTrithemius();
                 if (trithemius != null) {
                     SetEnabled(false);
-                    encodeWorker.RunWorkerAsync(new EncodeArgs(trithemius, ImagePath, message, radioButtonText.Checked, textBoxKey.Text, saveFileDialog.FileName));
+                    encodeWorker.RunWorkerAsync(new EncodeArgs(trithemius, ImagePath, message, radioButtonText.Checked,
+                        textBoxKey.Text, saveFileDialog.FileName, checkBoxPrefixSize.Checked || checkBoxLegacy.Checked));
                 }
             }
         }
@@ -87,7 +90,7 @@ namespace Trithemius.Windows
                     if (!string.IsNullOrEmpty(args.Password)) {
                         data = AESThenHMAC.SimpleEncryptWithPassword(data, args.Password);
                     }
-                    trithemius.Encode(data);
+                    trithemius.Encode(data, args.PrefixSize);
                     trithemius.SaveImage(args.OutputPath);
                     e.Result = new EncodeResult(true, args.OutputPath);
                 }
