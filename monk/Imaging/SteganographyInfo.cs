@@ -12,6 +12,16 @@ namespace Monk.Imaging
 {
     public class SteganographyInfo
     {
+        public static SteganographyInfo LegacyOptions => new SteganographyInfo()
+        {
+            Endianness = EndianMode.BigEndian,
+            LeastSignificantBits = 1,
+            ZeroBasedSize = true,
+            InvertPrefixBits = false,
+            InvertDataBits = false,
+            Offset = 0
+        };
+
         private int lsb = 1;
         public int LeastSignificantBits
         {
