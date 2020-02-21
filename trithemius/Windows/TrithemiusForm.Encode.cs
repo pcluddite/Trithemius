@@ -90,7 +90,7 @@ namespace Trithemius.Windows
                     e.Result = new EncodeResult(true, args.OutputPath);
                 }
             }
-            catch(Exception ex) when (ex is EncoderFallbackException || ex is IOException || ex is SecurityException || ex is InvalidOperationException) {
+            catch(Exception ex) when (ex is EncoderFallbackException || ex is IOException || ex is SecurityException || ex is InvalidImageOptionException) {
                 e.Result = new EncodeResult(false, ex.Message);
             }
         }

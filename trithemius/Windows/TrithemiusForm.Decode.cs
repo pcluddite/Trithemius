@@ -49,7 +49,7 @@ namespace Trithemius.Windows
 
         private enum DecodeStatus
         {
-            OK, KeyError, GenericError, NoDataError
+            OK, KeyError, GenericError, NoDataError, OptionError
         }
 
         private void buttonDecode_Click(object sender, EventArgs e)
@@ -100,7 +100,10 @@ namespace Trithemius.Windows
                     }
                 }
             }
-            catch (Exception ex) when (ex is EncoderFallbackException || ex is IOException || ex is SecurityException || ex is InvalidOperationException) {
+            catch(InvalidImageOptionException ex) {
+                e.Result = new DecodeResult(DecodeStatus.OptionError, ex.Message);
+            }
+            catch (Exception ex) when (ex is EncoderFallbackException || ex is IOException || ex is SecurityException) {
                 e.Result = new DecodeResult(DecodeStatus.GenericError, ex.Message);
             }
         }
