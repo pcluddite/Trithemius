@@ -5,7 +5,6 @@
 // =====
 using System;
 using System.Collections.Generic;
-using System.Drawing.Imaging;
 using System.IO;
 using System.Text;
 
@@ -33,9 +32,7 @@ namespace Abbot
 
         private static int EncodeImage(EncodeOptions opts)
         {
-            Steganographer trithemius = null;
             try {
-                trithemius = opts.BuildTrithemius();
                 byte[] data;
                 if (!string.IsNullOrEmpty(opts.Message)) {
                     data = Encoding.UTF8.GetBytes(opts.Message);
@@ -51,54 +48,48 @@ namespace Abbot
                     data = AESThenHMAC.SimpleEncryptWithPassword(data, opts.Key);
                 }
 
-                trithemius.Encode(data);
-
-                trithemius.Image.Save(opts.Output, ImageFormat.Png);
+                using (Steganographer trithemius = new Steganographer(opts.Path, opts.BuildTrithemius())) {
+                    trithemius.Encode(data);
+                    trithemius.SaveImage(opts.Output);
+                }
 
                 return 0;
             }
             catch (Exception ex) when (ex is ArgumentException || ex is IOException) {
                 Console.Error.WriteLine(ex.Message);
                 return 1;
-            }
-            finally {
-                if (trithemius != null) trithemius.Dispose();
             }
         }
 
         private static int DecodeImage(DecodeOptions opts)
         {
-            Steganographer trithemius = null;
             try {
-                trithemius = opts.BuildTrithemius();
-                byte[] data = trithemius.Decode();
-                if (!string.IsNullOrEmpty(opts.Key)) {
-                    if (opts.Legacy) {
-                        data = LegacyEncryption.DecryptStringAES(data, opts.Key);
+                using (Steganographer trithemius = new Steganographer(opts.Path, opts.BuildTrithemius())) {
+                    byte[] data = trithemius.Decode();
+                    if (!string.IsNullOrEmpty(opts.Key)) {
+                        if (opts.Legacy) {
+                            data = LegacyEncryption.DecryptStringAES(data, opts.Key);
+                        }
+                        else {
+                            data = AESThenHMAC.SimpleDecryptWithPassword(data, opts.Key);
+                        }
+                        if (data == null) {
+                            throw new ArgumentException("The encryption key is incorrect");
+                        }
+                    }
+
+                    if (string.IsNullOrEmpty(opts.Output)) {
+                        Console.WriteLine(Encoding.UTF8.GetString(data));
                     }
                     else {
-                        data = AESThenHMAC.SimpleDecryptWithPassword(data, opts.Key);
-                    }
-                    if (data == null) {
-                        throw new ArgumentException("The encryption key is incorrect");
+                        File.WriteAllBytes(opts.Output, data);
                     }
                 }
-
-                if (string.IsNullOrEmpty(opts.Output)) {
-                    Console.WriteLine(Encoding.UTF8.GetString(data));
-                }
-                else {
-                    File.WriteAllBytes(opts.Output, data);
-                }
-
                 return 0;
             }
             catch (Exception ex) when (ex is ArgumentException || ex is IOException) {
                 Console.Error.WriteLine(ex.Message);
                 return 1;
-            }
-            finally {
-                if (trithemius != null) trithemius.Dispose();
             }
         }
 

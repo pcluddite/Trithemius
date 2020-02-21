@@ -48,9 +48,9 @@ namespace Abbot.Arguments
         [Option('v', "verbose", Required = false, HelpText = "Show more detailed information", Default = false)]
         public bool Verbose { get; set; }
 
-        public virtual Steganographer BuildTrithemius()
+        public virtual SteganographyInfo BuildTrithemius()
         {
-            Steganographer trithemius = new Steganographer(Path)
+            SteganographyInfo trithemius = new SteganographyInfo()
             {
                 LeastSignificantBits = LeastSignificantBits,
                 InvertDataBits = Invert,

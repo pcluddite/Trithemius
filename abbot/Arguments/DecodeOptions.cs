@@ -18,11 +18,27 @@ namespace Abbot.Arguments
         [Option("legacy", Required = false, Hidden = true, HelpText = "Enables options for legacy decoding. This overrides any other settings.")]
         public bool Legacy { get; set; }
 
-        public override Steganographer BuildTrithemius()
+        public override SteganographyInfo BuildTrithemius()
         {
-            Steganographer trithemius = base.BuildTrithemius();
+            SteganographyInfo trithemius;
             if (Legacy) {
-                trithemius.SetLegacyOptions();
+                trithemius = SteganographyInfo.LegacyOptions;
+
+                if (Alpha) {
+                    trithemius.Colors.Add(PixelColor.Alpha);
+                }
+                else if (Red) {
+                    trithemius.Colors.Add(PixelColor.Red);
+                }
+                else if (Green) {
+                    trithemius.Colors.Add(PixelColor.Green);
+                }
+                else if (Blue) {
+                    trithemius.Colors.Add(PixelColor.Blue);
+                }
+            }
+            else {
+                trithemius = base.BuildTrithemius();
             }
             return trithemius;
         }
