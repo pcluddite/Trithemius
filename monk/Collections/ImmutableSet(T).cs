@@ -9,13 +9,15 @@ using System.Collections.Generic;
 
 namespace Monk.Collections.Immutable
 {
-    public sealed class ImmutableHashSet<T> : ISet<T>
+    public sealed class ImmutableSet<T> : ISet<T>
     {
         private readonly HashSet<T> hashSet;
 
-        internal ImmutableHashSet(IEnumerable<T> items)
+        internal ImmutableSet(IEnumerable<T> items)
         {
+            if (items == null) throw new ArgumentNullException(nameof(items));
             hashSet = new HashSet<T>(items);
+            hashSet.TrimExcess();
         }
 
         public int Count => hashSet.Count;

@@ -17,7 +17,7 @@ namespace Monk.Imaging
         private class LockedBitmap32bpp : LockedBitmap
         {
             public override int Depth => 32;
-            public override ISet<PixelColor> SupportedColors { get; } = ImmutableHashSet.Create(PixelColor.Alpha, PixelColor.Red, PixelColor.Green, PixelColor.Blue);
+            public override ISet<PixelColor> SupportedColors { get; } = ImmutableSet.Create(PixelColor.Alpha, PixelColor.Red, PixelColor.Green, PixelColor.Blue);
 
             public LockedBitmap32bpp(Bitmap bitmap)
             {
@@ -45,7 +45,7 @@ namespace Monk.Imaging
         private class LockedBitmap24bpp : LockedBitmap
         {
             public override int Depth => 24;
-            public override ISet<PixelColor> SupportedColors { get; } = ImmutableHashSet.Create(PixelColor.Red, PixelColor.Green, PixelColor.Blue);
+            public override ISet<PixelColor> SupportedColors { get; } = ImmutableSet.Create(PixelColor.Red, PixelColor.Green, PixelColor.Blue);
 
             public LockedBitmap24bpp(Bitmap bitmap)
             {
@@ -82,7 +82,7 @@ namespace Monk.Imaging
         private class LockedBitmap8bpp : LockedBitmap
         {
             public override int Depth => 8;
-            public override ISet<PixelColor> SupportedColors { get; } = ImmutableHashSet.Create(PixelColor.Blue);
+            public override ISet<PixelColor> SupportedColors { get; } = ImmutableSet.Create(PixelColor.Blue);
 
             public LockedBitmap8bpp(Bitmap bitmap)
             {
