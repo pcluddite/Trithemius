@@ -39,17 +39,19 @@
     <Reference Include="System.Drawing" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Collections\ImmutableHashSet%28T%29.cs" />
-    <Compile Include="Collections\ImmutableHashSet.cs" />
+    <Compile Include="Collections\ImmutableSet%28T%29.cs" />
+    <Compile Include="Collections\ImmutableSet.cs" />
     <Compile Include="Encryption\AESThenHMAC.cs" />
     <Compile Include="Encryption\LegacyEncryption.cs" />
     <Compile Include="Imaging\ImageChange.cs" />
+    <Compile Include="Imaging\InvalidImageOptionException.cs" />
     <Compile Include="Imaging\LockedBitmap.cs" />
     <Compile Include="Imaging\LockedBitmap.Formats.cs" />
     <Compile Include="Imaging\LockedBitmap.SeededStream.cs" />
     <Compile Include="Imaging\LockedBitmap.Stream.cs" />
     <Compile Include="Imaging\PixelColor.cs" />
     <Compile Include="Imaging\Steganographer.cs" />
+    <Compile Include="Imaging\SteganographyInfo.cs" />
     <Compile Include="Memory\ArithmeticProgression.cs" />
     <Compile Include="Memory\Bittwiddling\BinaryList.cs" />
     <Compile Include="Memory\Bittwiddling\EndianMode.cs" />
