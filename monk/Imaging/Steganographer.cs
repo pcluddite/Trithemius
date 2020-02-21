@@ -4,50 +4,91 @@
 //
 // =====
 using System;
-using System.Drawing;
 using System.Collections.Generic;
+using System.Drawing;
+using System.IO;
 using System.Linq;
+
 using Monk.Memory;
 using Monk.Memory.Bittwiddling;
-using System.IO;
 
 namespace Monk.Imaging
 {
     public class Steganographer : IDisposable
     {
-        private int lsb = 1;
-        public int LeastSignificantBits
-        {
-            get => lsb;
-            set {
-                if (value < 1 || value > 4) throw new ArgumentOutOfRangeException("Least significant bits must be between 1 and 4");
-                lsb = value;
-            }
-        }
-
         private LockedBitmap lockedBitmap;
+        private readonly SteganographyInfo info;
 
         public int Depth => lockedBitmap.Depth;
         public Bitmap Image => lockedBitmap.Bitmap;
 
-        public bool InvertPrefixBits { get; set; } = false;
-        public bool InvertDataBits { get; set; } = false;
-        public bool ZeroBasedSize { get; set; } = false;
-        public EndianMode Endianness { get; set; } = EndianMode.LittleEndian;
-        public ISet<PixelColor> Colors { get; } = new HashSet<PixelColor>();
-        public IList<ushort> Seed { get; set; } = new ushort[] { 0 };
-        public int Offset { get; set; } = 0;
+        public bool InvertPrefixBits
+        {
+            get => info.InvertPrefixBits;
+            set => info.InvertPrefixBits = value;
+        }
+
+        public bool InvertDataBits
+        {
+            get => info.InvertDataBits;
+            set => info.InvertDataBits = value;
+        }
+
+        public bool ZeroBasedSize
+        {
+            get => info.ZeroBasedSize;
+            set => info.ZeroBasedSize = value;
+        }
+
+        public EndianMode Endianness
+        {
+            get => info.Endianness;
+            set => info.Endianness = value;
+        }
+
+        public ISet<PixelColor> Colors => info.Colors;
+
+        public IList<ushort> Seed
+        {
+            get => info.Seed;
+            set => info.Seed = value;
+        }
+
+        public int Offset
+        {
+            get => info.Offset;
+            set => info.Offset = value;
+        }
+
+        public int LeastSignificantBits
+        {
+            get => info.LeastSignificantBits;
+            set => info.LeastSignificantBits = value;
+        }
 
         public bool Disposed { get; private set; }
 
         public Steganographer(string filename)
-            : this(new Bitmap(filename))
+            : this(new Bitmap(filename), new SteganographyInfo())
         {
         }
 
         public Steganographer(Bitmap image)
+            : this(image, new SteganographyInfo())
         {
+        }
+
+        public Steganographer(string filename, SteganographyInfo info)
+            : this(new Bitmap(filename), info)
+        {
+        }
+
+        public Steganographer(Bitmap image, SteganographyInfo info)
+        {
+            if (image == null) throw new ArgumentNullException(nameof(image));
+            if (info == null) throw new ArgumentNullException(nameof(info));
             lockedBitmap = LockedBitmap.CreateLockedBitmap(image);
+            this.info = info;
         }
 
         private bool MessageFitsImage(ICollection<byte> message)
