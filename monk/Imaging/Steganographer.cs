@@ -258,11 +258,11 @@ namespace Monk.Imaging
         private void EnsureState()
         {
             if (Disposed) throw new ObjectDisposedException(nameof(Steganographer));
-            if (lockedBitmap == null || lockedBitmap.Bitmap == null) throw new InvalidOperationException("No Bitmap has been specified");
-            if (Seed.Count == 0) throw new InvalidOperationException("Seed cannot be 0 length");
-            if (Offset < 0 || Offset >= lockedBitmap.Height * lockedBitmap.Width) throw new InvalidOperationException("Offset cannot be less than 0 or greater than the image area");
-            if (Colors.Count == 0) throw new InvalidOperationException("At least one color must be specified");
-            if (!Colors.IsSubsetOf(lockedBitmap.SupportedColors)) throw new InvalidOperationException("One or more colors is not supported by the image format");
+            if (lockedBitmap == null || lockedBitmap.Bitmap == null) throw new InvalidImageOptionException("No Bitmap has been specified", nameof(Image));
+            if (Seed.Count == 0) throw new InvalidImageOptionException("Seed cannot be 0 length", nameof(Seed));
+            if (Offset < 0 || Offset >= lockedBitmap.Height * lockedBitmap.Width) throw new InvalidImageOptionException("Offset cannot be less than 0 or greater than the image area", nameof(Offset));
+            if (Colors.Count == 0) throw new InvalidImageOptionException("At least one color must be specified", nameof(Colors));
+            if (!Colors.IsSubsetOf(lockedBitmap.SupportedColors)) throw new InvalidImageOptionException("One or more colors is not supported by the image format", nameof(Colors));
         }
     }
 }
