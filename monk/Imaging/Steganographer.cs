@@ -218,16 +218,6 @@ namespace Monk.Imaging
             return (Image.Width * Image.Height * LeastSignificantBits) / Twiddler.CHAR_BIT;
         }
 
-        public void SetLegacyOptions()
-        {
-            Endianness = EndianMode.BigEndian;
-            LeastSignificantBits = 1;
-            ZeroBasedSize = true;
-            InvertPrefixBits = false;
-            InvertDataBits = false;
-            Offset = 0;
-        }
-
         public void SaveImage(string filename)
         {
             lockedBitmap.Save(filename);
