@@ -19,15 +19,17 @@ namespace Trithemius.Windows
     {
         private struct EncodeArgs
         {
-            public Steganographer Steganographer { get; }
+            public SteganographyInfo SteganographyInfo { get; }
             public string Password { get; }
             public string Data { get; }
             public bool IsText { get; }
             public string OutputPath { get; }
+            public string ImagePath { get; }
 
-            public EncodeArgs(Steganographer steganographer, string data, bool isText, string pass, string outputPath)
+            public EncodeArgs(SteganographyInfo info, string imagePath, string data, bool isText, string pass, string outputPath)
             {
-                Steganographer = steganographer;
+                ImagePath = imagePath;
+                SteganographyInfo = info;
                 Password = pass;
                 Data = data;
                 IsText = isText;
@@ -62,10 +64,10 @@ namespace Trithemius.Windows
                 }
             }
             if (message != null && saveFileDialog.ShowDialog(this) == DialogResult.OK) {
-                Steganographer trithemius = CreateTrithemius();
+                SteganographyInfo trithemius = CreateTrithemius();
                 if (trithemius != null) {
                     SetEnabled(false);
-                    encodeWorker.RunWorkerAsync(new EncodeArgs(trithemius, message, radioButtonText.Checked, textBoxKey.Text, saveFileDialog.FileName));
+                    encodeWorker.RunWorkerAsync(new EncodeArgs(trithemius, ImagePath, message, radioButtonText.Checked, textBoxKey.Text, saveFileDialog.FileName));
                 }
             }
         }
@@ -74,7 +76,7 @@ namespace Trithemius.Windows
         {
             try {
                 EncodeArgs args = (EncodeArgs)e.Argument;
-                using (Steganographer trithemius = args.Steganographer) {
+                using (Steganographer trithemius = new Steganographer(ImagePath, args.SteganographyInfo)) {
                     byte[] data;
                     if (args.IsText) {
                         data = Encoding.UTF8.GetBytes(args.Data);

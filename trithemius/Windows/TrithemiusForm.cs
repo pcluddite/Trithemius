@@ -71,18 +71,24 @@ namespace Trithemius.Windows
             MessageBox.Show(this, message, Text, MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
-        private Steganographer CreateTrithemius()
+        private SteganographyInfo CreateTrithemius()
         {
-            Steganographer trithemius = null;
             try {
-                trithemius = new Steganographer((Bitmap)CopyImage(pictureBox.Image))
-                {
-                    Offset = (int)numericUpDownOffset.Value - 1,
-                    LeastSignificantBits = (int)numericUpDownLsb.Value,
-                    InvertDataBits = checkBoxInvertData.Checked,
-                    InvertPrefixBits = checkBoxInvertPrefix.Checked,
-                    Endianness = comboBoxEndian.SelectedIndex == 0 ? EndianMode.LittleEndian : EndianMode.BigEndian
-                };
+                SteganographyInfo trithemius;
+
+                if (checkBoxLegacy.Checked) {
+                    trithemius = SteganographyInfo.LegacyOptions;
+                }
+                else {
+                    trithemius = new SteganographyInfo()
+                    {
+                        Offset = (int)numericUpDownOffset.Value - 1,
+                        LeastSignificantBits = (int)numericUpDownLsb.Value,
+                        InvertDataBits = checkBoxInvertData.Checked,
+                        InvertPrefixBits = checkBoxInvertPrefix.Checked,
+                        Endianness = comboBoxEndian.SelectedIndex == 0 ? EndianMode.LittleEndian : EndianMode.BigEndian
+                    };
+                }
 
                 if (!string.IsNullOrEmpty(textBoxSeed.Text)) {
                     string seedtext = textBoxSeed.Text;
@@ -101,21 +107,16 @@ namespace Trithemius.Windows
                     trithemius.Seed = digits;
                 }
 
-                if (checkBoxLegacy.Checked) {
-                    trithemius.SetLegacyOptions();
-                }
-
                 if (checkAlpha.Checked && checkAlpha.Enabled) trithemius.Colors.Add(PixelColor.Alpha);
                 if (checkRed.Checked && checkRed.Enabled) trithemius.Colors.Add(PixelColor.Red);
                 if (checkGreen.Checked && checkGreen.Enabled) trithemius.Colors.Add(PixelColor.Green);
                 if (checkBlue.Checked && checkBlue.Enabled) trithemius.Colors.Add(PixelColor.Blue);
+                return trithemius;
             }
-            catch (Exception ex) when (ex is ArgumentException) {
-                trithemius?.Dispose();
+            catch (ArgumentException ex) {
                 ShowError(ex.Message);
-                trithemius = null;
+                return null;
             }
-            return trithemius;
         }
     }
 }

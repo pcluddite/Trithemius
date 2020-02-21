@@ -20,15 +20,17 @@ namespace Trithemius.Windows
     {
         private struct DecodeArgs
         {
-            public Steganographer Steganographer { get; }
+            public SteganographyInfo Info { get; }
             public string Password { get; } 
             public string OutputPath { get; }
             public bool IsText => OutputPath == null;
             public bool Legacy { get; }
+            public string ImagePath { get; }
 
-            public DecodeArgs(Steganographer steganographer, string pass, string outputPath, bool legacy)
+            public DecodeArgs(SteganographyInfo info, string imagePath, string pass, string outputPath, bool legacy)
             {
-                Steganographer = steganographer;
+                ImagePath = imagePath;
+                Info = info;
                 Password = pass;
                 OutputPath = outputPath;
                 Legacy = legacy;
@@ -59,10 +61,10 @@ namespace Trithemius.Windows
                 if (msgSaveDialog.ShowDialog(this) != DialogResult.OK) return;
                 filename = msgSaveDialog.FileName;
             }
-            Steganographer trithemius = CreateTrithemius();
+            SteganographyInfo trithemius = CreateTrithemius();
             if (trithemius != null) {
                 SetEnabled(false);
-                decodeWorker.RunWorkerAsync(new DecodeArgs(trithemius, textBoxKey.Text, filename, checkBoxLegacy.Checked));
+                decodeWorker.RunWorkerAsync(new DecodeArgs(trithemius, ImagePath, textBoxKey.Text, filename, checkBoxLegacy.Checked));
             }
         }
 
@@ -70,7 +72,7 @@ namespace Trithemius.Windows
         {
             DecodeArgs arg = (DecodeArgs)e.Argument;
             try {
-                using (Steganographer trithemius = arg.Steganographer) {
+                using (Steganographer trithemius = new Steganographer(arg.ImagePath, arg.Info)) {
                     byte[] msg = trithemius.Decode();
 
                     if (msg == null) {
