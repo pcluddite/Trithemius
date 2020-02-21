@@ -29,25 +29,25 @@
         private void InitializeComponent()
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Finished));
-            this.textBox2 = new System.Windows.Forms.TextBox();
+            this.txtOutput = new System.Windows.Forms.TextBox();
             this.closeButton = new System.Windows.Forms.Button();
             this.saveButton = new System.Windows.Forms.Button();
             this.saveFileDialog = new System.Windows.Forms.SaveFileDialog();
             this.SuspendLayout();
             // 
-            // textBox2
+            // txtOutput
             // 
-            this.textBox2.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            this.txtOutput.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.textBox2.BackColor = System.Drawing.SystemColors.HighlightText;
-            this.textBox2.Location = new System.Drawing.Point(12, 12);
-            this.textBox2.Multiline = true;
-            this.textBox2.Name = "textBox2";
-            this.textBox2.ReadOnly = true;
-            this.textBox2.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.textBox2.Size = new System.Drawing.Size(521, 288);
-            this.textBox2.TabIndex = 38;
+            this.txtOutput.BackColor = System.Drawing.SystemColors.HighlightText;
+            this.txtOutput.Location = new System.Drawing.Point(12, 12);
+            this.txtOutput.Multiline = true;
+            this.txtOutput.Name = "txtOutput";
+            this.txtOutput.ReadOnly = true;
+            this.txtOutput.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
+            this.txtOutput.Size = new System.Drawing.Size(521, 288);
+            this.txtOutput.TabIndex = 38;
             // 
             // closeButton
             // 
@@ -65,7 +65,7 @@
             // 
             this.saveButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.saveButton.Location = new System.Drawing.Point(373, 306);
-            this.saveButton.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.saveButton.Margin = new System.Windows.Forms.Padding(2);
             this.saveButton.Name = "saveButton";
             this.saveButton.Size = new System.Drawing.Size(81, 23);
             this.saveButton.TabIndex = 40;
@@ -86,7 +86,7 @@
             this.ClientSize = new System.Drawing.Size(545, 334);
             this.Controls.Add(this.saveButton);
             this.Controls.Add(this.closeButton);
-            this.Controls.Add(this.textBox2);
+            this.Controls.Add(this.txtOutput);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MinimumSize = new System.Drawing.Size(198, 144);
             this.Name = "Finished";
@@ -100,7 +100,7 @@
 
         #endregion
 
-        private System.Windows.Forms.TextBox textBox2;
+        private System.Windows.Forms.TextBox txtOutput;
         private System.Windows.Forms.Button closeButton;
         private System.Windows.Forms.Button saveButton;
         private System.Windows.Forms.SaveFileDialog saveFileDialog;

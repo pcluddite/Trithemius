@@ -15,7 +15,8 @@ namespace Trithemius.Windows
         public Finished(string text)
         {
             InitializeComponent();
-            textBox2.Text = text;
+            txtOutput.Text = text;
+            txtOutput.Select(0, 0);
         }
 
         private void closeButton_Click(object sender, System.EventArgs e)
@@ -27,10 +28,10 @@ namespace Trithemius.Windows
         {
             if (saveFileDialog.ShowDialog() == DialogResult.OK) {
                 try {
-                    File.WriteAllText(saveFileDialog.FileName, textBox2.Text);
+                    File.WriteAllText(saveFileDialog.FileName, txtOutput.Text);
                 }
                 catch(Exception ex) when (ex is IOException || ex is SecurityException) {
-                    Program.ShowError(this, ex.Message);
+                    MessageBox.Show(this, ex.Message, Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
         }
