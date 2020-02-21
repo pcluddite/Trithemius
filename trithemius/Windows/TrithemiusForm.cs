@@ -61,14 +61,34 @@ namespace Trithemius.Windows
             return Bitmap.FromStream(stream);
         }
 
-        private void ShowError(string message)
+        private DialogResult ShowError(string message)
         {
-            MessageBox.Show(this, message, Text, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            return ShowError(message, MessageBoxButtons.OK);
         }
 
-        private void ShowInfo(string message)
+        private DialogResult ShowError(string message, MessageBoxButtons buttons)
         {
-            MessageBox.Show(this, message, Text, MessageBoxButtons.OK, MessageBoxIcon.Information);
+            return MessageBox.Show(this, message, Text, buttons, MessageBoxIcon.Warning);
+        }
+
+        private DialogResult ShowInfo(string message)
+        {
+            return ShowInfo(message, MessageBoxButtons.OK);
+        }
+
+        private DialogResult ShowInfo(string message, MessageBoxButtons buttons)
+        {
+            return MessageBox.Show(this, message, Text, buttons, MessageBoxIcon.Information);
+        }
+
+        private DialogResult ShowQuestion(string message)
+        {
+            return ShowQuestion(message, MessageBoxButtons.YesNo);
+        }
+
+        private DialogResult ShowQuestion(string message, MessageBoxButtons buttons)
+        {
+            return MessageBox.Show(this, message, Text, buttons, MessageBoxIcon.Question);
         }
 
         private SteganographyInfo CreateTrithemius()

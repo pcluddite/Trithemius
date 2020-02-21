@@ -116,13 +116,14 @@ namespace Trithemius.Windows
             DecodeResult result = (DecodeResult)e.Result;
             if (result.Status == DecodeStatus.OK) {
                 if (radioButtonFile.Checked) {
-                    if (MessageBox.Show(this, "Decoding complete. Would you like to open the file?", Text, MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes) {
+                    if (ShowQuestion("Decoding complete. Would you like to open the file?") == DialogResult.Yes) {
                         TryStart(new ProcessStartInfo(result.Message));
                     }
                 }
                 else {
-                    Finished finished = new Finished(result.Message);
-                    finished.ShowDialog(this);
+                    using (Finished finished = new Finished(result.Message)) {
+                        finished.ShowDialog(this);
+                    }
                 }
             }
             else {
