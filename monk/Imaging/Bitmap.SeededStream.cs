@@ -11,7 +11,7 @@ using Monk.Memory;
 
 namespace Monk.Imaging
 {
-    public partial class LockedBitmap
+    public partial class Bitmap
     {
         public ByteStream GetStream(int pixelIndex, IEnumerable<ushort> seed)
         {
@@ -41,18 +41,17 @@ namespace Monk.Imaging
         {
             private int[] indices;
 
-            public LockedBitmap Bitmap { get; }
+            public Bitmap Bitmap { get; }
 
             public override int IntLength => indices.Length;
 
-            public SeededBitmapStream(LockedBitmap bitmap, IEnumerable<ushort> seed, IEnumerable<PixelColor> colors, int pixelIndex, int pixelCount)
+            public SeededBitmapStream(Bitmap bitmap, IEnumerable<ushort> seed, IEnumerable<PixelColor> colors, int pixelIndex, int pixelCount)
             {
                 Bitmap = bitmap;
-                bitmap.LockBits();
                 CachePixels(bitmap, seed, colors, pixelIndex, pixelCount);
             }
 
-            private void CachePixels(LockedBitmap bitmap, IEnumerable<ushort> seed, IEnumerable<PixelColor> colors, int pixelIndex, int pixelCount)
+            private void CachePixels(Bitmap bitmap, IEnumerable<ushort> seed, IEnumerable<PixelColor> colors, int pixelIndex, int pixelCount)
             {
                 int imageArea = bitmap.Size;
 
@@ -119,9 +118,8 @@ namespace Monk.Imaging
 
             protected override void Dispose(bool disposing)
             {
-                if (disposing && Bitmap.Locked) {
+                if (disposing) {
                     Flush();
-                    Bitmap.UnlockBits();
                     indices = null;
                 }
                 base.Dispose(disposing);
