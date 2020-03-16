@@ -59,7 +59,7 @@ namespace Trithemius.Windows
         private void buttonDecode_Click(object sender, EventArgs e)
         {
             int size = -1;
-            if (!checkBoxPrefixSize.Checked && !checkBoxLegacy.Checked) {
+            if (!checkBoxPrefixSize.Checked && !IsLegacyMode()) {
                 string answer = Dialog.PromptInput(this, "Please specify the number of bytes to decode", Text, InputDialog.InputType.Numeric);
                 if (answer == null) return;
                 if (!int.TryParse(answer, out size)) {
@@ -75,7 +75,7 @@ namespace Trithemius.Windows
             SteganographyInfo trithemius = CreateTrithemius();
             if (trithemius != null) {
                 SetEnabled(false);
-                decodeWorker.RunWorkerAsync(new DecodeArgs(trithemius, ImagePath, textBoxKey.Text, filename, checkBoxLegacy.Checked, size));
+                decodeWorker.RunWorkerAsync(new DecodeArgs(trithemius, ImagePath, textBoxKey.Text, filename, IsLegacyMode(), size));
             }
         }
 

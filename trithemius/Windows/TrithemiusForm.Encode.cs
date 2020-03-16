@@ -70,7 +70,7 @@ namespace Trithemius.Windows
                 if (trithemius != null) {
                     SetEnabled(false);
                     encodeWorker.RunWorkerAsync(new EncodeArgs(trithemius, ImagePath, message, radioButtonText.Checked,
-                        textBoxKey.Text, saveFileDialog.FileName, checkBoxPrefixSize.Checked || checkBoxLegacy.Checked));
+                        textBoxKey.Text, saveFileDialog.FileName, checkBoxPrefixSize.Checked || IsLegacyMode()));
                 }
             }
         }

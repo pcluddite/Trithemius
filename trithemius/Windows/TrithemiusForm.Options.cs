@@ -69,47 +69,46 @@ namespace Trithemius.Windows
                     break;
             }
         }
-
-        private void checkBoxLegacy_CheckedChanged(object sender, EventArgs e)
+        
+        private void comboBoxVersions_SelectedIndexChanged(object sender, EventArgs e)
         {
             buttonEncode.Enabled = groupBoxStartPixel.Enabled = groupBoxPrefix.Enabled = 
                 groupBoxInvert.Enabled = groupBoxEndian.Enabled = groupBoxLsb.Enabled = 
-                checkAlpha.Enabled = !checkBoxLegacy.Checked;
+                checkAlpha.Enabled = !IsLegacyMode();
+
             if (checkRed.Checked) {
                 checkAlpha.Checked = checkGreen.Checked = checkBlue.Checked = false;
-            }
-            else if (checkGreen.Checked) {
+            } else if (checkGreen.Checked) {
                 checkAlpha.Checked = checkRed.Checked = checkBlue.Checked = false;
-            }
-            else if (checkBlue.Checked) {
+            } else if (checkBlue.Checked) {
                 checkAlpha.Checked = checkRed.Checked = checkGreen.Checked = false;
             }
         }
 
         private void checkAlpha_CheckedChanged(object sender, EventArgs e)
         {
-            if (checkBoxLegacy.Checked && checkAlpha.Checked) {
+            if (IsLegacyMode() && checkAlpha.Checked) {
                 checkRed.Checked = checkGreen.Checked = checkBlue.Checked = false;
             }
         }
 
         private void checkRed_CheckedChanged(object sender, EventArgs e)
         {
-            if (checkBoxLegacy.Checked && checkRed.Checked) {
+            if (IsLegacyMode() && checkRed.Checked) {
                 checkAlpha.Checked = checkGreen.Checked = checkBlue.Checked = false;
             }
         }
 
         private void checkGreen_CheckedChanged(object sender, EventArgs e)
         {
-            if (checkBoxLegacy.Checked && checkGreen.Checked) {
+            if (IsLegacyMode() && checkGreen.Checked) {
                 checkAlpha.Checked = checkRed.Checked = checkBlue.Checked = false;
             }
         }
 
         private void checkBlue_CheckedChanged(object sender, EventArgs e)
         {
-            if (checkBoxLegacy.Checked && checkBlue.Checked) {
+            if (IsLegacyMode() && checkBlue.Checked) {
                 checkAlpha.Checked = checkRed.Checked = checkGreen.Checked = false;
             }
         }

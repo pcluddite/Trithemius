@@ -91,30 +91,36 @@ namespace Trithemius.Windows
             return MessageBox.Show(this, message, Text, buttons, MessageBoxIcon.Question);
         }
 
+        private bool IsLegacyMode()
+        {
+            return comboBoxVersions.SelectedIndex > 0;
+        }
+
         private SteganographyInfo CreateTrithemius()
         {
             try {
                 SteganographyInfo trithemius;
-
-                if (checkBoxLegacy.Checked) {
-                    trithemius = SteganographyInfo.LegacyOptions;
-                }
-                else {
+                
+                if (comboBoxVersions.SelectedIndex == 1) {
+                    trithemius = SteganographyInfo.PresetsA0001;
+                } else if (comboBoxVersions.SelectedIndex == 2) {
+                    trithemius = SteganographyInfo.PresetsB0003;
+                } else {
                     trithemius = new SteganographyInfo()
                     {
-                        Offset = (int)numericUpDownOffset.Value - 1,
+                        Offset               = (int)numericUpDownOffset.Value - 1,
                         LeastSignificantBits = (int)numericUpDownLsb.Value,
-                        InvertDataBits = checkBoxInvertData.Checked,
-                        InvertPrefixBits = checkBoxInvertPrefix.Checked,
-                        Endianness = comboBoxEndian.SelectedIndex == 0 ? EndianMode.LittleEndian : EndianMode.BigEndian
+                        InvertDataBits       = checkBoxInvertData.Checked,
+                        InvertPrefixBits     = checkBoxInvertPrefix.Checked,
+                        Endianness           = comboBoxEndian.SelectedIndex == 0 ? EndianMode.LittleEndian : EndianMode.BigEndian
                     };
                 }
 
                 if (!string.IsNullOrEmpty(textBoxSeed.Text)) {
-                    string seedtext = textBoxSeed.Text;
-                    ushort[] digits = new ushort[seedtext.Length];
-                    for (int idx = 0; idx < seedtext.Length; ++idx) {
-                        char c = seedtext[idx];
+                    string seedText = textBoxSeed.Text;
+                    ushort[] digits = new ushort[seedText.Length];
+                    for (int idx = 0; idx < seedText.Length; ++idx) {
+                        char c = seedText[idx];
                         if (char.IsDigit(c)) {
                             digits[idx] = (ushort)(c - '0');
                         }

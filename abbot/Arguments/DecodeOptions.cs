@@ -22,7 +22,7 @@ namespace Abbot.Arguments
         {
             SteganographyInfo trithemius;
             if (Legacy) {
-                trithemius = SteganographyInfo.LegacyOptions;
+                trithemius = SteganographyInfo.PresetsB0003;
 
                 if (Alpha) {
                     trithemius.Colors.Add(PixelColor.Alpha);

@@ -12,34 +12,44 @@ namespace Monk.Imaging
 {
     public class SteganographyInfo
     {
-        public static SteganographyInfo LegacyOptions => new SteganographyInfo()
+        public static SteganographyInfo PresetsA0001 => new SteganographyInfo()
         {
-            Endianness = EndianMode.BigEndian,
+            Endianness           = EndianMode.BigEndian,
             LeastSignificantBits = 1,
-            ZeroBasedSize = true,
-            InvertPrefixBits = false,
-            InvertDataBits = false,
-            Offset = 0
+            ZeroBasedSize        = true,
+            InvertPrefixBits     = true,
+            InvertDataBits       = true,
+            Offset               = 0
         };
 
-        private int lsb = 1;
+        public static SteganographyInfo PresetsB0003 => new SteganographyInfo()
+        {
+            Endianness           = EndianMode.BigEndian,
+            LeastSignificantBits = 1,
+            ZeroBasedSize        = true,
+            InvertPrefixBits     = false,
+            InvertDataBits       = false,
+            Offset               = 0
+        };
+
+        private int _lsb = 1;
         public int LeastSignificantBits
         {
-            get => lsb;
+            get => _lsb;
             set {
-                if (value < 1 || value > 4) throw new ArgumentOutOfRangeException("Least significant bits must be between 1 and 4");
-                lsb = value;
+                if (value < 1 || value > 4) throw new ArgumentOutOfRangeException(nameof(value),"Least significant bits must be between 1 and 4");
+                _lsb = value;
             }
         }
 
-        private IList<ushort> seed = new ushort[] { 0 };
+        private IList<ushort> _seed = new ushort[] { 0 };
         public IList<ushort> Seed
         {
-            get => seed;
+            get => _seed;
             set {
                 if (value == null) throw new ArgumentNullException(nameof(value));
                 if (value.Count == 0) throw new ArgumentException(nameof(value));
-                seed = value;
+                _seed = value;
             }
         }
 
