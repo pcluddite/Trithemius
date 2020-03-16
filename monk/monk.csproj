@@ -39,8 +39,8 @@
     <Reference Include="System.Drawing" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Collections\ImmutableSet%28T%29.cs" />
-    <Compile Include="Collections\ImmutableSet.cs" />
+    <Compile Include="Collections\Immutable\ImmutableSet(T).cs" />
+    <Compile Include="Collections\Immutable\ImmutableSet.cs" />
     <Compile Include="Encryption\AESThenHMAC.cs" />
     <Compile Include="Encryption\LegacyEncryption.cs" />
     <Compile Include="Imaging\ImageChange.cs" />

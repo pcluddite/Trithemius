@@ -16,23 +16,23 @@ namespace Monk.Memory
     /// </summary>
     internal unsafe class UnmanagedBuffer : IDisposable, IList<byte>
     {
-        private byte* lpBlock;
+        private byte* _lpBlock;
 
         public bool Owned { get; }
 
         public int Length { get; }
-        public IntPtr Pointer => new IntPtr(lpBlock);
-        public bool Freed => lpBlock == null;
+        public IntPtr Pointer => new IntPtr(_lpBlock);
+        public bool Freed => _lpBlock == null;
 
         public byte this[int index]
         {
             get {
                 if ((uint)index >= (uint)Length) throw new ArgumentOutOfRangeException(nameof(index));
-                return lpBlock[index];
+                return _lpBlock[index];
             }
             set {
                 if ((uint)index >= (uint)Length) throw new ArgumentOutOfRangeException(nameof(index));
-                lpBlock[index] = value;
+                _lpBlock[index] = value;
             }
         }
 
@@ -41,7 +41,7 @@ namespace Monk.Memory
             if (length < 1) throw new ArgumentOutOfRangeException(nameof(length));
             Owned = true;
             Length = length;
-            lpBlock = (byte*)Marshal.AllocHGlobal(Length).ToPointer();
+            _lpBlock = (byte*)Marshal.AllocHGlobal(Length).ToPointer();
         }
 
         public UnmanagedBuffer(IntPtr ptr, int length)
@@ -53,7 +53,7 @@ namespace Monk.Memory
         {
             Length = length;
             Owned = false;
-            lpBlock = ptr;
+            _lpBlock = ptr;
         }
 
         public void Dispose()
@@ -67,7 +67,7 @@ namespace Monk.Memory
             if (disposing) {
                 if (Owned && !Freed) {
                     Marshal.FreeHGlobal(Pointer);
-                    lpBlock = null;
+                    _lpBlock = null;
                 }
             }
         }
@@ -77,7 +77,7 @@ namespace Monk.Memory
 
         public int IndexOf(byte item)
         {
-            byte* lpPtr = (byte*)lpBlock;
+            byte* lpPtr = _lpBlock;
             for (int idx = 0; idx < Length; ++idx) {
                 if (lpPtr[idx] == item) return idx;
             }
@@ -103,7 +103,7 @@ namespace Monk.Memory
         public void Clear()
         {
             for(int i = 0, len = Length; i < len; ++i) {
-                lpBlock[i] = 0;
+                _lpBlock[i] = 0;
             }
         }
 
@@ -142,7 +142,7 @@ namespace Monk.Memory
 
         public Stream GetStream()
         {
-            return new UnmanagedMemoryStream((byte*)lpBlock, Length);
+            return new UnmanagedMemoryStream(_lpBlock, Length);
         }
 
         public Stream GetStream(int offset)
@@ -154,7 +154,7 @@ namespace Monk.Memory
 
         public byte* UnsafePtrAt(int index)
         {
-            return &lpBlock[index];
+            return &_lpBlock[index];
         }
     }
 }

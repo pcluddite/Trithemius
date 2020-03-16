@@ -6,23 +6,25 @@
 using System;
 using System.Drawing;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 
 using Monk.Collections.Immutable;
-using System.Runtime.InteropServices;
 
 namespace Monk.Imaging
 {
     public partial class LockedBitmap
     {
-        private class LockedBitmap32bpp : LockedBitmap
+        private class LockedBitmap32Bpp : LockedBitmap
         {
             public override int Depth => 32;
-            public override ISet<PixelColor> SupportedColors { get; } = ImmutableSet.Create(PixelColor.Alpha, PixelColor.Red, PixelColor.Green, PixelColor.Blue);
 
-            public LockedBitmap32bpp(Bitmap bitmap)
+            public override ISet<PixelColor> SupportedColors { get; } =
+                ImmutableSet.Create(PixelColor.Alpha, PixelColor.Red, PixelColor.Green, PixelColor.Blue);
+
+            public LockedBitmap32Bpp(Bitmap bitmap)
             {
                 Bitmap = bitmap;
-                Width = bitmap.Width;
+                Width  = bitmap.Width;
                 Height = bitmap.Height;
             }
 
@@ -42,15 +44,15 @@ namespace Monk.Imaging
             }
         }
 
-        private class LockedBitmap24bpp : LockedBitmap
+        private class LockedBitmap24Bpp : LockedBitmap
         {
             public override int Depth => 24;
             public override ISet<PixelColor> SupportedColors { get; } = ImmutableSet.Create(PixelColor.Red, PixelColor.Green, PixelColor.Blue);
 
-            public LockedBitmap24bpp(Bitmap bitmap)
+            public LockedBitmap24Bpp(Bitmap bitmap)
             {
                 Bitmap = bitmap;
-                Width = bitmap.Width;
+                Width  = bitmap.Width;
                 Height = bitmap.Height;
             }
 
@@ -79,15 +81,15 @@ namespace Monk.Imaging
             }
         }
 
-        private class LockedBitmap8bpp : LockedBitmap
+        private class LockedBitmap8Bpp : LockedBitmap
         {
             public override int Depth => 8;
             public override ISet<PixelColor> SupportedColors { get; } = ImmutableSet.Create(PixelColor.Blue);
 
-            public LockedBitmap8bpp(Bitmap bitmap)
+            public LockedBitmap8Bpp(Bitmap bitmap)
             {
                 Bitmap = bitmap;
-                Width = bitmap.Width;
+                Width  = bitmap.Width;
                 Height = bitmap.Height;
             }
 

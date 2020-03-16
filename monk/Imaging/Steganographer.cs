@@ -14,56 +14,56 @@ using Monk.Memory.Bittwiddling;
 
 namespace Monk.Imaging
 {
-    public class Steganographer : IDisposable
+    public sealed class Steganographer : IDisposable
     {
-        private LockedBitmap lockedBitmap;
-        private readonly SteganographyInfo info;
+        private LockedBitmap _lockedBitmap;
+        private readonly SteganographyInfo _info;
 
-        public int Depth => lockedBitmap.Depth;
-        public Bitmap Image => lockedBitmap.Bitmap;
+        public int Depth => _lockedBitmap.Depth;
+        public Bitmap Image => _lockedBitmap.Bitmap;
 
         public bool InvertPrefixBits
         {
-            get => info.InvertPrefixBits;
-            set => info.InvertPrefixBits = value;
+            get => _info.InvertPrefixBits;
+            set => _info.InvertPrefixBits = value;
         }
 
         public bool InvertDataBits
         {
-            get => info.InvertDataBits;
-            set => info.InvertDataBits = value;
+            get => _info.InvertDataBits;
+            set => _info.InvertDataBits = value;
         }
 
         public bool ZeroBasedSize
         {
-            get => info.ZeroBasedSize;
-            set => info.ZeroBasedSize = value;
+            get => _info.ZeroBasedSize;
+            set => _info.ZeroBasedSize = value;
         }
 
         public EndianMode Endianness
         {
-            get => info.Endianness;
-            set => info.Endianness = value;
+            get => _info.Endianness;
+            set => _info.Endianness = value;
         }
 
-        public ISet<PixelColor> Colors => info.Colors;
+        public ISet<PixelColor> Colors => _info.Colors;
 
         public IList<ushort> Seed
         {
-            get => info.Seed;
-            set => info.Seed = value;
+            get => _info.Seed;
+            set => _info.Seed = value;
         }
 
         public int Offset
         {
-            get => info.Offset;
-            set => info.Offset = value;
+            get => _info.Offset;
+            set => _info.Offset = value;
         }
 
         public int LeastSignificantBits
         {
-            get => info.LeastSignificantBits;
-            set => info.LeastSignificantBits = value;
+            get => _info.LeastSignificantBits;
+            set => _info.LeastSignificantBits = value;
         }
 
         public bool Disposed { get; private set; }
@@ -87,8 +87,8 @@ namespace Monk.Imaging
         {
             if (image == null) throw new ArgumentNullException(nameof(image));
             if (info == null) throw new ArgumentNullException(nameof(info));
-            lockedBitmap = LockedBitmap.CreateLockedBitmap(image);
-            this.info = info;
+            _lockedBitmap = LockedBitmap.CreateLockedBitmap(image);
+            _info = info;
         }
 
         private bool MessageFitsImage(ICollection<byte> message)
@@ -111,10 +111,9 @@ namespace Monk.Imaging
             BinaryList bits = CreateBinaryList(data, prefixSize);
 
             int lsb = LeastSignificantBits;
-            int bytesNeeded = bits.Count.DivideUp(lsb);
             int bitIndex = 0;
 
-            using (ByteStream stream = lockedBitmap.GetStream(Offset, Seed, Colors)) {
+            using (ByteStream stream = _lockedBitmap.GetStream(Offset, Seed, Colors)) {
                 while(bitIndex < bits.Count) {
                     byte b = stream.Peek();
                     for (int currBit = 0; currBit < lsb; ++currBit)
@@ -189,7 +188,7 @@ namespace Monk.Imaging
             int pixelsNeeded = bitsToRead.DivideUp(lsb);
 
             BinaryList data = new BinaryList(bitsToRead);
-            using (ByteStream stream = lockedBitmap.GetStream(offset, pixelsNeeded, Seed, Colors)) {
+            using (ByteStream stream = _lockedBitmap.GetStream(offset, pixelsNeeded, Seed, Colors)) {
                 while (bitIndex < bitsToRead) {
                     for (int currBit = 0; currBit < lsb; ++currBit, ++bitIndex) {
                         byte pixelByte = stream.ReadNext();
@@ -220,12 +219,17 @@ namespace Monk.Imaging
 
         public void SaveImage(string filename)
         {
-            lockedBitmap.Save(filename);
+            _lockedBitmap.Save(filename);
         }
 
         public void SaveImage(Stream stream)
         {
-            lockedBitmap.Save(stream);
+            _lockedBitmap.Save(stream);
+        }
+
+        ~Steganographer()
+        {
+            Dispose(true);
         }
 
         public void Dispose()
@@ -234,12 +238,12 @@ namespace Monk.Imaging
             GC.SuppressFinalize(this);
         }
 
-        protected virtual void Dispose(bool disposing)
+        private void Dispose(bool disposing)
         {
             if (disposing) {
-                if (lockedBitmap != null) {
-                    lockedBitmap.Dispose();
-                    lockedBitmap = null;
+                if (_lockedBitmap != null) {
+                    _lockedBitmap.Dispose();
+                    _lockedBitmap = null;
                 }
                 Disposed = true;
             }
@@ -248,11 +252,11 @@ namespace Monk.Imaging
         private void EnsureState()
         {
             if (Disposed) throw new ObjectDisposedException(nameof(Steganographer));
-            if (lockedBitmap == null || lockedBitmap.Bitmap == null) throw new InvalidImageOptionException("No Bitmap has been specified", nameof(Image));
+            if (_lockedBitmap?.Bitmap == null) throw new InvalidImageOptionException("No Bitmap has been specified", nameof(Image));
             if (Seed.Count == 0) throw new InvalidImageOptionException("Seed cannot be 0 length", nameof(Seed));
-            if (Offset < 0 || Offset >= lockedBitmap.Height * lockedBitmap.Width) throw new InvalidImageOptionException("Offset cannot be less than 0 or greater than the image area", nameof(Offset));
+            if (Offset < 0 || Offset >= _lockedBitmap.Height * _lockedBitmap.Width) throw new InvalidImageOptionException("Offset cannot be less than 0 or greater than the image area", nameof(Offset));
             if (Colors.Count == 0) throw new InvalidImageOptionException("At least one color must be specified", nameof(Colors));
-            if (!Colors.IsSubsetOf(lockedBitmap.SupportedColors)) throw new InvalidImageOptionException("One or more colors is not supported by the image format", nameof(Colors));
+            if (!Colors.IsSubsetOf(_lockedBitmap.SupportedColors)) throw new InvalidImageOptionException("One or more colors is not supported by the image format", nameof(Colors));
         }
     }
 }

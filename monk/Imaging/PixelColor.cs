@@ -7,6 +7,9 @@ namespace Monk.Imaging
 {
     public enum PixelColor
     {
-        Alpha = 3, Red = 2, Green = 1, Blue = 0
+        Alpha = 3,
+        Red = 2,
+        Green = 1,
+        Blue = 0
     }
 }

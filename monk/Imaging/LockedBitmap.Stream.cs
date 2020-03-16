@@ -14,7 +14,7 @@ namespace Monk.Imaging
     {
         public ByteStream GetStream()
         {
-            return GetStream(0);
+            return GetStream(pixelOffset: 0);
         }
 
         public ByteStream GetStream(int pixelOffset)

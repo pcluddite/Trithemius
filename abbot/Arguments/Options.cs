@@ -53,10 +53,10 @@ namespace Abbot.Arguments
             SteganographyInfo trithemius = new SteganographyInfo()
             {
                 LeastSignificantBits = LeastSignificantBits,
-                InvertDataBits = Invert,
-                InvertPrefixBits = Invert,
-                Endianness = Order,
-                Offset = Offset
+                InvertDataBits       = Invert,
+                InvertPrefixBits     = Invert,
+                Endianness           = Order,
+                Offset               = Offset
             };
 
             if (Alpha) trithemius.Colors.Add(PixelColor.Alpha);

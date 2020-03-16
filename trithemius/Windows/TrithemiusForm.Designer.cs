@@ -299,11 +299,10 @@
                 this.comboBoxVersions.DropDownStyle     = System.Windows.Forms.ComboBoxStyle.DropDownList;
                 this.comboBoxVersions.FormattingEnabled = true;
                 this.comboBoxVersions.Items.AddRange(new object[] {"None", "Beta 1 Presets", "Beta 2 Presets"});
-                this.comboBoxVersions.Location             = new System.Drawing.Point(10, 22);
-                this.comboBoxVersions.Name                 = "comboBoxVersions";
-                this.comboBoxVersions.Size                 = new System.Drawing.Size(208, 23);
-                this.comboBoxVersions.TabIndex             = 0;
-                this.comboBoxVersions.SelectedIndex        = 0;
+                this.comboBoxVersions.Location             =  new System.Drawing.Point(10, 22);
+                this.comboBoxVersions.Name                 =  "comboBoxVersions";
+                this.comboBoxVersions.Size                 =  new System.Drawing.Size(208, 23);
+                this.comboBoxVersions.TabIndex             =  0;
                 this.comboBoxVersions.SelectedIndexChanged += new System.EventHandler(this.comboBoxVersions_SelectedIndexChanged);
                 // 
                 // groupBoxPrefix

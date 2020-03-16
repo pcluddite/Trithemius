@@ -11,16 +11,16 @@ namespace Monk.Collections.Immutable
 {
     public sealed class ImmutableSet<T> : ISet<T>
     {
-        private readonly HashSet<T> hashSet;
+        private readonly HashSet<T> _hashSet;
 
         internal ImmutableSet(IEnumerable<T> items)
         {
             if (items == null) throw new ArgumentNullException(nameof(items));
-            hashSet = new HashSet<T>(items);
-            hashSet.TrimExcess();
+            _hashSet = new HashSet<T>(items);
+            _hashSet.TrimExcess();
         }
 
-        public int Count => hashSet.Count;
+        public int  Count      => _hashSet.Count;
         public bool IsReadOnly => true;
 
         public bool Add(T item)
@@ -35,12 +35,12 @@ namespace Monk.Collections.Immutable
 
         public bool Contains(T item)
         {
-            return hashSet.Contains(item);
+            return _hashSet.Contains(item);
         }
 
         public void CopyTo(T[] array, int arrayIndex)
         {
-            hashSet.CopyTo(array, arrayIndex);
+            _hashSet.CopyTo(array, arrayIndex);
         }
 
         public void ExceptWith(IEnumerable<T> other)
@@ -50,7 +50,7 @@ namespace Monk.Collections.Immutable
 
         public IEnumerator<T> GetEnumerator()
         {
-            return hashSet.GetEnumerator();
+            return _hashSet.GetEnumerator();
         }
 
         public void IntersectWith(IEnumerable<T> other)
@@ -60,27 +60,27 @@ namespace Monk.Collections.Immutable
 
         public bool IsProperSubsetOf(IEnumerable<T> other)
         {
-            return hashSet.IsProperSubsetOf(other);
+            return _hashSet.IsProperSubsetOf(other);
         }
 
         public bool IsProperSupersetOf(IEnumerable<T> other)
         {
-            return hashSet.IsProperSupersetOf(other);
+            return _hashSet.IsProperSupersetOf(other);
         }
 
         public bool IsSubsetOf(IEnumerable<T> other)
         {
-            return hashSet.IsSubsetOf(other);
+            return _hashSet.IsSubsetOf(other);
         }
 
         public bool IsSupersetOf(IEnumerable<T> other)
         {
-            return hashSet.IsSupersetOf(other);
+            return _hashSet.IsSupersetOf(other);
         }
 
         public bool Overlaps(IEnumerable<T> other)
         {
-            return hashSet.Overlaps(other);
+            return _hashSet.Overlaps(other);
         }
 
         public bool Remove(T item)
@@ -90,7 +90,7 @@ namespace Monk.Collections.Immutable
 
         public bool SetEquals(IEnumerable<T> other)
         {
-            return hashSet.SetEquals(other);
+            return _hashSet.SetEquals(other);
         }
 
         public void SymmetricExceptWith(IEnumerable<T> other)

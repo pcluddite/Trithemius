@@ -8,7 +8,6 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
-using System.Linq;
 
 using Monk.Memory;
 
@@ -187,9 +186,9 @@ namespace Monk.Imaging
         public static LockedBitmap CreateLockedBitmap(Bitmap bitmap)
         {
             switch(bitmap.PixelFormat) {
-                case PixelFormat.Format32bppArgb: return new LockedBitmap32bpp(bitmap);
-                case PixelFormat.Format24bppRgb: return new LockedBitmap24bpp(bitmap);
-                case PixelFormat.Format8bppIndexed: return new LockedBitmap8bpp(bitmap);
+                case PixelFormat.Format32bppArgb: return new LockedBitmap32Bpp(bitmap);
+                case PixelFormat.Format24bppRgb: return new LockedBitmap24Bpp(bitmap);
+                case PixelFormat.Format8bppIndexed: return new LockedBitmap8Bpp(bitmap);
                 default: throw new ArgumentException($"{bitmap.PixelFormat} is not currently supported");
             }
         }

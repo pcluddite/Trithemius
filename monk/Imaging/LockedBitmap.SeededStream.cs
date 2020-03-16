@@ -39,11 +39,11 @@ namespace Monk.Imaging
 
         private sealed class SeededBitmapStream : ByteStream
         {
-            private int[] indices;
+            private int[] _indices;
 
             public LockedBitmap Bitmap { get; }
 
-            public override int IntLength => indices.Length;
+            public override int IntLength => _indices.Length;
 
             public SeededBitmapStream(LockedBitmap bitmap, IEnumerable<ushort> seed, IEnumerable<PixelColor> colors, int pixelIndex, int pixelCount)
             {
@@ -57,14 +57,14 @@ namespace Monk.Imaging
                 int imageArea = bitmap.Size;
 
                 ISet<PixelColor> pixelColors = new SortedSet<PixelColor>(colors);
-                indices = new int[Math.Min(pixelCount, imageArea) * pixelColors.Count];
+                _indices = new int[Math.Min(pixelCount, imageArea) * pixelColors.Count];
 
                 ArithmeticProgression pixelIndices = new ArithmeticProgression(pixelIndex, seed);
 
-                for (int buffIdx = 0; pixelIndex < imageArea && buffIdx < indices.Length; pixelIndex = pixelIndices.Next()) {
+                for (int buffIdx = 0; pixelIndex < imageArea && buffIdx < _indices.Length; pixelIndex = pixelIndices.Next()) {
                     foreach (PixelColor color in pixelColors) {
-                        indices[buffIdx++] = bitmap.GetBufferIndex(pixelIndex, color);
-                        if (buffIdx >= indices.Length) break;
+                        _indices[buffIdx++] = bitmap.GetBufferIndex(pixelIndex, color);
+                        if (buffIdx >= _indices.Length) break;
                     }
                 }
             }
@@ -72,19 +72,19 @@ namespace Monk.Imaging
             public override byte Peek()
             {
                 if (IntPosition >= IntLength) throw new EndOfStreamException();
-                return Bitmap.GetByteAt(indices[IntPosition]);
+                return Bitmap.GetByteAt(_indices[IntPosition]);
             }
 
             public override int ReadByte()
             {
                 if (IntPosition >= IntLength) return -1;
-                return Bitmap.GetByteAt(indices[IntPosition++]);
+                return Bitmap.GetByteAt(_indices[IntPosition++]);
             }
 
             public override byte ReadNext()
             {
                 if (IntPosition >= IntLength) throw new EndOfStreamException();
-                return Bitmap.GetByteAt(indices[IntPosition++]);
+                return Bitmap.GetByteAt(_indices[IntPosition++]);
             }
 
             public override int Read(byte[] buffer, int offset, int count)
@@ -92,7 +92,7 @@ namespace Monk.Imaging
                 if (IntPosition >= IntLength) return -1;
                 count = Math.Min(count, IntLength - IntPosition);
                 for (int i = 0; i < count; ++i) {
-                    buffer[i] = Bitmap.GetByteAt(indices[IntPosition++]);
+                    buffer[i] = Bitmap.GetByteAt(_indices[IntPosition++]);
                 }
                 return count;
             }
@@ -105,7 +105,7 @@ namespace Monk.Imaging
             public override void WriteByte(byte value)
             {
                 if (IntPosition >= IntLength) throw new EndOfStreamException();
-                Bitmap.SetByteAt(indices[IntPosition++], value);
+                Bitmap.SetByteAt(_indices[IntPosition++], value);
             }
 
             public override void Write(byte[] buffer, int offset, int count)
@@ -113,7 +113,7 @@ namespace Monk.Imaging
                 if (count + IntPosition > IntLength) throw new EndOfStreamException();
                 count = Math.Min(count, IntLength - IntPosition);
                 for (int i = 0; i < count; ++i) {
-                    Bitmap.SetByteAt(indices[IntPosition++], buffer[i]);
+                    Bitmap.SetByteAt(_indices[IntPosition++], buffer[i]);
                 }
             }
 
@@ -122,7 +122,7 @@ namespace Monk.Imaging
                 if (disposing && Bitmap.Locked) {
                     Flush();
                     Bitmap.UnlockBits();
-                    indices = null;
+                    _indices = null;
                 }
                 base.Dispose(disposing);
             }

@@ -22,8 +22,7 @@ namespace Monk.Memory.Bittwiddling
         {
             if (ImplementationEndianness == endianMode) {
                 return GetBit(b, bit);
-            }
-            else {
+            } else {
                 return GetBit(b, CHAR_BIT - bit - 1);
             }
         }
@@ -31,10 +30,10 @@ namespace Monk.Memory.Bittwiddling
         public static byte SetBit(byte b, int bit, bool value)
         {
             if (bit < 0 || bit >= CHAR_BIT) throw new ArgumentOutOfRangeException(nameof(bit));
+
             if (value) {
                 return (byte)(b | 1 << bit);
-            }
-            else {
+            } else {
                 return (byte)(b & ~(1 << bit));
             }
         }
@@ -43,8 +42,7 @@ namespace Monk.Memory.Bittwiddling
         {
             if (ImplementationEndianness == endianMode) {
                 return SetBit(b, bit, value);
-            }
-            else {
+            } else {
                 return SetBit(b, CHAR_BIT - bit - 1, value);
             }
         }

@@ -17,16 +17,16 @@ using Monk.Imaging;
 
 namespace Abbot
 {
-    internal class Program
+    internal static class Program
     {
         public static void Main(string[] args)
         {
             int exitCode = Parser.Default.ParseArguments<EncodeOptions, DecodeOptions>(args)
-                .MapResult(
-                    (EncodeOptions opts) => EncodeImage(opts),
-                    (DecodeOptions opts) => DecodeImage(opts),
-                    errors => GetError(errors)
-                );
+                                 .MapResult(
+                                     (EncodeOptions opts) => EncodeImage(opts),
+                                     (DecodeOptions opts) => DecodeImage(opts),
+                                     GetError
+                                 );
             Environment.Exit(exitCode);
         }
 
@@ -34,13 +34,12 @@ namespace Abbot
         {
             try {
                 byte[] data;
+
                 if (!string.IsNullOrEmpty(opts.Message)) {
                     data = Encoding.UTF8.GetBytes(opts.Message);
-                }
-                else if (!string.IsNullOrEmpty(opts.File)) {
+                } else if (!string.IsNullOrEmpty(opts.File)) {
                     data = File.ReadAllBytes(opts.File);
-                }
-                else {
+                } else {
                     throw new ArgumentException("No data was specified to encode. Please specify either --message or --file to encode data");
                 }
 
@@ -66,13 +65,14 @@ namespace Abbot
             try {
                 using (Steganographer trithemius = new Steganographer(opts.Path, opts.BuildTrithemius())) {
                     byte[] data = trithemius.Decode();
+
                     if (!string.IsNullOrEmpty(opts.Key)) {
                         if (opts.Legacy) {
                             data = LegacyEncryption.DecryptStringAES(data, opts.Key);
-                        }
-                        else {
+                        } else {
                             data = AESThenHMAC.SimpleDecryptWithPassword(data, opts.Key);
                         }
+
                         if (data == null) {
                             throw new ArgumentException("The encryption key is incorrect");
                         }
@@ -80,11 +80,11 @@ namespace Abbot
 
                     if (string.IsNullOrEmpty(opts.Output)) {
                         Console.WriteLine(Encoding.UTF8.GetString(data));
-                    }
-                    else {
+                    } else {
                         File.WriteAllBytes(opts.Output, data);
                     }
                 }
+
                 return 0;
             }
             catch (Exception ex) when (ex is ArgumentException || ex is IOException) {

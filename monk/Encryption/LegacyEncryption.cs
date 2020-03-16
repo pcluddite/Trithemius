@@ -1,10 +1,10 @@
-﻿/**
+﻿/*
  * This work is licensed under the Creative Commons Attribution-ShareAlike 3.0 Unported License.
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-sa/3.0/ 
  * or send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA.
  *
  * Originally posted on StackOverflow (https://stackoverflow.com/a/2791259/4367864)
- * Retrived on Sep 10, 2013. Modified by Timothy Baxendale.
+ * Retrieved on Sep 10, 2013. Modified by Timothy Baxendale.
  * Modifications are distributed under the same License.
  */
 using System;

@@ -21,25 +21,23 @@ namespace Abbot.Arguments
         public override SteganographyInfo BuildTrithemius()
         {
             SteganographyInfo trithemius;
+
             if (Legacy) {
                 trithemius = SteganographyInfo.PresetsB0003;
 
                 if (Alpha) {
                     trithemius.Colors.Add(PixelColor.Alpha);
-                }
-                else if (Red) {
+                } else if (Red) {
                     trithemius.Colors.Add(PixelColor.Red);
-                }
-                else if (Green) {
+                } else if (Green) {
                     trithemius.Colors.Add(PixelColor.Green);
-                }
-                else if (Blue) {
+                } else if (Blue) {
                     trithemius.Colors.Add(PixelColor.Blue);
                 }
-            }
-            else {
+            } else {
                 trithemius = base.BuildTrithemius();
             }
+
             return trithemius;
         }
     }

@@ -16,12 +16,7 @@ namespace Monk.Memory
 
         public int IntPosition { get; set; } = 0;
 
-        public override long Position
-        {
-            get => IntPosition;
-            set => IntPosition = checked((int)value);
-
-        }
+        public override long Position { get => IntPosition; set => IntPosition = checked((int)value); }
 
         public virtual int IntLength => throw new NotSupportedException();
         public override long Length => IntLength;
@@ -37,13 +32,12 @@ namespace Monk.Memory
         {
             if (origin == SeekOrigin.Begin) {
                 Position = offset;
-            }
-            else if (origin == SeekOrigin.Current) {
+            } else if (origin == SeekOrigin.Current) {
                 Position += offset;
-            }
-            else if (origin == SeekOrigin.End) {
+            } else if (origin == SeekOrigin.End) {
                 Position = Length + offset;
             }
+
             return Position;
         }
 
